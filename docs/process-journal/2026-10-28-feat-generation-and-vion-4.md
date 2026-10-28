@@ -5,3 +5,5 @@
 2026-10-28 · gate · System.CommandLine · A RootCommand takes its name from the process, so help under the test runner read testhost where the snapshot must read vion; the root became a plain Command named vion with its own HelpOption and VersionOption. (self)
 
 2026-10-28 · gate · Spectre · A table written to a pipe wrapped every cell at 80 columns and broke an operationId across lines, failing the ops test; piped output is laid out unwrapped and only a terminal wraps to its width. (self)
+
+2026-10-28 · gate · cleanup-code.ps1 · The Linux style gate reported two lines of drift in one test file that the same cleanup on Windows called clean, the two DataRow attributes carrying a DisplayName argument; the reproduction in a Linux container was stopped by the machine for memory, so the construct was removed rather than guarded. (self)
