@@ -1,0 +1,47 @@
+<Project>
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>false</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1900;NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+        <IlcTreatWarningsAsErrors>false</IlcTreatWarningsAsErrors>
+        <IsTestInfrastructure Condition="$(MSBuildProjectName.EndsWith('.Test'))">true</IsTestInfrastructure>
+
+        <!-- Every project restores in locked mode against its committed packages.lock.json, test projects included, so that
+             the code under test runs against the versions the release ships and a lock out of step with its project fails
+             the restore instead of being rewritten. The lock is written for the one SDK global.json pins. -->
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <RestoreLockedMode>true</RestoreLockedMode>
+
+        <!-- Every project runs in invariant mode, test projects included, so that the tests run in the mode the releases run in. -->
+        <InvariantGlobalization>true</InvariantGlobalization>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(IsTestInfrastructure)' != 'true'">
+        <IsPackable>false</IsPackable>
+        <IsPublishable>false</IsPublishable>
+        <IsAotCompatible>true</IsAotCompatible>
+        <AnalysisMode>All</AnalysisMode>
+        <!-- CA1303: every string this tool prints is a literal; it has no resource table and no localization. CA1849: the tool
+             writes its streams synchronously by design; an awaited console write buys nothing. The rest are mesh's. -->
+        <NoWarn>$(NoWarn);CA1303;CA1849;CA1716;CA2007;CA1031;CA1032;CA1034;CA1062;CA1003;CA1054;CA1056;CA2234;CA1002;CA1064</NoWarn>
+
+        <!-- Fallback for local builds; a CI build passes its own version. -->
+        <Version Condition="'$(Version)' == ''">0.0.0-local</Version>
+
+        <Authors>Vion-IoT</Authors>
+        <Company>Vion-IoT</Company>
+        <Copyright>Vion-IoT 2026</Copyright>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(IsTestInfrastructure)' == 'true'">
+        <!-- Keeps the test assemblies themselves out of coverage reports, where they only inflate the total. -->
+        <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage"/>
+        <!-- MSTEST0001 asks every test project to state its parallelization policy; the tests share nothing, but the
+             suite is small enough that the explicit answer costs nothing and a shared console capture never surprises. -->
+        <AssemblyAttribute Include="Microsoft.VisualStudio.TestTools.UnitTesting.DoNotParallelize"/>
+    </ItemGroup>
+
+</Project>

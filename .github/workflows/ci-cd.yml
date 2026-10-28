@@ -1,0 +1,42 @@
+# Build, test and publish vion through the shared NativeAOT pipeline; attach the archives to a release.
+#
+#   push to main            -> build, test, style, dependency majors; the publishes are built and deleted
+#   push tag vX.Y.Z         -> the same, then vion-X.Y.Z-linux-musl-x64.tar.gz, …-linux-musl-arm64.tar.gz
+#                              and vion-X.Y.Z-win-x64.zip, each with a .sha256, on the GitHub release
+#   pull_request            -> build, test, style, dependency majors; publishes only when a build file changed
+#   workflow_dispatch       -> as a push
+#
+# No image: push-image is off, so the workflow needs no Dockerfile and no registry secret, and no
+# secrets are inherited — nothing in the run reads one.
+name: CI/CD
+run-name: Building vion ${{ github.run_number }} from ${{ github.ref_name }}
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+    # ready_for_review starts a run when a draft is marked ready, for the jobs a draft skips.
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+jobs:
+  ci-cd:
+    permissions:
+      contents: write
+    uses: VION-IoT/shared-workflows/.github/workflows/dotnet-aot-app.yml@v1
+    with:
+      solution: Vion.Cli.sln
+      publish-project: Vion.Cli/Vion.Cli.csproj
+      image: vion
+      run-tests: true
+      linux-x64: true
+      linux-arm64: true
+      win-x64: true
+      linux-release-archives: true
+      push-image: false
+      publish-only-on-build-changes: true
+      keep-pr-artifacts: false
+      check-dependency-majors: true
+      dependency-majors-allow-list: .github/dependency-majors-allowed.json
