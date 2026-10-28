@@ -112,7 +112,10 @@ namespace Vion.Cli.Rendering
             };
         }
 
-        /// <summary>The columns are the fields asked for, else every scalar member of any row but `meta`, in first-seen order.</summary>
+        /// <summary>
+        ///     The columns are the fields asked for, else every scalar member of any row in first-seen order; `meta` is an
+        ///     object and so never one.
+        /// </summary>
         private static Table RowTable(JsonArray items, IReadOnlyList<string> fields)
         {
             var columns = new List<string>(fields);
@@ -122,7 +125,7 @@ namespace Vion.Cli.Rendering
                 {
                     foreach (var (name, value) in item)
                     {
-                        if (name != "meta" && value is not JsonObject and not JsonArray && !columns.Contains(name))
+                        if (value is not JsonObject and not JsonArray && !columns.Contains(name))
                         {
                             columns.Add(name);
                         }

@@ -23,7 +23,7 @@ no static state a test must reset. The seams, and what each stands in for:
 | `HomeDirectory` | `VION_HOME`, else the user profile | a temporary directory, deleted in cleanup — no test reads or writes the developer's `~/.vion` |
 | `Environment` (`IReadOnlyDictionary<string, string?>`) | the process environment | a dictionary; `VION_ENV`, `VION_CLIENT_ID`, … are set per test, never through `Environment.SetEnvironmentVariable` |
 | `TimeProvider` | `TimeProvider.System` | `FakeTimeProvider` (Microsoft.Extensions.TimeProvider.Testing) — expiry, the daily check, the device-code interval |
-| `IConsoleShape` (`IsInputTerminal`, `IsErrorTerminal`) | `Console.IsInputRedirected`, `Console.IsErrorRedirected` | a value: the `--yes` refusal and the update notice turn on it |
+| `IConsoleShape` (`IsInputTerminal`, `IsOutputTerminal`, `IsErrorTerminal`, `OutputWidth`) | `Console.Is*Redirected`, `Console.WindowWidth` | values: the `--yes` refusal and the update notice turn on the first and last; a table wraps to the width on a terminal and never in a pipe |
 | `OpenBrowser` (`Func<Uri, bool>`) | the platform's opener | a recording delegate |
 
 A test that needs something these do not give has found a missing seam: add it to `CliServices`,
