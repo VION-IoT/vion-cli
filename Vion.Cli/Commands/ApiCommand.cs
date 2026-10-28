@@ -1,0 +1,103 @@
+using System;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using Vion.Cli.Auth;
+using Vion.Cli.Context;
+using Vion.Cli.Http;
+using Vion.Cli.Infrastructure;
+using Vion.Cli.Rendering;
+
+namespace Vion.Cli.Commands
+{
+    /// <summary>
+    ///     `vion api &lt;METHOD&gt; &lt;path&gt;`: the raw call, for an operation outside the tree or a path the snapshot does
+    ///     not
+    ///     know. The pairs are the query on GET and the JSON body otherwise, `gh api`'s shape.
+    /// </summary>
+    internal static class ApiCommand
+    {
+        private static readonly HashSet<string> Methods = new(["GET", "POST", "PUT", "DELETE", "PATCH"], StringComparer.OrdinalIgnoreCase);
+
+        public static Command Create(CliTree tree, CliServices services)
+        {
+            var method = new Argument<string>("method") { Description = "GET, POST, PUT, DELETE or PATCH." };
+            method.Validators.Add(result =>
+                                  {
+                                      if (result.GetValueOrDefault<string>() is { } value && !Methods.Contains(value))
+                                      {
+                                          result.AddError($"method '{value}' is not one of GET, POST, PUT, DELETE, PATCH.");
+                                      }
+                                  });
+            var path = new Argument<string>("path") { Description = "The path under the environment's API, with its query if any: /tenant/<id>/edgeGateways" };
+            var command = new Command("api", "Send a raw request to the environment's API with the resolved token, and render the answer as any command's.");
+            command.Arguments.Add(method);
+            command.Arguments.Add(path);
+            foreach (var option in tree.Body.ForJson)
+            {
+                command.Options.Add(option);
+            }
+
+            command.SetAction((result, cancellationToken) =>
+                              {
+                                  var globals = tree.Globals.Read(result);
+                                  return Guard.RunAsync(globals,
+                                                        services,
+                                                        () => RunAsync(result.GetValue(method)!,
+                                                                       result.GetValue(path)!,
+                                                                       tree.Body.Read(result),
+                                                                       globals,
+                                                                       services,
+                                                                       cancellationToken));
+                              });
+            return command;
+        }
+
+        private static async Task<int> RunAsync(string method,
+                                                string path,
+                                                BodyValues body,
+                                                GlobalValues globals,
+                                                CliServices services,
+                                                CancellationToken cancellationToken)
+        {
+            var context = ContextResolver.Resolve(globals, services);
+            var upper = method.ToUpperInvariant();
+            var query = new List<KeyValuePair<string, string>>();
+            HttpContent? content = null;
+            if (upper == "GET")
+            {
+                query.AddRange(body.RawFields.Concat(body.Fields).Select(BodyInput.SplitPair));
+            }
+            else if (BodyInput.BuildJson(body, services) is { } node)
+            {
+                content = BodyInput.JsonContent(node);
+            }
+
+            var token = await TokenSource.ResolveAsync(globals, context, services);
+            var headers = new List<KeyValuePair<string, string>>();
+            if (globals.IdempotencyKey != null)
+            {
+                headers.Add(new KeyValuePair<string, string>("Idempotency-Key", globals.IdempotencyKey));
+            }
+
+            if (globals.IfMatch != null)
+            {
+                headers.Add(new KeyValuePair<string, string>("If-Match", globals.IfMatch.StartsWith('"') ? globals.IfMatch : $"\"{globals.IfMatch}\""));
+            }
+
+            using var request = RequestBuilder.Build(context.Environment,
+                                                     upper,
+                                                     path,
+                                                     new Dictionary<string, string>(StringComparer.Ordinal),
+                                                     query,
+                                                     content,
+                                                     headers);
+            using var client = new ApiClient(services);
+            var response = await client.SendAsync(request, token, globals.Verbose, cancellationToken);
+            return Renderer.Render(response, globals, services, null);
+        }
+    }
+}

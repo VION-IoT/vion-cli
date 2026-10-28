@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <!-- The executable is `vion`; the shared workflow names the release archives' executable by this. -->
+        <AssemblyName>vion</AssemblyName>
+        <RootNamespace>Vion.Cli</RootNamespace>
+        <IsPublishable>true</IsPublishable>
+        <PublishAot>true</PublishAot>
+        <RuntimeIdentifiers>linux-musl-x64;linux-musl-arm64;win-x64</RuntimeIdentifiers>
+        <UseDefaultPublishRuntimeIdentifier>false</UseDefaultPublishRuntimeIdentifier>
+
+        <!-- The musl publishes link statically, so the archive's binary runs on a glibc distribution too; the
+             property is meaningful on Linux only. -->
+        <StaticExecutable Condition="$(RuntimeIdentifier.StartsWith('linux'))">true</StaticExecutable>
+        <StripSymbols>true</StripSymbols>
+        <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+
+        <!-- Every JSON the tool handles is a JsonNode or a shape in its own JsonSerializerContext; reflection-based
+             serialization would be the one thing NativeAOT trims away silently. -->
+        <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.CommandLine" Version="2.0.14"/>
+        <PackageReference Include="Spectre.Console" Version="0.57.2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Vion.Cli.Test"/>
+    </ItemGroup>
+
+    <!-- Symbol files are not needed at runtime and are large; the release archives hold the executable alone. -->
+    <Target Name="RemoveSymbolsFromPublish" AfterTargets="ComputeFilesToPublish">
+        <ItemGroup>
+            <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(ResolvedFileToPublish.Extension)' == '.pdb' or '%(ResolvedFileToPublish.Extension)' == '.dbg'"/>
+        </ItemGroup>
+    </Target>
+
+</Project>
