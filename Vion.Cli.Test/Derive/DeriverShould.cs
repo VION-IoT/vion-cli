@@ -7,7 +7,8 @@ namespace Vion.Cli.Test.Derive
 {
     /// <summary>
     ///     The derive step over the real snapshot and over the synthetic document: which operations become commands, how a
-    ///     parameter becomes an option, and what cli.json may name.
+    ///     parameter becomes an option, and what cli.json may name. One premise test cites no id by design: the refusal of
+    ///     an operation without an effect guards the derivation itself, which no user observes.
     /// </summary>
     [TestClass]
     public class DeriverShould
@@ -145,6 +146,34 @@ namespace Vion.Cli.Test.Derive
             Assert.AreEqual("multipart/form-data", upload.ContentType);
             Assert.AreEqual("nugetPackageFile", upload.FilePart);
             CollectionAssert.AreEquivalent(new[] { "releaseNotes", "tags" }, upload.TextParts.ToArray());
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-001.3")]
+        [DataRow("edgeGatewayId", "edge-gateway-id")]
+        [DataRow("userIDs", "user-ids")]
+        [DataRow("logLevel", "log-level")]
+        [DataRow("id", "id")]
+        public void KebabCaseNameWithConsecutiveCapitalsTogether(string camelCase, string kebab)
+        {
+            // Arrange
+
+            // Act
+            var named = Naming.Kebab(camelCase);
+
+            // Assert
+            Assert.AreEqual(kebab, named);
+        }
+
+        [TestMethod]
+        public void RefuseOperationWithoutEffect()
+        {
+            // Arrange
+            var synthetic = Fixture("synthetic.json").Replace("\"effect\": \"Read\",", "\"effectless\": \"Read\",", StringComparison.Ordinal);
+
+            // Act / Assert
+            var exception = Assert.ThrowsExactly<DeriveException>(() => Deriver.Derive(synthetic, "{}"));
+            StringAssert.Contains(exception.Message, "x-vion-capability.effect");
         }
 
         private static string Fixture(string name)

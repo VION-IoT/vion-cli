@@ -28,6 +28,18 @@ namespace Vion.Cli.Commands
                 Report(globals, services, exception.Message, ExitCodes.Failure);
                 return ExitCodes.Failure;
             }
+            catch (OperationCanceledException)
+            {
+                Report(globals, services, "cancelled.", ExitCodes.Failure);
+                return ExitCodes.Failure;
+            }
+            catch (Exception exception)
+            {
+                // Anything else — a file that vanished, a corrupt store, a handler fault — is still one error document
+                // in JSON mode and one line in table mode, never an empty standard output.
+                Report(globals, services, exception.Message, ExitCodes.Failure);
+                return ExitCodes.Failure;
+            }
         }
 
         public static void Report(GlobalValues globals, CliServices services, string message, int exitCode)

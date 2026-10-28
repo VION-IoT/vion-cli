@@ -67,5 +67,69 @@ namespace Vion.Cli.Test.Commands
             Assert.AreEqual(2, run.ExitCode);
             Assert.IsEmpty(handler.Requests);
         }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.6")]
+        public async Task SendDryRunOnPathOfOperationOfferingIt()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, "{}");
+
+            // Act
+            var run = await Tool.RunAsync(handler, Tool.OnTest("api", "PUT", $"/tenant/{Tool.Tenant}/logicConfigurations/{Tool.Id}/activate", "--dry-run", "--yes"), Tool.Token);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.AreEqual($"https://api.test.vion.swiss/tenant/{Tool.Tenant}/logicConfigurations/{Tool.Id}/activate?dryRun=true", handler.Requests[0].Uri.ToString());
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.6")]
+        public async Task RefuseDryRunOnPathWithoutIt()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, "{}");
+
+            // Act
+            var run = await Tool.RunAsync(handler, Tool.OnTest("api", "GET", $"/tenant/{Tool.Tenant}/edgeGateways", "--dry-run"), Tool.Token);
+
+            // Assert
+            Assert.AreEqual(2, run.ExitCode);
+            StringAssert.Contains(run.Error, "offers no dry run");
+            Assert.IsEmpty(handler.Requests);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.5")]
+        [DataRow("/tenant/11111111-1111-1111-1111-111111111111/dashboards/22222222-2222-2222-2222-222222222222", DisplayName = "an irreversible operation of the table")]
+        [DataRow("/somewhere/the/table/does/not/know", DisplayName = "a path outside the table")]
+        public async Task RefuseDeleteWithoutYesOffTerminal(string path)
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, "{}");
+
+            // Act
+            var run = await Tool.RunAsync(handler, Tool.OnTest("api", "DELETE", path), Tool.Token, false);
+
+            // Assert
+            Assert.AreEqual(2, run.ExitCode);
+            StringAssert.Contains(run.Error, "--yes");
+            Assert.IsEmpty(handler.Requests);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.5")]
+        public async Task SendDeleteWithYes()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, "{}");
+
+            // Act
+            var run = await Tool.RunAsync(handler, Tool.OnTest("api", "DELETE", $"/tenant/{Tool.Tenant}/dashboards/{Tool.Id}", "--yes"), Tool.Token, false);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.AreEqual("DELETE", handler.Requests[0].Method);
+        }
     }
 }

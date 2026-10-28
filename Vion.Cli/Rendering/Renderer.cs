@@ -29,10 +29,15 @@ namespace Vion.Cli.Rendering
 
             if (response.IsSuccess)
             {
+                if (response.Json is JsonObject envelope && envelope["nextCursor"] is JsonValue cursor && cursor.TryGetValue<string>(out var next) && !string.IsNullOrEmpty(next))
+                {
+                    services.Error.WriteLine($"next cursor: {next} (pass it as --cursor)");
+                }
+
                 var body = Fields.Project(response.Json, globals.Fields);
                 if (globals.Json)
                 {
-                    WriteJson(body, services);
+                    WriteJson(response.Json == null && response.Text != null ? JsonValue.Create(response.Text) : body, services);
                 }
                 else if (response.Json != null)
                 {
@@ -81,11 +86,6 @@ namespace Vion.Cli.Rendering
             {
                 case JsonObject envelope when envelope["items"] is JsonArray items:
                     console.Write(RowTable(items, globals.Fields));
-                    if (envelope["nextCursor"] is JsonValue cursor && cursor.TryGetValue<string>(out var next) && !string.IsNullOrEmpty(next))
-                    {
-                        services.Error.WriteLine($"next cursor: {next} (pass it as --cursor)");
-                    }
-
                     break;
                 case JsonObject obj:
                     console.Write(KeyValueTable(obj));

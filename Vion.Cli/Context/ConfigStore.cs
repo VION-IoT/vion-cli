@@ -43,7 +43,16 @@ namespace Vion.Cli.Context
                 return CliConfig.Empty;
             }
 
-            var root = JsonNode.Parse(File.ReadAllText(path)) as JsonObject ?? throw new Infrastructure.CliFailure($"{path} is not a JSON object.");
+            JsonObject root;
+            try
+            {
+                root = JsonNode.Parse(File.ReadAllText(path)) as JsonObject ?? throw new Infrastructure.CliFailure($"{path} is not a JSON object.");
+            }
+            catch (System.Text.Json.JsonException exception)
+            {
+                throw new Infrastructure.CliFailure($"{path} is not valid JSON: {exception.Message}");
+            }
+
             var contexts = new Dictionary<string, ContextEntry>(StringComparer.Ordinal);
             if (root["contexts"] is JsonObject contextObject)
             {

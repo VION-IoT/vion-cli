@@ -20,7 +20,9 @@ namespace Vion.Cli.Auth
                     throw new UsageException("--token takes `-` and reads the token from standard input, so that it never lands in a shell history.");
                 }
 
-                var token = (await services.In.ReadToEndAsync())?.Trim();
+                // One line, not the whole stream: `--input -` and `-F key=@-` read the body from the same standard
+                // input after it, so a script pipes the token first and the document after.
+                var token = (await services.In.ReadLineAsync())?.Trim();
                 if (string.IsNullOrEmpty(token))
                 {
                     throw new CliFailure("--token -: standard input carried no token.");

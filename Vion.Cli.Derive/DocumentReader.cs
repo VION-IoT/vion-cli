@@ -92,7 +92,10 @@ namespace Vion.Cli.Derive
             var body = operation.TryGetProperty("requestBody", out var requestBody) ? ReadBody(requestBody) : null;
 
             var capability = operation.TryGetProperty("x-vion-capability", out var cap) ? cap : default;
-            var effect = capability.ValueKind == JsonValueKind.Object ? TryString(capability, "effect") ?? "Read" : "Read";
+
+            // No default: an effect decides whether a call is confirmed, and a missing one would read as a harmless Read.
+            var effect = (capability.ValueKind == JsonValueKind.Object ? TryString(capability, "effect") : null) ??
+                         throw new DeriveException($"{id} carries no x-vion-capability.effect.");
             var authorizationElement = operation.TryGetProperty("x-vion-authorization", out var auth) ? auth : default;
             var authorization = authorizationElement.ValueKind == JsonValueKind.Object ?
                                     new DerivedAuthorization(TryString(authorizationElement, "mode") ?? "",

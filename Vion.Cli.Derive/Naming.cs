@@ -38,7 +38,10 @@ namespace Vion.Cli.Derive
 
         private static readonly HashSet<string> GlobalOptionNameSet = new(GlobalOptionNames, StringComparer.Ordinal);
 
-        /// <summary>camelCase to kebab-case: a dash before each upper-case letter that follows a letter or digit.</summary>
+        /// <summary>
+        ///     camelCase to kebab-case: a dash before each upper-case letter that follows a lower-case letter or a digit, so
+        ///     `userIDs` is `user-ids`.
+        /// </summary>
         public static string Kebab(string camelCase)
         {
             var builder = new StringBuilder(camelCase.Length + 4);
@@ -47,7 +50,7 @@ namespace Vion.Cli.Derive
                 var c = camelCase[i];
                 if (char.IsUpper(c))
                 {
-                    if (i > 0 && char.IsLetterOrDigit(camelCase[i - 1]))
+                    if (i > 0 && (char.IsLower(camelCase[i - 1]) || char.IsDigit(camelCase[i - 1])))
                     {
                         builder.Append('-');
                     }

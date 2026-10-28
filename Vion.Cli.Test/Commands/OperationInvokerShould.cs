@@ -193,7 +193,7 @@ namespace Vion.Cli.Test.Commands
                                                       Tool.Tenant,
                                                       "--id",
                                                       Tool.Id),
-                                          $"{answer}\n{Tool.Token}\n",
+                                          $"{Tool.Token}\n{answer}\n",
                                           true);
 
             // Assert
@@ -323,6 +323,31 @@ namespace Vion.Cli.Test.Commands
             Assert.AreEqual(1, run.ExitCode);
             StringAssert.Contains(run.Error, "error 404 NotFound: No such dashboard.");
             Assert.IsFalse(run.Error.Contains("environment's document", System.StringComparison.Ordinal), run.Error);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.1")]
+        public async Task ReadTokenLineBeforeBodyFromStandardInput()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, "{}");
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("tenant",
+                                                      "dashboard",
+                                                      "create",
+                                                      "--tenant",
+                                                      Tool.Tenant,
+                                                      "--input",
+                                                      "-"),
+                                          $"{Tool.Token}\n{{ \"name\": \"from stdin\" }}\n");
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            var request = handler.Requests[0];
+            Assert.AreEqual($"Bearer {Tool.Token}", request.Headers["Authorization"]);
+            Assert.AreEqual("""{"name":"from stdin"}""", request.Body);
         }
     }
 }

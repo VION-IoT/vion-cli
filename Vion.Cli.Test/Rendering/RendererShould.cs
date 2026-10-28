@@ -1,4 +1,6 @@
+using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Vion.Cli.Test.TestHelpers;
@@ -195,7 +197,7 @@ namespace Vion.Cli.Test.Rendering
             // Arrange
             using var handler = new RecordingHandler(_ =>
                                                      {
-                                                         var response = new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
+                                                         var response = new HttpResponseMessage(HttpStatusCode.Unauthorized);
                                                          response.Headers.WwwAuthenticate.Add(new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer",
                                                                                                   "error=\"invalid_token\""));
                                                          return response;
@@ -252,6 +254,79 @@ namespace Vion.Cli.Test.Rendering
             Assert.AreEqual(2, run.ExitCode, run.Error);
             StringAssert.Contains(run.Error, "error: ");
             Assert.IsEmpty(handler.Requests);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.1")]
+        public async Task WriteErrorObjectForUnexpectedFailureInJsonMode()
+        {
+            // Arrange
+            using var handler = new RecordingHandler(_ => throw new System.InvalidOperationException("the handler fell over"));
+
+            // Act
+            var run = await Tool.RunAsync(handler, ListArgs("--json"), Tool.Token);
+
+            // Assert
+            Assert.AreEqual(1, run.ExitCode);
+            StringAssert.Contains(JsonNode.Parse(run.Out)!["error"]!["message"]!.GetValue<string>(), "the handler fell over");
+            Assert.AreEqual("", run.Error);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.1")]
+        public async Task WriteErrorObjectForMissingInputFileInJsonMode()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, "{}");
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("tenant",
+                                                      "dashboard",
+                                                      "create",
+                                                      "--tenant",
+                                                      Tool.Tenant,
+                                                      "--input",
+                                                      "no-such-body.json",
+                                                      "--json"),
+                                          Tool.Token);
+
+            // Assert
+            Assert.AreEqual(2, run.ExitCode);
+            StringAssert.Contains(JsonNode.Parse(run.Out)!["error"]!["message"]!.GetValue<string>(), "no-such-body.json");
+            Assert.AreEqual("", run.Error);
+            Assert.IsEmpty(handler.Requests);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.1")]
+        public async Task WriteTextBodyAsJsonStringInJsonMode()
+        {
+            // Arrange
+            using var handler = new RecordingHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+                                                          { Content = new StringContent("plain words", new UTF8Encoding(false), "text/plain") });
+
+            // Act
+            var run = await Tool.RunAsync(handler, ListArgs("--json"), Tool.Token);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.AreEqual("\"plain words\"", run.Out.Trim());
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.3")]
+        public async Task ReportNextCursorInJsonMode()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, List);
+
+            // Act
+            var run = await Tool.RunAsync(handler, ListArgs("--json"), Tool.Token);
+
+            // Assert
+            StringAssert.Contains(run.Error, "next cursor: abc");
+            Assert.IsFalse(run.Out.Contains("next cursor", System.StringComparison.Ordinal), run.Out);
         }
 
         private static string[] ListArgs(params string[] extra)

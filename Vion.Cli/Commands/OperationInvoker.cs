@@ -40,6 +40,25 @@ namespace Vion.Cli.Commands
                                                  cancellationToken));
         }
 
+        /// <summary>
+        ///     An irreversible operation is confirmed on a terminal and refused off one: a script that meant it passes
+        ///     --yes, and a script that did not is stopped before the request leaves.
+        /// </summary>
+        public static async Task Confirm(string what, CliServices services)
+        {
+            if (!services.Console.IsInputTerminal)
+            {
+                throw new UsageException($"{what} is irreversible; pass --yes to run it without a terminal.");
+            }
+
+            await services.Error.WriteAsync($"{what} is irreversible. Continue? [y/N] ");
+            var answer = (await services.In.ReadLineAsync())?.Trim();
+            if (!string.Equals(answer, "y", StringComparison.OrdinalIgnoreCase) && !string.Equals(answer, "yes", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new CliFailure("cancelled.");
+            }
+        }
+
         private static async Task<int> RunAsync(Operation operation,
                                                 IReadOnlyList<BoundParameter> bound,
                                                 ParseResult result,
@@ -81,6 +100,13 @@ namespace Vion.Cli.Commands
                 }
             }
 
+            // The token first, one line of standard input; the confirmation next; the body last, the rest of the stream.
+            var token = await TokenSource.ResolveAsync(globals, context, services);
+            if (operation.Effect == Effect.Irreversible && !globals.Yes)
+            {
+                await Confirm(operation.Id, services);
+            }
+
             HttpContent? content = null;
             if (operation.Body != null)
             {
@@ -89,12 +115,6 @@ namespace Vion.Cli.Commands
                           BodyInput.BuildJson(body, services) is { } node ? BodyInput.JsonContent(node) : null;
             }
 
-            if (operation.Effect == Effect.Irreversible && !globals.Yes)
-            {
-                await Confirm(operation, services);
-            }
-
-            var token = await TokenSource.ResolveAsync(globals, context, services);
             var headers = new List<KeyValuePair<string, string>>();
             if (operation.Idempotent && globals.IdempotencyKey != null)
             {
@@ -148,25 +168,6 @@ namespace Vion.Cli.Commands
         private static string IfMatchValue(string version)
         {
             return version.StartsWith('"') ? version : $"\"{version}\"";
-        }
-
-        /// <summary>
-        ///     An irreversible operation is confirmed on a terminal and refused off one: a script that meant it passes
-        ///     --yes, and a script that did not is stopped before the request leaves.
-        /// </summary>
-        private static async Task Confirm(Operation operation, CliServices services)
-        {
-            if (!services.Console.IsInputTerminal)
-            {
-                throw new UsageException($"{operation.Id} is irreversible; pass --yes to run it without a terminal.");
-            }
-
-            await services.Error.WriteAsync($"{operation.Id} is irreversible. Continue? [y/N] ");
-            var answer = (await services.In.ReadLineAsync())?.Trim();
-            if (!string.Equals(answer, "y", StringComparison.OrdinalIgnoreCase) && !string.Equals(answer, "yes", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new CliFailure("cancelled.");
-            }
         }
     }
 }

@@ -31,7 +31,7 @@ namespace Vion.Cli.Http
             JsonNode? document = null;
             if (body.Input != null)
             {
-                var text = body.Input == "-" ? services.In.ReadToEnd() : File.ReadAllText(body.Input);
+                var text = body.Input == "-" ? services.In.ReadToEnd() : ReadFile("--input", body.Input);
                 try
                 {
                     document = JsonNode.Parse(text);
@@ -116,6 +116,19 @@ namespace Vion.Cli.Http
             return new KeyValuePair<string, string>(pair[..at], pair[(at + 1)..]);
         }
 
+        /// <summary>A file the user named that is not there is a usage error naming it, not a stack trace.</summary>
+        private static string ReadFile(string option, string path)
+        {
+            try
+            {
+                return File.ReadAllText(path);
+            }
+            catch (IOException exception) when (exception is FileNotFoundException or DirectoryNotFoundException)
+            {
+                throw new UsageException($"{option}: '{path}' does not exist.");
+            }
+        }
+
         /// <summary>
         ///     `-F`'s typing: the JSON literals and numbers as themselves, `@file` as the file's text, everything else a
         ///     string.
@@ -144,7 +157,7 @@ namespace Vion.Cli.Http
                     if (value.StartsWith('@'))
                     {
                         var path = value[1..];
-                        return JsonValue.Create(path == "-" ? services.In.ReadToEnd() : File.ReadAllText(path));
+                        return JsonValue.Create(path == "-" ? services.In.ReadToEnd() : ReadFile("-F", path));
                     }
 
                     return JsonValue.Create(value);

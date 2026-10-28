@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vion.Cli.Auth;
 using Vion.Cli.Context;
+using Vion.Cli.Derived;
 using Vion.Cli.Http;
 using Vion.Cli.Infrastructure;
 using Vion.Cli.Rendering;
@@ -65,7 +66,30 @@ namespace Vion.Cli.Commands
         {
             var context = ContextResolver.Resolve(globals, services);
             var upper = method.ToUpperInvariant();
+
+            // The raw call is still a call on a known operation when its path matches a template: the dry-run and the
+            // irreversible rules hold for it as for the derived command. A path the table does not know is treated by
+            // its method — a DELETE is irreversible — and offers no dry run.
+            var operation = OperationMatcher.Find(upper, path);
             var query = new List<KeyValuePair<string, string>>();
+            if (globals.DryRun)
+            {
+                if (operation is not { DryRun: true })
+                {
+                    var offering = string.Join(", ", Operations.All.Where(o => o.DryRun).Select(o => $"{o.Method} {o.Template}"));
+                    throw new UsageException($"--dry-run: {upper} {path} offers no dry run. The operations that do: {offering}.");
+                }
+
+                query.Add(new KeyValuePair<string, string>("dryRun", "true"));
+            }
+
+            var token = await TokenSource.ResolveAsync(globals, context, services);
+            var irreversible = operation?.Effect == Effect.Irreversible || (operation == null && upper == "DELETE");
+            if (irreversible && !globals.Yes)
+            {
+                await OperationInvoker.Confirm(operation?.Id ?? $"{upper} {path}", services);
+            }
+
             HttpContent? content = null;
             if (upper == "GET")
             {
@@ -76,7 +100,6 @@ namespace Vion.Cli.Commands
                 content = BodyInput.JsonContent(node);
             }
 
-            var token = await TokenSource.ResolveAsync(globals, context, services);
             var headers = new List<KeyValuePair<string, string>>();
             if (globals.IdempotencyKey != null)
             {
@@ -97,7 +120,7 @@ namespace Vion.Cli.Commands
                                                      headers);
             using var client = new ApiClient(services);
             var response = await client.SendAsync(request, token, globals.Verbose, cancellationToken);
-            return Renderer.Render(response, globals, services, null);
+            return Renderer.Render(response, globals, services, operation);
         }
     }
 }
