@@ -59,15 +59,16 @@ The package is `VION-IoT.vion`, moniker `vion`, a portable zip installer
 
 - **Every release after the first:** [`winget.yml`](../.github/workflows/winget.yml) runs on
   `release: released` — a full release, or a pre-release promoted to one; a pre-release as such never
-  fires it. It waits up to twenty minutes for the win-x64 zip to be attached (`gh release create` publishes before anything is built, and the Linux
-  archives can land first), downloads `komac` at the version and SHA-256 committed in the workflow —
-  refused on a mismatch, so the code handed `WINGET_TOKEN` is the one reviewed — and runs
-  `komac sync-fork`, `komac update VION-IoT.vion --version <tag without v> --urls <zip url>
-  --release-notes-url <release page> --submit`, then `komac cleanup --only-merged`. `WINGET_TOKEN` is a
-  classic personal access token with `public_repo` and `workflow` (the fork sync fails intermittently
-  without `workflow`); komac submits from the token owner's fork of `microsoft/winget-pkgs`, the one
-  the first submission creates. The pull request it opens is reviewed by Microsoft's bots and merges
-  on its own when the manifest validates; the run's log carries its URL.
+  fires it. It waits up to twenty minutes for the win-x64 zip to be attached (`gh release create`
+  publishes before anything is built, and the Linux archives can land first), downloads `komac` at
+  the version and SHA-256 committed in the workflow — refused on a mismatch, so the code handed
+  `WINGET_TOKEN` is the one reviewed — and runs `komac sync-fork`, `komac update VION-IoT.vion
+  --version <tag without v> --urls <zip url> --release-notes-url <release page> --submit`, then
+  `komac cleanup --only-merged`. `WINGET_TOKEN` is a classic personal access token with `public_repo`
+  and `workflow` (the fork sync fails intermittently without `workflow`); komac submits from the token
+  owner's fork of `microsoft/winget-pkgs`, the one the first submission creates. The pull request it
+  opens is reviewed by Microsoft's bots and merges on its own when the manifest validates; the run's
+  log carries its URL.
 - **Upgrading komac:** a reviewed change to `KOMAC_VERSION` and `KOMAC_SHA256` in the workflow. The
   hash is the release's `SHA256SUMS` entry for `komac-<version>-x86_64-pc-windows-msvc.exe`, confirmed
   by downloading that file and hashing it (`Get-FileHash -Algorithm SHA256`); a hash copied without
