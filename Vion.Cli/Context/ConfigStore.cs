@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using Vion.Cli.Infrastructure;
 
 namespace Vion.Cli.Context
 {
@@ -26,6 +28,8 @@ namespace Vion.Cli.Context
 
     internal static class ConfigStore
     {
+        private static readonly JsonSerializerOptions Indented = new() { WriteIndented = true };
+
         public static string PathOf(string homeDirectory)
         {
             return Path.Combine(homeDirectory, "config.json");
@@ -46,11 +50,11 @@ namespace Vion.Cli.Context
             JsonObject root;
             try
             {
-                root = JsonNode.Parse(File.ReadAllText(path)) as JsonObject ?? throw new Infrastructure.CliFailure($"{path} is not a JSON object.");
+                root = JsonNode.Parse(File.ReadAllText(path)) as JsonObject ?? throw new CliFailure($"{path} is not a JSON object.");
             }
-            catch (System.Text.Json.JsonException exception)
+            catch (JsonException exception)
             {
-                throw new Infrastructure.CliFailure($"{path} is not valid JSON: {exception.Message}");
+                throw new CliFailure($"{path} is not valid JSON: {exception.Message}");
             }
 
             var contexts = new Dictionary<string, ContextEntry>(StringComparer.Ordinal);
@@ -78,6 +82,37 @@ namespace Vion.Cli.Context
             }
 
             return new CliConfig(Text(root, "current"), contexts, environments);
+        }
+
+        /// <summary>Writes the whole configuration; the four roots are written even when null, so the file reads as its schema.</summary>
+        public static void Save(string homeDirectory, CliConfig config)
+        {
+            var contexts = new JsonObject();
+            foreach (var (name, entry) in config.Contexts)
+            {
+                contexts[name] = ToJson(entry);
+            }
+
+            var environments = new JsonObject();
+            foreach (var (name, environment) in config.Environments)
+            {
+                environments[name] = new JsonObject { ["apiUrl"] = environment.ApiUrl, ["authUrl"] = environment.AuthUrl, ["clientId"] = environment.ClientId };
+            }
+
+            var root = new JsonObject { ["current"] = config.Current, ["contexts"] = contexts, ["environments"] = environments };
+            Files.WriteAtomically(PathOf(homeDirectory), root.ToJsonString(Indented), false);
+        }
+
+        public static JsonObject ToJson(ContextEntry entry)
+        {
+            return new JsonObject
+                   {
+                       ["env"] = entry.Env,
+                       ["integrator"] = entry.Integrator,
+                       ["tenant"] = entry.Tenant,
+                       ["project"] = entry.Project,
+                       ["platform"] = entry.Platform,
+                   };
         }
 
         private static string? Text(JsonObject node, string member)

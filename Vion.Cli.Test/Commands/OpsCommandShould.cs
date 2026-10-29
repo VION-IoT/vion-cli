@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Linq;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
@@ -5,7 +7,10 @@ using Vion.Cli.Test.TestHelpers;
 
 namespace Vion.Cli.Test.Commands
 {
-    /// <summary>`vion ops`, offline: the tree's rows, and the system rows behind `--all`.</summary>
+    /// <summary>
+    ///     `vion ops`, offline: the tree's rows, and the system rows behind `--all`; `ops --live`: the environment's
+    ///     document against the committed one.
+    /// </summary>
     [TestClass]
     public class OpsCommandShould
     {
@@ -65,6 +70,69 @@ namespace Vion.Cli.Test.Commands
             Assert.AreEqual(0, run.ExitCode, run.Error);
             StringAssert.Contains(run.Out, "tenant.edgeGateway.list");
             StringAssert.Contains(run.Error, "264 operations");
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.2")]
+        public async Task DiffLiveDocumentAgainstCommittedOne()
+        {
+            // Arrange
+            var live = JsonNode.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "v1.json")))!;
+            var paths = live["paths"]!.AsObject();
+            paths.Remove("/tenant/{tenantId}/edgeGateways");
+            paths["/tenant/{tenantId}/dashboards/{id}"]!["put"]!["x-vion-capability"]!["effect"] = "Irreversible";
+            paths["/tenant/{tenantId}/widgetDefinitions/{id}"]!["put"]!["x-vion-authorization"]!["permissions"] = new JsonArray("Tenant.ManageEverything");
+            paths["/system/ping"] = new JsonObject
+                                    {
+                                        ["get"] = new JsonObject
+                                                  {
+                                                      ["operationId"] = "system.ping.get",
+                                                      ["x-vion-authorization"] = new JsonObject
+                                                                                 {
+                                                                                     ["mode"] = "Anonymous", ["permissions"] = new JsonArray(),
+                                                                                     ["scopeType"] = null, ["scopeFrom"] = null,
+                                                                                 },
+                                                      ["x-vion-capability"] = new JsonObject
+                                                                              {
+                                                                                  ["effect"] = "Read", ["idempotent"] = false,
+                                                                                  ["versioned"] = false,
+                                                                                  ["dryRun"] = false,
+                                                                              },
+                                                  },
+                                    };
+            using var handler = RecordingHandler.Json(200, live.ToJsonString());
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--live", "--env", "test", "--json"]);
+
+            // Assert
+            Assert.AreEqual(1, run.ExitCode, run.Error);
+            Assert.AreEqual("https://api.test.vion.swiss/openapi/v1.json", handler.Requests[0].Uri.ToString());
+            Assert.IsFalse(handler.Requests[0].Headers.ContainsKey("Authorization"), "the document was read with a token");
+            var items = JsonNode.Parse(run.Out)!["items"]!.AsArray()
+                                .Select(i => (i!["change"]!.GetValue<string>(), i["operationId"]!.GetValue<string>(), i["detail"]?.GetValue<string>()))
+                                .ToList();
+            CollectionAssert.Contains(items, ("added", "system.ping.get", (string?)null));
+            CollectionAssert.Contains(items, ("removed", "tenant.edgeGateway.list", (string?)null));
+            CollectionAssert.Contains(items, ("changed", "tenant.dashboard.update", (string?)"x-vion-capability"));
+            CollectionAssert.Contains(items, ("changed", "tenant.widgetDefinition.update", (string?)"x-vion-authorization"));
+            Assert.HasCount(4, items);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.2")]
+        public async Task ExitZeroWhenLiveDocumentMatchesCommittedOne()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "v1.json")));
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--live", "--env", "test"]);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            StringAssert.Contains(run.Error, "no differences");
+            StringAssert.Contains(run.Error, "268");
         }
     }
 }

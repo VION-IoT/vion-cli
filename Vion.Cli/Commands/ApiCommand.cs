@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.Linq;
-using System.Net.Http;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Vion.Cli.Auth;
@@ -83,42 +83,44 @@ namespace Vion.Cli.Commands
                 query.Add(new KeyValuePair<string, string>("dryRun", "true"));
             }
 
-            var token = await TokenSource.ResolveAsync(globals, context, services);
+            var token = await TokenSource.ResolveAsync(globals, context, services, cancellationToken);
             var irreversible = operation?.Effect == Effect.Irreversible || (operation == null && upper == "DELETE");
             if (irreversible && !globals.Yes)
             {
                 await OperationInvoker.Confirm(operation?.Id ?? $"{upper} {path}", services);
             }
 
-            HttpContent? content = null;
+            JsonNode? document = null;
             if (upper == "GET")
             {
                 query.AddRange(body.RawFields.Concat(body.Fields).Select(BodyInput.SplitPair));
             }
-            else if (BodyInput.BuildJson(body, services) is { } node)
+            else
             {
-                content = BodyInput.JsonContent(node);
+                document = BodyInput.BuildJson(body, services);
             }
 
+            using var client = new ApiClient(services);
             var headers = new List<KeyValuePair<string, string>>();
-            if (globals.IdempotencyKey != null)
-            {
-                headers.Add(new KeyValuePair<string, string>("Idempotency-Key", globals.IdempotencyKey));
-            }
-
-            if (globals.IfMatch != null)
-            {
-                headers.Add(new KeyValuePair<string, string>("If-Match", globals.IfMatch.StartsWith('"') ? globals.IfMatch : $"\"{globals.IfMatch}\""));
-            }
+            WriteSafety.AddIdempotencyKey(operation, globals, headers);
+            var at = path.IndexOf('?', StringComparison.Ordinal);
+            await WriteSafety.AddIfMatchAsync(operation,
+                                              globals,
+                                              document,
+                                              at >= 0 ? path[..at] : path,
+                                              context,
+                                              token,
+                                              client,
+                                              headers,
+                                              cancellationToken);
 
             using var request = RequestBuilder.Build(context.Environment,
                                                      upper,
                                                      path,
                                                      new Dictionary<string, string>(StringComparer.Ordinal),
                                                      query,
-                                                     content,
+                                                     document != null ? BodyInput.JsonContent(document) : null,
                                                      headers);
-            using var client = new ApiClient(services);
             var response = await client.SendAsync(request, token, globals.Verbose, cancellationToken);
             return Renderer.Render(response, globals, services, operation);
         }

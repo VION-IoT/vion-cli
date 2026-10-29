@@ -99,6 +99,8 @@ namespace Vion.Cli.Test.Rendering
                                                       Tool.Id,
                                                       "-f",
                                                       "name=one",
+                                                      "--if-match",
+                                                      "1",
                                                       "--fields",
                                                       "name"),
                                           Tool.Token);
@@ -147,7 +149,9 @@ namespace Vion.Cli.Test.Rendering
                                                       "--id",
                                                       Tool.Id,
                                                       "-f",
-                                                      "name=one"),
+                                                      "name=one",
+                                                      "--if-match",
+                                                      "1"),
                                           Tool.Token);
 
             // Assert

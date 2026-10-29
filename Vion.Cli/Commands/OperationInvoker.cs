@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Vion.Cli.Auth;
@@ -101,30 +102,40 @@ namespace Vion.Cli.Commands
             }
 
             // The token first, one line of standard input; the confirmation next; the body last, the rest of the stream.
-            var token = await TokenSource.ResolveAsync(globals, context, services);
+            var token = await TokenSource.ResolveAsync(globals, context, services, cancellationToken);
             if (operation.Effect == Effect.Irreversible && !globals.Yes)
             {
                 await Confirm(operation.Id, services);
             }
 
             HttpContent? content = null;
+            JsonNode? document = null;
             if (operation.Body != null)
             {
                 var body = tree.Body.Read(result);
-                content = operation.Body.IsMultipart ? BodyInput.BuildMultipart(operation.Body, body) :
-                          BodyInput.BuildJson(body, services) is { } node ? BodyInput.JsonContent(node) : null;
+                if (operation.Body.IsMultipart)
+                {
+                    content = BodyInput.BuildMultipart(operation.Body, body);
+                }
+                else
+                {
+                    document = BodyInput.BuildJson(body, services);
+                }
             }
 
+            using var client = new ApiClient(services);
             var headers = new List<KeyValuePair<string, string>>();
-            if (operation.Idempotent && globals.IdempotencyKey != null)
-            {
-                headers.Add(new KeyValuePair<string, string>("Idempotency-Key", globals.IdempotencyKey));
-            }
-
-            if (operation.Versioned && globals.IfMatch != null)
-            {
-                headers.Add(new KeyValuePair<string, string>("If-Match", IfMatchValue(globals.IfMatch)));
-            }
+            WriteSafety.AddIdempotencyKey(operation, globals, headers);
+            await WriteSafety.AddIfMatchAsync(operation,
+                                              globals,
+                                              document,
+                                              RequestBuilder.Expand(operation.Template, pathValues),
+                                              context,
+                                              token,
+                                              client,
+                                              headers,
+                                              cancellationToken);
+            content ??= document != null ? BodyInput.JsonContent(document) : null;
 
             using var request = RequestBuilder.Build(context.Environment,
                                                      operation.Method,
@@ -133,7 +144,6 @@ namespace Vion.Cli.Commands
                                                      query,
                                                      content,
                                                      headers);
-            using var client = new ApiClient(services);
             var response = await client.SendAsync(request, token, globals.Verbose, cancellationToken);
             return Renderer.Render(response, globals, services, operation);
         }
@@ -159,15 +169,6 @@ namespace Vion.Cli.Commands
             return parameter.Global != null ?
                        $"{operation.Id} needs a {parameter.Global}: pass --{parameter.Global} <id>, or set one with `vion context use --{parameter.Global} <id>`." :
                        $"{operation.Id} needs --{parameter.OptionName}.";
-        }
-
-        /// <summary>
-        ///     An ETag is quoted on the wire; a bare version from `meta.version` or the command line is quoted here, a quoted
-        ///     one passed as given.
-        /// </summary>
-        private static string IfMatchValue(string version)
-        {
-            return version.StartsWith('"') ? version : $"\"{version}\"";
         }
     }
 }

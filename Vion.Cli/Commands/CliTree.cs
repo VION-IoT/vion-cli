@@ -22,11 +22,21 @@ namespace Vion.Cli.Commands
 
         public BodyOptions Body { get; }
 
-        private CliTree(Command root, GlobalOptions globals, BodyOptions body)
+        /// <summary>
+        ///     The two options whose action is not a command's: a run that only printed help or the version checks for no
+        ///     update.
+        /// </summary>
+        public HelpOption Help { get; }
+
+        public VersionOption Version { get; }
+
+        private CliTree(Command root, GlobalOptions globals, BodyOptions body, HelpOption help, VersionOption version)
         {
             Root = root;
             Globals = globals;
             Body = body;
+            Help = help;
+            Version = version;
         }
 
         public static CliTree Build(CliServices services, IReadOnlyList<Operation>? operations = null)
@@ -37,15 +47,21 @@ namespace Vion.Cli.Commands
             // A plain Command, not a RootCommand: the root's name is the usage line's first word, and a RootCommand takes it
             // from the process — `vion` at a shell, `testhost` under a test runner — where this one is always `vion`.
             var root = new Command("vion", "vion — the VION platform from the command line. Every operation of the cloud API is a command; sign in once, then call any of them.");
-            root.Options.Add(new HelpOption { Action = new HelpAction { MaxWidth = HelpWidth } });
-            root.Options.Add(new VersionOption());
+            var help = new HelpOption { Action = new HelpAction { MaxWidth = HelpWidth } };
+            var version = new VersionOption();
+            root.Options.Add(help);
+            root.Options.Add(version);
             foreach (var option in globals.All)
             {
                 root.Options.Add(option);
             }
 
-            var tree = new CliTree(root, globals, body);
+            var tree = new CliTree(root, globals, body, help, version);
             DerivedCommands.AddTo(tree, services, operations ?? Operations.All);
+            root.Subcommands.Add(AuthCommands.Create(tree, services));
+            root.Subcommands.Add(ContextCommands.Create(tree, services));
+            root.Subcommands.Add(WhoamiCommand.Create(tree, services));
+            root.Subcommands.Add(CanICommand.Create(tree, services));
             root.Subcommands.Add(OpsCommand.Create(tree, services));
             root.Subcommands.Add(ApiCommand.Create(tree, services));
             root.Subcommands.Add(HelpSnapshotCommand.Create(tree, services));

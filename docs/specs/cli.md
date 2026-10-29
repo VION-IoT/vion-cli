@@ -42,8 +42,8 @@ decide which flags apply. A refusal happens before anything is sent.
 
 - `AC-CLI-002.1` (Event-driven): WHEN a derived command runs THE SYSTEM SHALL send the operation's method to its path with each path parameter substituted and each given query option appended, and the JSON body built from `--input` or the `-f` and `-F` pairs.
 - `AC-CLI-002.2` (Unwanted): IF a required path parameter has neither an option value nor a context value THEN THE SYSTEM SHALL refuse before sending, naming the option and `context use`, and exit 2.
-- `AC-CLI-002.3` (Optional): WHERE the operation is `idempotent` THE SYSTEM SHALL send an `Idempotency-Key` header carrying `--idempotency-key`'s value or a fresh one, and SHALL report an answer carrying `Idempotency-Replayed: true` as a notice on standard error. GAP: lands with PR 2
-- `AC-CLI-002.4` (Optional): WHERE the operation is `versioned` THE SYSTEM SHALL send `If-Match` from `--if-match`, else from the `--input` document's `meta.version`, else from the aggregate's `get` on the same path where one exists, and SHALL otherwise refuse before sending with exit 2. GAP: lands with PR 2
+- `AC-CLI-002.3` (Optional): WHERE the operation is `idempotent` THE SYSTEM SHALL send an `Idempotency-Key` header carrying `--idempotency-key`'s value or a fresh one, and SHALL report an answer carrying `Idempotency-Replayed: true` as a notice on standard error.
+- `AC-CLI-002.4` (Optional): WHERE the operation is `versioned` THE SYSTEM SHALL send `If-Match` from `--if-match`, else from the `--input` document's `meta.version`, else from the aggregate's `get` on the same path where one exists, and SHALL otherwise refuse before sending with exit 2.
 - `AC-CLI-002.5` (Optional): WHERE the operation's effect is `Irreversible` THE SYSTEM SHALL ask for confirmation on a terminal unless `--yes` is given, and SHALL refuse with exit 2 when standard input is not a terminal and `--yes` is absent.
 - `AC-CLI-002.6` (Event-driven): WHEN `--dry-run` is given THE SYSTEM SHALL send `dryRun=true` on an operation flagged `dryRun` and refuse with exit 2 on any other operation.
 - `AC-CLI-002.7` (Optional): WHERE the operation takes `multipart/form-data` THE SYSTEM SHALL send `--file` as the schema's file part and each `-f` pair as a text part.
@@ -66,23 +66,23 @@ goes to standard error. Notices — a replayed answer, a next cursor — go to s
 A person signs in by device code, once per environment; automation hands a token in or signs in as a
 service account. The token sources are tried in one order on every call.
 
-- `AC-CLI-004.1` (Event-driven): WHEN `auth login` runs THE SYSTEM SHALL request a device code from the environment's realm with `client_id` `vion-cli` and the scopes `openid`, `user_impersonation` and `web_mqtt_access`, and SHALL print the verification URL and user code, opening the browser unless `--no-browser`. GAP: lands with PR 2
-- `AC-CLI-004.2` (State-driven): WHILE the token endpoint answers `authorization_pending` or `slow_down` THE SYSTEM SHALL keep polling at the granted interval, five seconds longer after `slow_down`, until a token, a refusal or the code's expiry. GAP: lands with PR 2
-- `AC-CLI-004.3` (Ubiquitous): THE SYSTEM SHALL keep credentials per environment in `credentials.json` under its home directory, readable by the owner only. GAP: lands with PR 2
-- `AC-CLI-004.4` (Ubiquitous): THE SYSTEM SHALL take the bearer token from, in order, `--token -` on standard input, `--client-id` with `--client-secret`, `VION_CLIENT_ID` with `VION_CLIENT_SECRET`, then the stored credentials, refreshing a stored token that expires within thirty seconds with its refresh token. GAP: lands with PR 2
-- `AC-CLI-004.5` (Unwanted): IF no credential source yields a token THEN THE SYSTEM SHALL refuse naming `auth login`, the automation variables and `--token`, and exit 1. GAP: lands with PR 2
-- `AC-CLI-004.6` (Event-driven): WHEN `auth logout` runs THE SYSTEM SHALL remove the environment's stored credentials and say whether any were stored. GAP: lands with PR 2
-- `AC-CLI-004.7` (Event-driven): WHEN `auth status` runs THE SYSTEM SHALL report, per stored environment, the subject, the expiry and whether a refresh token is held, and the source the next call would use. GAP: lands with PR 2
+- `AC-CLI-004.1` (Event-driven): WHEN `auth login` runs THE SYSTEM SHALL request a device code from the environment's realm with `client_id` `vion-cli` and the scopes `openid`, `user_impersonation` and `web_mqtt_access`, and SHALL print the verification URL and user code, opening the browser unless `--no-browser`.
+- `AC-CLI-004.2` (State-driven): WHILE the token endpoint answers `authorization_pending` or `slow_down` THE SYSTEM SHALL keep polling at the granted interval, five seconds longer after `slow_down`, until a token, a refusal or the code's expiry.
+- `AC-CLI-004.3` (Ubiquitous): THE SYSTEM SHALL keep credentials per environment in `credentials.json` under its home directory, readable by the owner only.
+- `AC-CLI-004.4` (Ubiquitous): THE SYSTEM SHALL take the bearer token from, in order, `--token -` on standard input, `--client-id` with `--client-secret`, `VION_CLIENT_ID` with `VION_CLIENT_SECRET`, then the stored credentials, refreshing a stored token that expires within thirty seconds with its refresh token.
+- `AC-CLI-004.5` (Unwanted): IF no credential source yields a token THEN THE SYSTEM SHALL refuse naming `auth login`, the automation variables and `--token`, and exit 1.
+- `AC-CLI-004.6` (Event-driven): WHEN `auth logout` runs THE SYSTEM SHALL remove the environment's stored credentials and say whether any were stored.
+- `AC-CLI-004.7` (Event-driven): WHEN `auth status` runs THE SYSTEM SHALL report, per stored environment, the subject, the expiry and whether a refresh token is held, and the source the next call would use.
 
 ## Environments and contexts
 
 Two environments are built in; another is defined by its URLs. A context names an environment and
 the roots a call fills in; the flags and the `VION_*` variables override it per call.
 
-- `AC-CLI-005.1` (Ubiquitous): THE SYSTEM SHALL know the environments `production` and `test` with their API and realm URLs, and take any other environment's URLs from `context use --env <name> --api-url <url> --auth-url <url>`, kept in `config.json` under its home directory. GAP: lands with PR 2
-- `AC-CLI-005.2` (Event-driven): WHEN `context use` runs THE SYSTEM SHALL store the named context with its environment and whichever of integrator, tenant, project and platform were given, and make it current. GAP: lands with PR 2
-- `AC-CLI-005.3` (Ubiquitous): THE SYSTEM SHALL resolve the environment and each of integrator, tenant, project and platform from, in order, the command's option, the `VION_ENV`, `VION_API_URL` and `VION_AUTH_URL` variables, then the current context. GAP: lands with PR 2
-- `AC-CLI-005.4` (Event-driven): WHEN `context list` or `context show` runs THE SYSTEM SHALL print the stored contexts with the current one marked, or the current context with its resolved URLs and values. GAP: lands with PR 2
+- `AC-CLI-005.1` (Ubiquitous): THE SYSTEM SHALL know the environments `production` and `test` with their API and realm URLs, and take any other environment's URLs from `context use --env <name> --api-url <url> --auth-url <url>`, kept in `config.json` under its home directory.
+- `AC-CLI-005.2` (Event-driven): WHEN `context use` runs THE SYSTEM SHALL store the named context with its environment and whichever of integrator, tenant, project and platform were given, and make it current.
+- `AC-CLI-005.3` (Ubiquitous): THE SYSTEM SHALL resolve the environment and each of integrator, tenant, project and platform from, in order, the command's option, the `VION_ENV`, `VION_API_URL` and `VION_AUTH_URL` variables, then the current context.
+- `AC-CLI-005.4` (Event-driven): WHEN `context list` or `context show` runs THE SYSTEM SHALL print the stored contexts with the current one marked, or the current context with its resolved URLs and values.
 
 ## The written commands
 
@@ -91,11 +91,11 @@ against the committed document; `can-i` joins the environment's catalog with the
 permissions as the dashboard does; `api` is the raw call for anything the tree does not name.
 
 - `AC-CLI-006.1` (Event-driven): WHEN `ops` runs THE SYSTEM SHALL list, from the committed document and without a request, every tree command with its operationId, method, path, effect and flags, and with `--all` the `system` operations too.
-- `AC-CLI-006.2` (Event-driven): WHEN `ops --live` runs THE SYSTEM SHALL read the environment's document and print the operations added, removed or changed in method, path, `x-vion-authorization` or `x-vion-capability` against the committed document, exiting 0 only when none differ. GAP: lands with PR 2
-- `AC-CLI-006.3` (Event-driven): WHEN `can-i <operationId>` runs THE SYSTEM SHALL decide from the environment's catalog row and the context root's own permissions — a `Root` operation from the root set, a `Filtered` or `Scope` operation at `--project` from the held scope of that project else the root set, any other case allowed, an unlisted operation unknown — and exit 0 when allowed, 1 when denied and 2 when unknown. GAP: lands with PR 2
-- `AC-CLI-006.4` (Event-driven): WHEN `whoami` runs THE SYSTEM SHALL print the caller's identity and memberships with their ids from `me.identity.get`. GAP: lands with PR 2
+- `AC-CLI-006.2` (Event-driven): WHEN `ops --live` runs THE SYSTEM SHALL read the environment's document and print the operations added, removed or changed in method, path, `x-vion-authorization` or `x-vion-capability` against the committed document, exiting 0 only when none differ.
+- `AC-CLI-006.3` (Event-driven): WHEN `can-i <operationId>` runs THE SYSTEM SHALL decide from the environment's catalog row and the context root's own permissions — a `Root` operation from the root set, a `Filtered` or `Scope` operation at `--project` from the held scope of that project else the root set, any other case allowed, an unlisted operation unknown — and exit 0 when allowed, 1 when denied and 2 when unknown.
+- `AC-CLI-006.4` (Event-driven): WHEN `whoami` runs THE SYSTEM SHALL print the caller's identity and memberships with their ids from `me.identity.get`.
 - `AC-CLI-006.5` (Event-driven): WHEN `api <METHOD> <path>` runs THE SYSTEM SHALL send that request to the environment's API with the resolved token, the `-f` and `-F` pairs as the query on `GET` and as the JSON body otherwise, and render the answer as any command's.
 
 ## The update check
 
-- `AC-CLI-007.1` (Event-driven): WHEN a command runs on a terminal and the last check is older than a day THE SYSTEM SHALL read the latest release once, cache the result under its home directory, and name a newer version on standard error. GAP: lands with PR 2
+- `AC-CLI-007.1` (Event-driven): WHEN a command runs on a terminal and the last check is older than a day THE SYSTEM SHALL read the latest release once, cache the result under its home directory, and name a newer version on standard error.
