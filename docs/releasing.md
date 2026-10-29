@@ -79,8 +79,10 @@ is the review. It ships at the next release like any change. A release never pul
 
 One-time setup per repository, by a maintainer:
 
-- GitHub secrets `ARCHITECTURE_APP_CLIENT_ID` and `ARCHITECTURE_APP_PRIVATE_KEY` — the GitHub App
-  that reads the private `architecture` repository; `gates.yml`'s `vion-sdd` job is red without them.
+- The organization secrets `ARCHITECTURE_APP_CLIENT_ID` and `ARCHITECTURE_APP_PRIVATE_KEY` — the
+  GitHub App that reads the private `architecture` repository — have selected-repository visibility;
+  this repository must be in the selection (`gh api -X PUT orgs/VION-IoT/actions/secrets/<name>/repositories/<repo id>`),
+  or `gates.yml`'s `vion-sdd` job is red. No value is copied into the repository.
 - GitHub secret `WINGET_TOKEN` — the personal access token above; `winget.yml` fails without it.
 - Labels `feat`, `fix`, `chore`; squash merging only; branch protection on `main` with one approving
   review and the required checks named after the first run.

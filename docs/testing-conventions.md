@@ -26,6 +26,11 @@ no static state a test must reset. The seams, and what each stands in for:
 | `IConsoleShape` (`IsInputTerminal`, `IsOutputTerminal`, `IsErrorTerminal`, `OutputWidth`) | `Console.Is*Redirected`, `Console.WindowWidth` | values: the `--yes` refusal and the update notice turn on the first and last; a table wraps to the width on a terminal and never in a pipe |
 | `OpenBrowser` (`Func<Uri, bool>`) | the platform's opener | a recording delegate |
 
+A command that waits on the clock — the device-code poll — is run through `Tool.RunAdvancingAsync`,
+which starts the run and advances the `FakeTimeProvider` a second at a time until it ends; the
+handler records `time.GetUtcNow()` at each poll, so an interval is asserted as a difference of two
+recorded instants, never as a real wait.
+
 A test that needs something these do not give has found a missing seam: add it to `CliServices`,
 composed from production too, rather than reflecting into the tool or adding a test-only accessor.
 A seam a test overrides is not a test-only accessor when production composes the tool through the
