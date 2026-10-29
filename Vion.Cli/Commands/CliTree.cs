@@ -48,6 +48,8 @@ namespace Vion.Cli.Commands
             DerivedCommands.AddTo(tree, services, operations ?? Operations.All);
             root.Subcommands.Add(AuthCommands.Create(tree, services));
             root.Subcommands.Add(ContextCommands.Create(tree, services));
+            root.Subcommands.Add(WhoamiCommand.Create(tree, services));
+            root.Subcommands.Add(CanICommand.Create(tree, services));
             root.Subcommands.Add(OpsCommand.Create(tree, services));
             root.Subcommands.Add(ApiCommand.Create(tree, services));
             root.Subcommands.Add(HelpSnapshotCommand.Create(tree, services));
