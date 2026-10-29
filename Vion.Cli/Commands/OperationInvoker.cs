@@ -102,7 +102,7 @@ namespace Vion.Cli.Commands
             }
 
             // The token first, one line of standard input; the confirmation next; the body last, the rest of the stream.
-            var token = await TokenSource.ResolveAsync(globals, context, services);
+            var token = await TokenSource.ResolveAsync(globals, context, services, cancellationToken);
             if (operation.Effect == Effect.Irreversible && !globals.Yes)
             {
                 await Confirm(operation.Id, services);

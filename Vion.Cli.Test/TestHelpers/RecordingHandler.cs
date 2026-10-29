@@ -29,8 +29,7 @@ namespace Vion.Cli.Test.TestHelpers
         {
             return new RecordingHandler(_ =>
                                         {
-                                            var response = new HttpResponseMessage((HttpStatusCode)status)
-                                                           { Content = new StringContent(json, new UTF8Encoding(false), "application/json") };
+                                            var response = Response(status, json);
                                             configure?.Invoke(response);
                                             return response;
                                         });
@@ -40,6 +39,18 @@ namespace Vion.Cli.Test.TestHelpers
         public static RecordingHandler Empty(int status)
         {
             return new RecordingHandler(_ => new HttpResponseMessage((HttpStatusCode)status));
+        }
+
+        /// <summary>One JSON answer, for a handler that routes by request.</summary>
+        public static HttpResponseMessage Response(int status, string json)
+        {
+            return new HttpResponseMessage((HttpStatusCode)status) { Content = new StringContent(json, new UTF8Encoding(false), "application/json") };
+        }
+
+        /// <summary>The requests sent to a URL containing the text, in order.</summary>
+        public IReadOnlyList<RecordedRequest> To(string urlPart)
+        {
+            return Requests.Where(request => request.Uri.ToString().Contains(urlPart, StringComparison.Ordinal)).ToList();
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)

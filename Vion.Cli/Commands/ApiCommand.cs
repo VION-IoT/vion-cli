@@ -83,7 +83,7 @@ namespace Vion.Cli.Commands
                 query.Add(new KeyValuePair<string, string>("dryRun", "true"));
             }
 
-            var token = await TokenSource.ResolveAsync(globals, context, services);
+            var token = await TokenSource.ResolveAsync(globals, context, services, cancellationToken);
             var irreversible = operation?.Effect == Effect.Irreversible || (operation == null && upper == "DELETE");
             if (irreversible && !globals.Yes)
             {

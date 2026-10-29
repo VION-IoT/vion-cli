@@ -46,6 +46,7 @@ namespace Vion.Cli.Commands
 
             var tree = new CliTree(root, globals, body);
             DerivedCommands.AddTo(tree, services, operations ?? Operations.All);
+            root.Subcommands.Add(AuthCommands.Create(tree, services));
             root.Subcommands.Add(OpsCommand.Create(tree, services));
             root.Subcommands.Add(ApiCommand.Create(tree, services));
             root.Subcommands.Add(HelpSnapshotCommand.Create(tree, services));
