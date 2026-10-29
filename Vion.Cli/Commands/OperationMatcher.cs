@@ -10,17 +10,36 @@ namespace Vion.Cli.Commands
     /// </summary>
     internal static class OperationMatcher
     {
+        /// <summary>
+        ///     Among the templates that match, the most specific wins: compared segment by segment, a literal before a
+        ///     parameter, as the host routes — `arrangements/projects` is the projects list, not the `{collection}` read.
+        /// </summary>
         public static Operation? Find(string method, string path)
         {
             var at = path.IndexOf('?', StringComparison.Ordinal);
             var segments = Split(at >= 0 ? path[..at] : path);
-            return Operations.All.FirstOrDefault(operation => string.Equals(operation.Method, method, StringComparison.OrdinalIgnoreCase) &&
-                                                              Matches(Split(operation.Template), segments));
+            return Operations.All.Where(operation => string.Equals(operation.Method, method, StringComparison.OrdinalIgnoreCase))
+                             .Select(operation => (Operation: operation, Template: Split(operation.Template)))
+                             .Where(candidate => Matches(candidate.Template, segments))
+                             .OrderByDescending(candidate => Specificity(candidate.Template), StringComparer.Ordinal)
+                             .Select(candidate => candidate.Operation)
+                             .FirstOrDefault();
         }
 
         private static string[] Split(string path)
         {
             return path.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        private static bool IsParameter(string segment)
+        {
+            return segment.StartsWith('{') && segment.EndsWith('}');
+        }
+
+        /// <summary>One character per segment, `1` for a literal and `0` for a parameter; ordinal order is specificity order.</summary>
+        private static string Specificity(string[] template)
+        {
+            return string.Concat(template.Select(segment => IsParameter(segment) ? '0' : '1'));
         }
 
         /// <summary>
@@ -36,8 +55,7 @@ namespace Vion.Cli.Commands
 
             for (var i = 0; i < template.Length; i++)
             {
-                var isParameter = template[i].StartsWith('{') && template[i].EndsWith('}');
-                if (!isParameter && !string.Equals(template[i], actual[i], StringComparison.OrdinalIgnoreCase))
+                if (!IsParameter(template[i]) && !string.Equals(template[i], actual[i], StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
                 }
