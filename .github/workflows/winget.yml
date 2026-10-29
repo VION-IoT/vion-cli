@@ -1,0 +1,125 @@
+# Submit the release's win-x64 zip to winget (microsoft/winget-pkgs) as VION-IoT.vion.
+#
+#   release: released (a full release, or a pre-release promoted to one)
+#     -> skip while VION-IoT.vion is not in winget-pkgs yet (the first version is submitted by hand)
+#     -> wait for vion-<version>-win-x64.zip to be attached
+#     -> download komac and refuse it unless its SHA-256 is the one committed here
+#     -> komac syncs the fork, opens the manifest update pull request, deletes its merged branches
+#
+# The release is published by `gh release create` before ci-cd.yml has built anything, and the Linux job
+# and the Windows job attach their archives independently, so the wait step polls for the zip, up to
+# twenty minutes; a wait that runs out is recovered by re-running this job once the zip is attached
+# (docs/releasing.md § winget).
+#
+# komac is pinned by version and SHA-256, KOMAC_VERSION and KOMAC_SHA256 below, because komac is the
+# code that is handed WINGET_TOKEN: a wrapper action pinned by commit freezes the wrapper only, not the
+# komac it installs on the day. A komac upgrade is a reviewed change to those two values; the hash is
+# the release's SHA256SUMS entry for komac-<version>-x86_64-pc-windows-msvc.exe, confirmed by hashing
+# the downloaded file. WINGET_TOKEN is a classic personal access token with `public_repo` and `workflow`
+# (the fork sync fails intermittently without `workflow`); it is GITHUB_TOKEN for the komac commands
+# only, and komac submits from the token owner's fork of microsoft/winget-pkgs.
+name: winget
+run-name: winget ${{ github.event.release.tag_name }}
+
+on:
+  release:
+    types: [released]
+
+permissions:
+  contents: read
+
+env:
+  KOMAC_VERSION: 2.17.1
+  KOMAC_SHA256: a97c002c5ffa15f232af117efac6774e755d27acc47eba00f1661033267d7438
+
+jobs:
+  submit:
+    runs-on: windows-latest
+    steps:
+      # komac update adds a version to a package winget-pkgs already has: until the hand-submitted first
+      # version has merged, a run would fail on a package winget-pkgs does not know. A release cut before
+      # then is submitted by re-running this job after the merge.
+      - name: Is VION-IoT.vion in winget-pkgs yet
+        id: package
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Only a 404 means absent; any other failure is reported, not read as "nothing to do". The explicit
+          # exit 0 matters: the runner ends a pwsh step with the last native command's exit code otherwise.
+          $out = gh api repos/microsoft/winget-pkgs/contents/manifests/v/VION-IoT/vion --jq '.[].name' 2>&1
+          if ($LASTEXITCODE -eq 0) {
+            $present = $true
+            Write-Host "VION-IoT.vion is in microsoft/winget-pkgs with versions: $(@($out) -join ', ')"
+          }
+          elseif ("$out" -match 'HTTP 404') {
+            $present = $false
+            Write-Host 'VION-IoT.vion is not in microsoft/winget-pkgs yet; the first version is submitted by hand (docs/releasing.md). Nothing to do.'
+          }
+          else {
+            Write-Host "::error::could not read microsoft/winget-pkgs: $out"
+            exit 1
+          }
+          "present=$($present.ToString().ToLower())" >> $env:GITHUB_OUTPUT
+          exit 0
+
+      - name: Wait for the win-x64 zip
+        id: zip
+        if: steps.package.outputs.present == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          # The download URL ends with the asset's name, so the zip is matched on the URL komac is given.
+          $deadline = (Get-Date).AddMinutes(20)
+          while ($true) {
+            $urls = gh release view $env:TAG --repo $env:GITHUB_REPOSITORY --json assets --jq '.assets[] | select(.state == "uploaded") | .url'
+            $zip = @($urls) | Where-Object { $_ -match '-win-x64[.]zip$' } | Select-Object -First 1
+            if ($zip) { Write-Host "attached: $zip"; "url=$zip" >> $env:GITHUB_OUTPUT; break }
+            if ((Get-Date) -gt $deadline) { Write-Host '::error::no win-x64 zip on the release after twenty minutes; re-run this job once it is attached'; exit 1 }
+            Write-Host "no win-x64 zip yet on $env:TAG; waiting"
+            Start-Sleep -Seconds 30
+          }
+          exit 0
+
+      - name: Download komac and verify its SHA-256
+        id: komac
+        if: steps.package.outputs.present == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The file handed WINGET_TOKEN is the one whose hash is committed above, or there is no file.
+          $exe = Join-Path $env:RUNNER_TEMP "komac-$env:KOMAC_VERSION.exe"
+          gh release download "v$env:KOMAC_VERSION" --repo russellbanks/Komac --pattern "komac-$env:KOMAC_VERSION-x86_64-pc-windows-msvc.exe" --output $exe
+          if ($LASTEXITCODE -ne 0) { Write-Host "::error::could not download komac $env:KOMAC_VERSION from russellbanks/Komac"; exit 1 }
+          $hash = (Get-FileHash $exe -Algorithm SHA256).Hash.ToLower()
+          if ($hash -ne $env:KOMAC_SHA256) {
+            Remove-Item $exe
+            Write-Host "::error::komac $env:KOMAC_VERSION hashes to $hash, not the committed $env:KOMAC_SHA256; refused"
+            exit 1
+          }
+          Write-Host "komac $env:KOMAC_VERSION verified: $hash"
+          "exe=$exe" >> $env:GITHUB_OUTPUT
+          exit 0
+
+      - name: Submit the manifest update
+        if: steps.package.outputs.present == 'true'
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
+          KOMAC: ${{ steps.komac.outputs.exe }}
+          TAG: ${{ github.event.release.tag_name }}
+          ZIP_URL: ${{ steps.zip.outputs.url }}
+          RELEASE_NOTES_URL: ${{ github.event.release.html_url }}
+          # The pull request's URL is komac's last line; as a terminal hyperlink it would not show in the log.
+          FORCE_HYPERLINK: 0
+        run: |
+          # What winget-releaser ran at b7370d4d, with the komac verified above; a failing command fails the step.
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          $version = $env:TAG -replace '^v', ''
+          & $env:KOMAC sync-fork
+          & $env:KOMAC update VION-IoT.vion --version $version --urls $env:ZIP_URL --release-notes-url $env:RELEASE_NOTES_URL --submit
+          & $env:KOMAC cleanup --only-merged
