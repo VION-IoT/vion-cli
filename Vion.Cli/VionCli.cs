@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Vion.Cli.Commands;
 using Vion.Cli.Infrastructure;
@@ -39,7 +40,16 @@ namespace Vion.Cli
 
             try
             {
-                return await parse.InvokeAsync(new InvocationConfiguration { Output = services.Out, Error = services.Error, EnableDefaultExceptionHandler = false });
+                var exitCode = await parse.InvokeAsync(new InvocationConfiguration { Output = services.Out, Error = services.Error, EnableDefaultExceptionHandler = false });
+
+                // After the command, so the notice is the last line a person reads; not after help, the version, or a
+                // hidden command — the help snapshot runs on a terminal and must not reach the network.
+                if (parse.GetResult(tree.Help) == null && parse.GetResult(tree.Version) == null && !parse.CommandResult.Command.Hidden && parse.CommandResult.Command != tree.Root)
+                {
+                    await UpdateCheck.RunAsync(tree.Globals.Read(parse).Json, services, CancellationToken.None);
+                }
+
+                return exitCode;
             }
             catch (OperationCanceledException)
             {
