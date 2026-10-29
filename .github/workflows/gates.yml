@@ -1,0 +1,93 @@
+name: Gates
+# The file gates (docs/spec-process.md § Gates), beside ci-cd.yml's build: the shared journal-lint
+# action, the vion-sdd plugin's action from architecture (spec-lint and spec-trace), and the derive
+# check, which proves the committed table and help snapshot are what the committed document derives
+# to. Its own workflow because a docs-only pull request — a spec page, a change doc, a journal line —
+# must still be gated, and ci-cd.yml's shared workflow knows nothing of these.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  journal-lint:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: VION-IoT/shared-workflows/actions/journal-lint@v1
+
+  # The vion-sdd plugin's two spec gates, spec-lint and spec-trace, from its own scripts at
+  # architecture's main, as dale-sdk runs them. architecture is private and this repository public,
+  # and GitHub shares a private repository's actions with private repositories only, so the plugin is
+  # downloaded with an App token and its action run from that copy. A job of its own, so nothing else
+  # walks .vion-sdd/. A missing or revoked key reddens it: the token step fails, it never skips — and a
+  # pull request from a fork gets no secrets, so the job is red on it by design; close-external-prs.yml
+  # closes those.
+  vion-sdd:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The lint's narrative rule reads lines added since the merge base with the base branch.
+          fetch-depth: 0
+
+      # Pinned by COMMIT, not by major tag as the other actions here are: it is handed the App's
+      # private key, so what runs is a reviewed commit rather than whatever the tag moves to. v3.3.0.
+      - name: A read token for architecture
+        id: token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+        with:
+          client-id: ${{ secrets.ARCHITECTURE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.ARCHITECTURE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: architecture
+          permission-contents: read
+
+      # Architecture's main tarball through the REST API, not a git fetch: GitHub's git endpoint
+      # answers "Repository not found" to this App's tokens while the API serves the same repository
+      # and its tarball with the same token. Only plugins/vion-sdd is unpacked; the action needs no
+      # .git of its own, since its merge base is read in this repository's checkout.
+      - name: The vion-sdd plugin, from architecture's main
+        shell: bash
+        timeout-minutes: 3
+        env:
+          TOKEN: ${{ steps.token.outputs.token }}
+        run: |
+          mkdir -p .vion-sdd
+          curl -fsSL --retry 3 --retry-all-errors -m 60 \
+            -H "Authorization: Bearer ${TOKEN}" -H 'Accept: application/vnd.github+json' \
+            https://api.github.com/repos/VION-IoT/architecture/tarball/main \
+            | tar -xz -C .vion-sdd --strip-components=1 --wildcards '*/plugins/vion-sdd/*'
+          test -f .vion-sdd/plugins/vion-sdd/action/action.yml
+
+      - uses: ./.vion-sdd/plugins/vion-sdd/action
+        with:
+          base: ${{ github.base_ref || 'main' }}
+
+  # The committed Vion.Cli/Derived/Operations.g.cs and docs/snapshots/help.txt are what openapi/v1.json
+  # and cli.json derive to. The script regenerates both and fails on any diff, so a hand edit, a stale
+  # table after a snapshot pull, or a cli.json entry the document lacks reddens the pull request.
+  derive:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Derive and verify
+        shell: pwsh
+        run: ./scripts/derive.ps1 -Verify

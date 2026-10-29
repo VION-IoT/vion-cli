@@ -1,0 +1,48 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Synthetic document for the derive tests",
+    "version": "v1",
+    "description": "Mirrors tenant.edgeGateway.list's shape (a tenant list with a filter) and adds what the real document lacks today: a query parameter whose kebab name is a global option's (`json`), a deprecated operation, and a system operation beside them."
+  },
+  "paths": {
+    "/tenant/{tenantId}/things": {
+      "get": {
+        "operationId": "tenant.thing.list",
+        "description": "Lists the things.",
+        "parameters": [
+          { "name": "tenantId", "in": "path", "required": true, "description": "The tenant's id.", "schema": { "type": "string", "format": "uuid" } },
+          { "name": "json", "in": "query", "description": "A filter whose name collides with the global option.", "schema": { "type": "string" } },
+          { "name": "edgeGatewayId", "in": "query", "description": "A filter.", "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": { "200": { "description": "OK" } },
+        "x-vion-authorization": { "mode": "Filtered", "permissions": ["Project.Read"], "scopeType": "EdgeGateway", "scopeFrom": "id" },
+        "x-vion-capability": { "effect": "Read", "idempotent": false, "versioned": false, "dryRun": false }
+      }
+    },
+    "/tenant/{tenantId}/things/{id}": {
+      "get": {
+        "operationId": "tenant.thing.get",
+        "description": "Gets one thing; retired.",
+        "deprecated": true,
+        "parameters": [
+          { "name": "tenantId", "in": "path", "required": true, "description": "The tenant's id.", "schema": { "type": "string", "format": "uuid" } },
+          { "name": "id", "in": "path", "required": true, "description": "The thing's id.", "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": { "200": { "description": "OK" } },
+        "x-vion-authorization": { "mode": "Entity", "permissions": ["Project.Read"], "scopeType": "Thing", "scopeFrom": "id" },
+        "x-vion-capability": { "effect": "Read", "idempotent": false, "versioned": false, "dryRun": false }
+      }
+    },
+    "/things": {
+      "get": {
+        "operationId": "system.thing.list",
+        "description": "A system operation, which has no command.",
+        "responses": { "200": { "description": "OK" } },
+        "x-vion-authorization": { "mode": "Caller", "permissions": [] },
+        "x-vion-capability": { "effect": "Read", "idempotent": false, "versioned": false, "dryRun": false }
+      }
+    }
+  },
+  "components": { "schemas": {} }
+}

@@ -1,0 +1,30 @@
+---
+description: Run ReSharper cleanupcode (the same cleanup the CI style gate enforces) and apply fixes before a PR
+---
+
+Run the repo's canonical code-cleanup and report the result:
+
+1. Execute `pwsh scripts/cleanup-code.ps1 -Changed` from the repo root. `-Changed` scopes
+   the cleanup to the `.cs` this branch touched (vs `origin/main` + the working tree) and
+   **skips entirely in ~0.5s when no `.cs` changed** — the fast dev-loop path. It restores the
+   pinned JetBrains tool, builds, and runs the exact `dotnet jb cleanupcode` invocation the CI
+   style gate runs (profile `Custom: Full Cleanup (excl. optimize usings)`, the same one
+   ReSharper/Rider apply on save), applying fixes in place. (Drop `-Changed` for a full-solution
+   pass.) `Vion.Cli/Derived/Operations.g.cs` is excluded: it is emitted by `scripts/derive.ps1`,
+   and cleanup must not fight the emitter.
+2. Summarize what changed from its `git diff --stat` output.
+3. If it applied changes, remind the user to commit them before opening the PR (or do
+   so if appropriate). If it reported "Already clean", say so.
+
+This is the same cleanup CI enforces, so running it now keeps the style gate from
+failing the PR. The script captures cleanupcode's (benign, noisy) output and only
+surfaces it if cleanupcode itself fails — so a quiet run means success.
+
+Never run `cleanupcode` with `--profile="Built-in: Reformat Code"`: it differs from the profile in
+`Vion.Cli.sln.DotSettings` that the script and CI use, and fights cleanup-on-save.
+
+**Formatter escape hatch.** For the rare span where `cleanupcode` formats inconsistently across
+operating systems (a local run against the Linux CI runner), or one formatted by hand on purpose (an
+aligned table, for example), wrap it in `// @formatter:off` / `// @formatter:on` with a short reason
+comment — `cleanupcode` honours these on every operating system, so the style gate stays green. Use
+it sparingly and locally, never to opt a whole file out.

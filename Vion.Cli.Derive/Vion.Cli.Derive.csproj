@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>Vion.Cli.Derive</RootNamespace>
+        <!-- Runs at the desk and in the derive gate under the pinned SDK, never shipped: no AOT, no RIDs. -->
+        <IsAotCompatible>false</IsAotCompatible>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Vion.Cli.Test"/>
+    </ItemGroup>
+
+</Project>
