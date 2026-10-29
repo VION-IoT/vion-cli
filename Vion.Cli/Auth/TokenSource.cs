@@ -59,8 +59,7 @@ namespace Vion.Cli.Auth
             }
 
             var sessions = CredentialStore.Load(services.HomeDirectory);
-            return sessions.ContainsKey(context.Environment.Name) ?
-                       new TokenPlan(TokenOrigin.Store, "the stored credentials") :
+            return sessions.ContainsKey(context.Environment.Name) ? new TokenPlan(TokenOrigin.Store, "the stored credentials") :
                        new TokenPlan(TokenOrigin.None, "none: no sign-in, no automation credentials, no token");
         }
 
@@ -80,8 +79,10 @@ namespace Vion.Cli.Auth
                 case TokenOrigin.ClientCredentialVariables:
                 {
                     using var realm = new OAuthClient(services);
-                    return (await realm.ClientCredentialsAsync(context.Environment, Variable(services, "VION_CLIENT_ID")!, Variable(services, "VION_CLIENT_SECRET")!, cancellationToken))
-                        .AccessToken;
+                    return (await realm.ClientCredentialsAsync(context.Environment,
+                                                               Variable(services, "VION_CLIENT_ID")!,
+                                                               Variable(services, "VION_CLIENT_SECRET")!,
+                                                               cancellationToken)).AccessToken;
                 }
 
                 case TokenOrigin.Store:

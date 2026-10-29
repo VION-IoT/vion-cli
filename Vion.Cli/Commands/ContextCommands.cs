@@ -41,7 +41,11 @@ namespace Vion.Cli.Commands
                                   var globals = tree.Globals.Read(result);
                                   return Guard.RunAsync(globals,
                                                         services,
-                                                        () => Task.FromResult(UseContext(result.GetValue(name), result.GetValue(apiUrl), result.GetValue(authUrl), globals, services)));
+                                                        () => Task.FromResult(UseContext(result.GetValue(name),
+                                                                                         result.GetValue(apiUrl),
+                                                                                         result.GetValue(authUrl),
+                                                                                         globals,
+                                                                                         services)));
                               });
             return command;
         }
@@ -86,14 +90,15 @@ namespace Vion.Cli.Commands
 
                 if (globals.Env == null)
                 {
-                    throw new UsageException($"a new context needs its environment: pass --env production, --env test, or a name defined with --api-url and --auth-url.");
+                    throw new UsageException("a new context needs its environment: pass --env production, --env test, or a name defined with --api-url and --auth-url.");
                 }
             }
 
             var env = globals.Env ?? existing!.Env;
             if (!ApiEnvironment.BuiltIn.ContainsKey(env) && !environments.ContainsKey(env))
             {
-                throw new UsageException($"unknown environment '{env}': the built-in ones are production and test; another is defined with `vion context use --env {env} --api-url <url> --auth-url <realm url>`.");
+                throw new
+                    UsageException($"unknown environment '{env}': the built-in ones are production and test; another is defined with `vion context use --env {env} --api-url <url> --auth-url <realm url>`.");
             }
 
             var entry = new ContextEntry(env,
@@ -180,7 +185,8 @@ namespace Vion.Cli.Commands
                                                                 }
                                                                 else
                                                                 {
-                                                                    services.Out.WriteLine("no current context; `vion context use --env test --tenant <id>` creates and selects one.");
+                                                                    services.Out
+                                                                            .WriteLine("no current context; `vion context use --env test --tenant <id>` creates and selects one.");
                                                                 }
 
                                                                 return Task.FromResult(ExitCodes.Ok);

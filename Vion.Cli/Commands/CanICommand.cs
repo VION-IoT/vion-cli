@@ -42,11 +42,23 @@ namespace Vion.Cli.Commands
             var token = await TokenSource.ResolveAsync(globals, context, services, cancellationToken);
             using var client = new ApiClient(services);
 
-            var catalog = await ReadAsync(client, context, "/capabilities", token, globals, cancellationToken);
+            var catalog = await ReadAsync(client,
+                                          context,
+                                          "/capabilities",
+                                          token,
+                                          globals,
+                                          cancellationToken);
             var row = (catalog["items"] as JsonArray)?.OfType<JsonObject>().FirstOrDefault(item => item["id"]?.ToString() == operationId);
             if (row == null)
             {
-                return Report(operationId, "unknown", null, [], null, $"{context.Environment.Name}'s catalog does not list {operationId}; `vion ops --live` shows what it serves.", globals, services);
+                return Report(operationId,
+                              "unknown",
+                              null,
+                              [],
+                              null,
+                              $"{context.Environment.Name}'s catalog does not list {operationId}; `vion ops --live` shows what it serves.",
+                              globals,
+                              services);
             }
 
             var authorization = row["authorization"] as JsonObject;
@@ -54,17 +66,36 @@ namespace Vion.Cli.Commands
             var required = (authorization?["permissions"] as JsonArray)?.Select(p => p?.ToString() ?? "").ToList() ?? [];
             if (required.Count == 0 || mode is not ("Root" or "Scope" or "Filtered" or "Entity"))
             {
-                return Report(operationId, "allowed", mode, required, null, $"{operationId} is decided by {Describe(mode)}, not by a permission you hold.", globals, services);
+                return Report(operationId,
+                              "allowed",
+                              mode,
+                              required,
+                              null,
+                              $"{operationId} is decided by {Describe(mode)}, not by a permission you hold.",
+                              globals,
+                              services);
             }
 
             var domain = DomainOf(authorization, row["path"]?.ToString() ?? "");
             var rootId = domain != null ? context.Root(domain) : null;
             if (domain == null || rootId == null)
             {
-                return Report(operationId, "allowed", mode, required, null, $"nothing to decide against: the context names no {domain ?? "root"} for {operationId}; pass --{domain ?? "tenant"} <id>.", globals, services);
+                return Report(operationId,
+                              "allowed",
+                              mode,
+                              required,
+                              null,
+                              $"nothing to decide against: the context names no {domain ?? "root"} for {operationId}; pass --{domain ?? "tenant"} <id>.",
+                              globals,
+                              services);
             }
 
-            var held = await ReadAsync(client, context, $"/{domain}/{Uri.EscapeDataString(rootId)}/access/me/permissions", token, globals, cancellationToken);
+            var held = await ReadAsync(client,
+                                       context,
+                                       $"/{domain}/{Uri.EscapeDataString(rootId)}/access/me/permissions",
+                                       token,
+                                       globals,
+                                       cancellationToken);
             var root = Permissions(held["root"]);
             IReadOnlyList<string> holding;
             string where;
@@ -78,28 +109,65 @@ namespace Vion.Cli.Commands
                 case "Filtered":
                     if (globals.Project == null)
                     {
-                        return Report(operationId, "allowed", mode, required, null, $"{operationId} is decided at a project; pass --project <id> to decide it there.", globals, services);
+                        return Report(operationId,
+                                      "allowed",
+                                      mode,
+                                      required,
+                                      null,
+                                      $"{operationId} is decided at a project; pass --project <id> to decide it there.",
+                                      globals,
+                                      services);
                     }
 
                     var scope = (held["scopes"] as JsonArray)?.OfType<JsonObject>()
-                                                              .FirstOrDefault(s => string.Equals(s["projectId"]?.ToString(), globals.Project, StringComparison.OrdinalIgnoreCase) ||
-                                                                                   string.Equals(s["scopeId"]?.ToString(), globals.Project, StringComparison.OrdinalIgnoreCase));
+                                                             .FirstOrDefault(s => string.Equals(s["projectId"]?.ToString(), globals.Project, StringComparison.OrdinalIgnoreCase) ||
+                                                                                  string.Equals(s["scopeId"]?.ToString(), globals.Project, StringComparison.OrdinalIgnoreCase));
                     holding = scope != null ? Permissions(scope["permissions"]) : root;
                     where = scope != null ? $"project {globals.Project}" : $"{domain} {rootId} (no own assignment at project {globals.Project})";
                     break;
                 default:
-                    return Report(operationId, "allowed", mode, required, null, $"{operationId} is decided on the row it acts on, which only the call names.", globals, services);
+                    return Report(operationId,
+                                  "allowed",
+                                  mode,
+                                  required,
+                                  null,
+                                  $"{operationId} is decided on the row it acts on, which only the call names.",
+                                  globals,
+                                  services);
             }
 
             var matched = required.Where(holding.Contains).ToList();
-            return matched.Count > 0 ?
-                       Report(operationId, "allowed", mode, required, where, $"you hold {string.Join(", ", matched)} at {where}.", globals, services) :
-                       Report(operationId, "denied", mode, required, where, $"{operationId} needs one of {string.Join(", ", required)} at {where}; you hold none of them.", globals, services);
+            return matched.Count > 0 ? Report(operationId,
+                                              "allowed",
+                                              mode,
+                                              required,
+                                              where,
+                                              $"you hold {string.Join(", ", matched)} at {where}.",
+                                              globals,
+                                              services) : Report(operationId,
+                                                                 "denied",
+                                                                 mode,
+                                                                 required,
+                                                                 where,
+                                                                 $"{operationId} needs one of {string.Join(", ", required)} at {where}; you hold none of them.",
+                                                                 globals,
+                                                                 services);
         }
 
-        private static async Task<JsonObject> ReadAsync(ApiClient client, ResolvedContext context, string path, string token, GlobalValues globals, CancellationToken cancellationToken)
+        private static async Task<JsonObject> ReadAsync(ApiClient client,
+                                                        ResolvedContext context,
+                                                        string path,
+                                                        string token,
+                                                        GlobalValues globals,
+                                                        CancellationToken cancellationToken)
         {
-            using var request = RequestBuilder.Build(context.Environment, "GET", path, new Dictionary<string, string>(StringComparer.Ordinal), [], null, []);
+            using var request = RequestBuilder.Build(context.Environment,
+                                                     "GET",
+                                                     path,
+                                                     new Dictionary<string, string>(StringComparer.Ordinal),
+                                                     [],
+                                                     null,
+                                                     []);
             var response = await client.SendAsync(request, token, globals.Verbose, cancellationToken);
             if (!response.IsSuccess)
             {

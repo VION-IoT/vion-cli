@@ -23,7 +23,13 @@ namespace Vion.Cli.Test.Commands
         private const string DeviceAnswer =
             """{ "device_code": "dev-1", "user_code": "ABCD-EFGH", "verification_uri": "https://auth.test.vion.swiss/realms/vion/device", "verification_uri_complete": "https://auth.test.vion.swiss/realms/vion/device?user_code=ABCD-EFGH", "expires_in": 600, "interval": 5 }""";
 
-        private static readonly DateTimeOffset Start = new(2026, 10, 29, 8, 0, 0, TimeSpan.Zero);
+        private static readonly DateTimeOffset Start = new(2026,
+                                                           10,
+                                                           29,
+                                                           8,
+                                                           0,
+                                                           0,
+                                                           TimeSpan.Zero);
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-004.1")]
@@ -36,7 +42,16 @@ namespace Vion.Cli.Test.Commands
             var opened = new List<Uri>();
 
             // Act
-            var run = await Tool.RunAdvancingAsync(time, () => Tool.RunAsync(handler, ["auth", "login", "--env", "test"], home: home.Root, time: time, openBrowser: uri => { opened.Add(uri); return true; }));
+            var run = await Tool.RunAdvancingAsync(time,
+                                                   () => Tool.RunAsync(handler,
+                                                                       ["auth", "login", "--env", "test"],
+                                                                       home: home.Root,
+                                                                       time: time,
+                                                                       openBrowser: uri =>
+                                                                                    {
+                                                                                        opened.Add(uri);
+                                                                                        return true;
+                                                                                    }));
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
@@ -59,7 +74,16 @@ namespace Vion.Cli.Test.Commands
             var opened = 0;
 
             // Act
-            var run = await Tool.RunAdvancingAsync(time, () => Tool.RunAsync(handler, ["auth", "login", "--env", "test", "--no-browser"], home: home.Root, time: time, openBrowser: _ => { opened++; return true; }));
+            var run = await Tool.RunAdvancingAsync(time,
+                                                   () => Tool.RunAsync(handler,
+                                                                       ["auth", "login", "--env", "test", "--no-browser"],
+                                                                       home: home.Root,
+                                                                       time: time,
+                                                                       openBrowser: _ =>
+                                                                                    {
+                                                                                        opened++;
+                                                                                        return true;
+                                                                                    }));
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
@@ -113,7 +137,10 @@ namespace Vion.Cli.Test.Commands
         {
             // Arrange
             using var handler = new RecordingHandler(request => request.RequestUri!.ToString() == DeviceEndpoint ?
-                                                                    RecordingHandler.Response(200, DeviceAnswer.Replace("\"expires_in\": 600", "\"expires_in\": 12", StringComparison.Ordinal)) :
+                                                                    RecordingHandler.Response(200,
+                                                                                              DeviceAnswer.Replace("\"expires_in\": 600",
+                                                                                                                   "\"expires_in\": 12",
+                                                                                                                   StringComparison.Ordinal)) :
                                                                     RecordingHandler.Response(400, """{ "error": "authorization_pending" }"""));
             using var home = new TemporaryHome();
             var time = new FakeTimeProvider(Start);
@@ -134,7 +161,8 @@ namespace Vion.Cli.Test.Commands
             // Arrange
             using var handler = DeviceFlow([null]);
             using var home = new TemporaryHome();
-            home.Write("credentials.json", """{ "production": { "accessToken": "prod-at", "refreshToken": null, "expiresAt": "2026-10-29T09:00:00+00:00", "obtainedBy": "device" } }""");
+            home.Write("credentials.json",
+                       """{ "production": { "accessToken": "prod-at", "refreshToken": null, "expiresAt": "2026-10-29T09:00:00+00:00", "obtainedBy": "device" } }""");
             var time = new FakeTimeProvider(Start);
 
             // Act
@@ -146,7 +174,8 @@ namespace Vion.Cli.Test.Commands
             var stored = JsonNode.Parse(File.ReadAllText(path))!;
             Assert.AreEqual("at-1", stored["test"]!["accessToken"]!.GetValue<string>());
             Assert.AreEqual("rt-1", stored["test"]!["refreshToken"]!.GetValue<string>());
-            Assert.AreEqual(time.GetUtcNow().AddSeconds(300), DateTimeOffset.Parse(stored["test"]!["expiresAt"]!.GetValue<string>(), System.Globalization.CultureInfo.InvariantCulture));
+            Assert.AreEqual(time.GetUtcNow().AddSeconds(300),
+                            DateTimeOffset.Parse(stored["test"]!["expiresAt"]!.GetValue<string>(), System.Globalization.CultureInfo.InvariantCulture));
             Assert.AreEqual("prod-at", stored["production"]!["accessToken"]!.GetValue<string>());
             if (OperatingSystem.IsWindows())
             {
@@ -233,7 +262,8 @@ namespace Vion.Cli.Test.Commands
             using var handler = RecordingHandler.Empty(500);
             using var home = new TemporaryHome();
             var named = Tool.Jwt("""{ "sub": "u-1", "preferred_username": "operator@example.test" }""");
-            home.Write("credentials.json", $$"""{ "test": { "accessToken": "{{named}}", "refreshToken": "rt", "expiresAt": "2026-10-29T09:00:00+00:00", "obtainedBy": "device" } }""");
+            home.Write("credentials.json",
+                       $$"""{ "test": { "accessToken": "{{named}}", "refreshToken": "rt", "expiresAt": "2026-10-29T09:00:00+00:00", "obtainedBy": "device" } }""");
 
             // Act
             var run = await Tool.RunAsync(handler, ["auth", "status", "--env", "test"], home: home.Root);
@@ -267,7 +297,8 @@ namespace Vion.Cli.Test.Commands
                                                 var answer = polls < tokenAnswers.Count ? tokenAnswers[polls] : null;
                                                 polls++;
                                                 return answer == null ?
-                                                           RecordingHandler.Response(200, """{ "access_token": "at-1", "refresh_token": "rt-1", "expires_in": 300, "token_type": "Bearer" }""") :
+                                                           RecordingHandler.Response(200,
+                                                                                     """{ "access_token": "at-1", "refresh_token": "rt-1", "expires_in": 300, "token_type": "Bearer" }""") :
                                                            RecordingHandler.Response(400, $$"""{ "error": "{{answer}}", "error_description": "{{answer}} from the realm" }""");
                                             }
 

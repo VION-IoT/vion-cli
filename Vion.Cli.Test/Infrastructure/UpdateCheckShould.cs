@@ -8,7 +8,10 @@ using Vion.Cli.Test.TestHelpers;
 
 namespace Vion.Cli.Test.Infrastructure
 {
-    /// <summary>The daily look at the latest release: when it runs, what it caches, and the one line it prints when a newer version exists.</summary>
+    /// <summary>
+    ///     The daily look at the latest release: when it runs, what it caches, and the one line it prints when a newer
+    ///     version exists.
+    /// </summary>
     [TestClass]
     public class UpdateCheckShould
     {
@@ -16,7 +19,13 @@ namespace Vion.Cli.Test.Infrastructure
 
         private const string Latest = """{ "tag_name": "v0.2.0", "html_url": "https://github.com/VION-IoT/vion-cli/releases/tag/v0.2.0" }""";
 
-        private static readonly DateTimeOffset Now = new(2026, 10, 29, 8, 0, 0, TimeSpan.Zero);
+        private static readonly DateTimeOffset Now = new(2026,
+                                                         10,
+                                                         29,
+                                                         8,
+                                                         0,
+                                                         0,
+                                                         TimeSpan.Zero);
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-007.1")]
@@ -28,7 +37,12 @@ namespace Vion.Cli.Test.Infrastructure
             var time = new FakeTimeProvider(Now);
 
             // Act
-            var run = await Tool.RunAsync(handler, ["ops"], home: home.Root, time: time, errorTerminal: true, version: "0.1.0");
+            var run = await Tool.RunAsync(handler,
+                                          ["ops"],
+                                          home: home.Root,
+                                          time: time,
+                                          errorTerminal: true,
+                                          version: "0.1.0");
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
@@ -52,10 +66,16 @@ namespace Vion.Cli.Test.Infrastructure
             using var handler = RecordingHandler.Json(200, Latest);
             using var home = new TemporaryHome();
             var time = new FakeTimeProvider(Now);
-            home.Write("update-check.json", $$"""{ "checkedAt": "{{Now.AddHours(-hoursSinceCheck).ToString("o", System.Globalization.CultureInfo.InvariantCulture)}}", "latest": "0.1.0", "url": null }""");
+            home.Write("update-check.json",
+                       $$"""{ "checkedAt": "{{Now.AddHours(-hoursSinceCheck).ToString("o", System.Globalization.CultureInfo.InvariantCulture)}}", "latest": "0.1.0", "url": null }""");
 
             // Act
-            var run = await Tool.RunAsync(handler, ["ops"], home: home.Root, time: time, errorTerminal: true, version: "0.1.0");
+            var run = await Tool.RunAsync(handler,
+                                          ["ops"],
+                                          home: home.Root,
+                                          time: time,
+                                          errorTerminal: true,
+                                          version: "0.1.0");
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
@@ -71,7 +91,12 @@ namespace Vion.Cli.Test.Infrastructure
             using var home = new TemporaryHome();
 
             // Act
-            var run = await Tool.RunAsync(handler, ["ops"], home: home.Root, time: new FakeTimeProvider(Now), errorTerminal: false, version: "0.1.0");
+            var run = await Tool.RunAsync(handler,
+                                          ["ops"],
+                                          home: home.Root,
+                                          time: new FakeTimeProvider(Now),
+                                          errorTerminal: false,
+                                          version: "0.1.0");
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
@@ -88,7 +113,12 @@ namespace Vion.Cli.Test.Infrastructure
             using var home = new TemporaryHome();
 
             // Act
-            var run = await Tool.RunAsync(handler, ["ops", "--json"], home: home.Root, time: new FakeTimeProvider(Now), errorTerminal: true, version: "0.1.0");
+            var run = await Tool.RunAsync(handler,
+                                          ["ops", "--json"],
+                                          home: home.Root,
+                                          time: new FakeTimeProvider(Now),
+                                          errorTerminal: true,
+                                          version: "0.1.0");
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
@@ -129,7 +159,12 @@ namespace Vion.Cli.Test.Infrastructure
             using var home = new TemporaryHome();
 
             // Act
-            var run = await Tool.RunAsync(handler, ["ops"], home: home.Root, time: new FakeTimeProvider(Now), errorTerminal: true, version: running);
+            var run = await Tool.RunAsync(handler,
+                                          ["ops"],
+                                          home: home.Root,
+                                          time: new FakeTimeProvider(Now),
+                                          errorTerminal: true,
+                                          version: running);
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
@@ -146,7 +181,12 @@ namespace Vion.Cli.Test.Infrastructure
             using var home = new TemporaryHome();
 
             // Act
-            var run = await Tool.RunAsync(handler, ["ops"], home: home.Root, time: new FakeTimeProvider(Now), errorTerminal: true, version: "0.1.0");
+            var run = await Tool.RunAsync(handler,
+                                          ["ops"],
+                                          home: home.Root,
+                                          time: new FakeTimeProvider(Now),
+                                          errorTerminal: true,
+                                          version: "0.1.0");
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);

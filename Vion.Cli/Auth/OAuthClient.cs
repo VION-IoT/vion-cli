@@ -10,7 +10,10 @@ using Vion.Cli.Infrastructure;
 
 namespace Vion.Cli.Auth
 {
-    /// <summary>What the realm handed out for a device code: where the person goes, what they type, how long and how often to ask.</summary>
+    /// <summary>
+    ///     What the realm handed out for a device code: where the person goes, what they type, how long and how often to
+    ///     ask.
+    /// </summary>
     internal sealed record DeviceCode(string Code, string UserCode, Uri VerificationUri, TimeSpan ExpiresIn, TimeSpan Interval);
 
     /// <summary>
@@ -39,7 +42,7 @@ namespace Vion.Cli.Auth
         public async Task<DeviceCode> RequestDeviceCodeAsync(ApiEnvironment environment, CancellationToken cancellationToken)
         {
             var answer = await PostAsync($"{Realm(environment)}/auth/device",
-                                         [new("client_id", environment.ClientId), new("scope", Scopes)],
+                                         [new KeyValuePair<string, string>("client_id", environment.ClientId), new KeyValuePair<string, string>("scope", Scopes)],
                                          cancellationToken);
             if (!answer.IsSuccess)
             {
@@ -47,7 +50,8 @@ namespace Vion.Cli.Auth
             }
 
             var body = answer.Body;
-            var complete = Text(body, "verification_uri_complete") ?? Text(body, "verification_uri") ?? throw new CliFailure("the realm's device answer names no verification URL.");
+            var complete = Text(body, "verification_uri_complete") ??
+                           Text(body, "verification_uri") ?? throw new CliFailure("the realm's device answer names no verification URL.");
             return new DeviceCode(Text(body, "device_code") ?? throw new CliFailure("the realm's device answer carries no device_code."),
                                   Text(body, "user_code") ?? "",
                                   new Uri(complete),
@@ -73,9 +77,9 @@ namespace Vion.Cli.Auth
 
                 var answer = await PostAsync($"{Realm(environment)}/token",
                                              [
-                                                 new("grant_type", "urn:ietf:params:oauth:grant-type:device_code"),
-                                                 new("client_id", environment.ClientId),
-                                                 new("device_code", device.Code),
+                                                 new KeyValuePair<string, string>("grant_type", "urn:ietf:params:oauth:grant-type:device_code"),
+                                                 new KeyValuePair<string, string>("client_id", environment.ClientId),
+                                                 new KeyValuePair<string, string>("device_code", device.Code),
                                              ],
                                              cancellationToken);
                 if (answer.IsSuccess)
@@ -99,7 +103,10 @@ namespace Vion.Cli.Auth
         public async Task<StoredCredentials> ClientCredentialsAsync(ApiEnvironment environment, string clientId, string clientSecret, CancellationToken cancellationToken)
         {
             var answer = await PostAsync($"{Realm(environment)}/token",
-                                         [new("grant_type", "client_credentials"), new("client_id", clientId), new("client_secret", clientSecret), new("scope", "openid")],
+                                         [
+                                             new KeyValuePair<string, string>("grant_type", "client_credentials"), new KeyValuePair<string, string>("client_id", clientId),
+                                             new KeyValuePair<string, string>("client_secret", clientSecret), new KeyValuePair<string, string>("scope", "openid"),
+                                         ],
                                          cancellationToken);
             if (!answer.IsSuccess)
             {
@@ -112,7 +119,10 @@ namespace Vion.Cli.Auth
         public async Task<StoredCredentials?> RefreshAsync(ApiEnvironment environment, string refreshToken, CancellationToken cancellationToken)
         {
             var answer = await PostAsync($"{Realm(environment)}/token",
-                                         [new("grant_type", "refresh_token"), new("client_id", environment.ClientId), new("refresh_token", refreshToken)],
+                                         [
+                                             new KeyValuePair<string, string>("grant_type", "refresh_token"), new KeyValuePair<string, string>("client_id", environment.ClientId),
+                                             new KeyValuePair<string, string>("refresh_token", refreshToken),
+                                         ],
                                          cancellationToken);
             return answer.IsSuccess ? Credentials(answer.Body, "device") : null;
         }

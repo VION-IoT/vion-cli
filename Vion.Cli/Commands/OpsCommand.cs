@@ -26,7 +26,8 @@ namespace Vion.Cli.Commands
         public static Command Create(CliTree tree, CliServices services)
         {
             var all = new Option<bool>("--all") { Description = "Include the system operations, which have no command." };
-            var live = new Option<bool>("--live") { Description = "Read the environment's document and list the operations added, removed or changed against the committed one; exit 1 on any." };
+            var live = new Option<bool>("--live")
+                       { Description = "Read the environment's document and list the operations added, removed or changed against the committed one; exit 1 on any." };
             var command = new Command("ops",
                                       "List the operations of the committed document: the command, the operationId, the method and path, the effect and the write-safety flags.");
             command.Options.Add(all);
@@ -36,8 +37,7 @@ namespace Vion.Cli.Commands
                                   var globals = tree.Globals.Read(result);
                                   return Guard.RunAsync(globals,
                                                         services,
-                                                        () => result.GetValue(live) ?
-                                                                  LiveAsync(globals, services, cancellationToken) :
+                                                        () => result.GetValue(live) ? LiveAsync(globals, services, cancellationToken) :
                                                                   Task.FromResult(Run(globals, result.GetValue(all), services)));
                               });
             return command;
@@ -172,8 +172,7 @@ namespace Vion.Cli.Commands
                 Renderer.WriteTable(document, globals, services);
             }
 
-            services.Error.WriteLine(items.Count == 0 ?
-                                         $"no differences: {context.Environment.Name} serves the committed document's {committed.Count} operations." :
+            services.Error.WriteLine(items.Count == 0 ? $"no differences: {context.Environment.Name} serves the committed document's {committed.Count} operations." :
                                          $"{items.Count} difference(s) between {context.Environment.Name}'s {live.Count} operations and the committed {committed.Count} (snapshot {Operations.SnapshotSha256[..12]}).");
             return items.Count == 0 ? ExitCodes.Ok : ExitCodes.Failure;
         }
@@ -234,7 +233,11 @@ namespace Vion.Cli.Commands
                     {
                         if (methods[method] is JsonObject operation && operation["operationId"]?.ToString() is { Length: > 0 } id)
                         {
-                            operations[id] = new LiveOperation(id, method.ToUpperInvariant(), path, operation["x-vion-authorization"] as JsonObject, operation["x-vion-capability"] as JsonObject);
+                            operations[id] = new LiveOperation(id,
+                                                               method.ToUpperInvariant(),
+                                                               path,
+                                                               operation["x-vion-authorization"] as JsonObject,
+                                                               operation["x-vion-capability"] as JsonObject);
                         }
                     }
                 }
@@ -251,10 +254,8 @@ namespace Vion.Cli.Commands
             }
 
             var permissions = (served["permissions"] as JsonArray)?.Select(p => p?.ToString() ?? "").OrderBy(p => p, StringComparer.Ordinal).ToList() ?? [];
-            return served["mode"]?.ToString() == committed.Mode &&
-                   permissions.SequenceEqual(committed.Permissions.OrderBy(p => p, StringComparer.Ordinal)) &&
-                   served["scopeType"]?.ToString() == committed.ScopeType &&
-                   served["scopeFrom"]?.ToString() == committed.ScopeFrom;
+            return served["mode"]?.ToString() == committed.Mode && permissions.SequenceEqual(committed.Permissions.OrderBy(p => p, StringComparer.Ordinal)) &&
+                   served["scopeType"]?.ToString() == committed.ScopeType && served["scopeFrom"]?.ToString() == committed.ScopeFrom;
         }
 
         private static bool SameCapability(JsonObject? served, Operation committed)
@@ -264,10 +265,8 @@ namespace Vion.Cli.Commands
                 return false;
             }
 
-            return served["effect"]?.ToString() == committed.Effect.ToString() &&
-                   Flag(served, "idempotent") == committed.Idempotent &&
-                   Flag(served, "versioned") == committed.Versioned &&
-                   Flag(served, "dryRun") == committed.DryRun;
+            return served["effect"]?.ToString() == committed.Effect.ToString() && Flag(served, "idempotent") == committed.Idempotent &&
+                   Flag(served, "versioned") == committed.Versioned && Flag(served, "dryRun") == committed.DryRun;
         }
 
         private static bool Flag(JsonObject node, string member)

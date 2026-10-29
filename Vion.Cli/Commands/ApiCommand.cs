@@ -104,7 +104,15 @@ namespace Vion.Cli.Commands
             var headers = new List<KeyValuePair<string, string>>();
             WriteSafety.AddIdempotencyKey(operation, globals, headers);
             var at = path.IndexOf('?', StringComparison.Ordinal);
-            await WriteSafety.AddIfMatchAsync(operation, globals, document, at >= 0 ? path[..at] : path, context, token, client, headers, cancellationToken);
+            await WriteSafety.AddIfMatchAsync(operation,
+                                              globals,
+                                              document,
+                                              at >= 0 ? path[..at] : path,
+                                              context,
+                                              token,
+                                              client,
+                                              headers,
+                                              cancellationToken);
 
             using var request = RequestBuilder.Build(context.Environment,
                                                      upper,

@@ -18,7 +18,8 @@ namespace Vion.Cli.Commands
         {
             var at = path.IndexOf('?', StringComparison.Ordinal);
             var segments = Split(at >= 0 ? path[..at] : path);
-            return Operations.All.Where(operation => string.Equals(operation.Method, method, StringComparison.OrdinalIgnoreCase))
+            return Operations.All
+                             .Where(operation => string.Equals(operation.Method, method, StringComparison.OrdinalIgnoreCase))
                              .Select(operation => (Operation: operation, Template: Split(operation.Template)))
                              .Where(candidate => Matches(candidate.Template, segments))
                              .OrderByDescending(candidate => Specificity(candidate.Template), StringComparer.Ordinal)

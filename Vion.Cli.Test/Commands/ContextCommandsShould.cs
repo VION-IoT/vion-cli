@@ -6,7 +6,10 @@ using Vion.Cli.Test.TestHelpers;
 
 namespace Vion.Cli.Test.Commands
 {
-    /// <summary>`vion context use|list|show`: what `config.json` holds afterwards, which environments the tool knows, and what it prints.</summary>
+    /// <summary>
+    ///     `vion context use|list|show`: what `config.json` holds afterwards, which environments the tool knows, and what
+    ///     it prints.
+    /// </summary>
     [TestClass]
     public class ContextCommandsShould
     {
@@ -81,7 +84,12 @@ namespace Vion.Cli.Test.Commands
         [TestMethod]
         [TestProperty("spec", "AC-CLI-005.2")]
         [DataRow("context", "use", "nowhere")]
-        [DataRow("context", "use", "--env", "test", "--tenant", "not-a-guid")]
+        [DataRow("context",
+                 "use",
+                 "--env",
+                 "test",
+                 "--tenant",
+                 "not-a-guid")]
         [DataRow("context", "use", "fresh", "--tenant", "11111111-1111-1111-1111-111111111111")]
         public async Task RefuseUnknownNameAloneNonGuidRootOrNewContextWithoutEnvironment(params string[] args)
         {
@@ -124,7 +132,10 @@ namespace Vion.Cli.Test.Commands
 
             // Act
             var defined = await Tool.RunAsync(handler,
-                                              ["context", "use", "--env", "acme", "--api-url", "https://api.example.test", "--auth-url", "https://auth.example.test/realms/vion", "--tenant", Tool.Tenant],
+                                              [
+                                                  "context", "use", "--env", "acme", "--api-url", "https://api.example.test", "--auth-url", "https://auth.example.test/realms/vion",
+                                                  "--tenant", Tool.Tenant,
+                                              ],
                                               home: home.Root);
             var called = await Tool.RunAsync(handler, ["tenant", "edge-gateway", "list", "--token", "-"], Tool.Token, home: home.Root);
 
@@ -140,8 +151,20 @@ namespace Vion.Cli.Test.Commands
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-005.1")]
-        [DataRow("context", "use", "--env", "acme", "--api-url", "https://api.example.test")]
-        [DataRow("context", "use", "--env", "test", "--api-url", "https://api.example.test", "--auth-url", "https://auth.example.test/realms/vion")]
+        [DataRow("context",
+                 "use",
+                 "--env",
+                 "acme",
+                 "--api-url",
+                 "https://api.example.test")]
+        [DataRow("context",
+                 "use",
+                 "--env",
+                 "test",
+                 "--api-url",
+                 "https://api.example.test",
+                 "--auth-url",
+                 "https://auth.example.test/realms/vion")]
         [DataRow("context", "use", "--env", "acme")]
         public async Task RefuseHalfDefinedOrRedefinedEnvironment(params string[] args)
         {
@@ -164,7 +187,8 @@ namespace Vion.Cli.Test.Commands
             // Arrange
             using var handler = RecordingHandler.Empty(500);
             using var home = new TemporaryHome();
-            home.Write("config.json", $$$"""{ "current": "work", "contexts": { "other": { "env": "production", "integrator": "{{{Integrator}}}" }, "work": { "env": "test", "tenant": "{{{Tool.Tenant}}}" } } }""");
+            home.Write("config.json",
+                       $$$"""{ "current": "work", "contexts": { "other": { "env": "production", "integrator": "{{{Integrator}}}" }, "work": { "env": "test", "tenant": "{{{Tool.Tenant}}}" } } }""");
 
             // Act
             var table = await Tool.RunAsync(handler, ["context", "list"], home: home.Root);

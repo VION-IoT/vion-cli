@@ -88,8 +88,7 @@ namespace Vion.Cli.Commands
                                                             }
                                                             else
                                                             {
-                                                                services.Out.WriteLine(removed ?
-                                                                                           $"removed the stored credentials for {environment.Name}." :
+                                                                services.Out.WriteLine(removed ? $"removed the stored credentials for {environment.Name}." :
                                                                                            $"none were stored for {environment.Name}; nothing removed.");
                                                             }
 

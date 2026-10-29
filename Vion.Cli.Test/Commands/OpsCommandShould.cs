@@ -7,7 +7,10 @@ using Vion.Cli.Test.TestHelpers;
 
 namespace Vion.Cli.Test.Commands
 {
-    /// <summary>`vion ops`, offline: the tree's rows, and the system rows behind `--all`; `ops --live`: the environment's document against the committed one.</summary>
+    /// <summary>
+    ///     `vion ops`, offline: the tree's rows, and the system rows behind `--all`; `ops --live`: the environment's
+    ///     document against the committed one.
+    /// </summary>
     [TestClass]
     public class OpsCommandShould
     {
@@ -84,8 +87,17 @@ namespace Vion.Cli.Test.Commands
                                         ["get"] = new JsonObject
                                                   {
                                                       ["operationId"] = "system.ping.get",
-                                                      ["x-vion-authorization"] = new JsonObject { ["mode"] = "Anonymous", ["permissions"] = new JsonArray(), ["scopeType"] = null, ["scopeFrom"] = null },
-                                                      ["x-vion-capability"] = new JsonObject { ["effect"] = "Read", ["idempotent"] = false, ["versioned"] = false, ["dryRun"] = false },
+                                                      ["x-vion-authorization"] = new JsonObject
+                                                                                 {
+                                                                                     ["mode"] = "Anonymous", ["permissions"] = new JsonArray(),
+                                                                                     ["scopeType"] = null, ["scopeFrom"] = null,
+                                                                                 },
+                                                      ["x-vion-capability"] = new JsonObject
+                                                                              {
+                                                                                  ["effect"] = "Read", ["idempotent"] = false,
+                                                                                  ["versioned"] = false,
+                                                                                  ["dryRun"] = false,
+                                                                              },
                                                   },
                                     };
             using var handler = RecordingHandler.Json(200, live.ToJsonString());
@@ -97,7 +109,9 @@ namespace Vion.Cli.Test.Commands
             Assert.AreEqual(1, run.ExitCode, run.Error);
             Assert.AreEqual("https://api.test.vion.swiss/openapi/v1.json", handler.Requests[0].Uri.ToString());
             Assert.IsFalse(handler.Requests[0].Headers.ContainsKey("Authorization"), "the document was read with a token");
-            var items = JsonNode.Parse(run.Out)!["items"]!.AsArray().Select(i => (i!["change"]!.GetValue<string>(), i["operationId"]!.GetValue<string>(), i["detail"]?.GetValue<string>())).ToList();
+            var items = JsonNode.Parse(run.Out)!["items"]!.AsArray()
+                                .Select(i => (i!["change"]!.GetValue<string>(), i["operationId"]!.GetValue<string>(), i["detail"]?.GetValue<string>()))
+                                .ToList();
             CollectionAssert.Contains(items, ("added", "system.ping.get", (string?)null));
             CollectionAssert.Contains(items, ("removed", "tenant.edgeGateway.list", (string?)null));
             CollectionAssert.Contains(items, ("changed", "tenant.dashboard.update", (string?)"x-vion-capability"));

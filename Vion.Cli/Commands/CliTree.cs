@@ -22,7 +22,10 @@ namespace Vion.Cli.Commands
 
         public BodyOptions Body { get; }
 
-        /// <summary>The two options whose action is not a command's: a run that only printed help or the version checks for no update.</summary>
+        /// <summary>
+        ///     The two options whose action is not a command's: a run that only printed help or the version checks for no
+        ///     update.
+        /// </summary>
         public HelpOption Help { get; }
 
         public VersionOption Version { get; }

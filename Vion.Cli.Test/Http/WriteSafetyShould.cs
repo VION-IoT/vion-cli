@@ -23,7 +23,15 @@ namespace Vion.Cli.Test.Http
             using var handler = RecordingHandler.Json(201, """{ "id": "new" }""");
 
             // Act
-            var run = await Tool.RunAsync(handler, Tool.OnTest("tenant", "dashboard", "create", "--tenant", Tool.Tenant, "-f", "name=smoke"), Tool.Token);
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("tenant",
+                                                      "dashboard",
+                                                      "create",
+                                                      "--tenant",
+                                                      Tool.Tenant,
+                                                      "-f",
+                                                      "name=smoke"),
+                                          Tool.Token);
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
@@ -151,8 +159,7 @@ namespace Vion.Cli.Test.Http
         {
             // Arrange
             using var handler = new RecordingHandler(request => request.Method == HttpMethod.Get ?
-                                                                    Json(200, """{ "sections": [], "meta": { "version": 5, "permissions": [] } }""") :
-                                                                    Json(200, "{}"));
+                                                                    Json(200, """{ "sections": [], "meta": { "version": 5, "permissions": [] } }""") : Json(200, "{}"));
 
             // Act
             var run = await Tool.RunAsync(handler,

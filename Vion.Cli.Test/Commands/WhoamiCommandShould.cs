@@ -8,13 +8,12 @@ namespace Vion.Cli.Test.Commands
     [TestClass]
     public class WhoamiCommandShould
     {
-        private const string Me =
-            """
-            { "user": { "identityProviderUserId": "idp-1", "email": "operator@example.test" }, "locale": "de", "notificationTopic": null,
-              "tenantMemberships": [ { "tenantUserId": "tu-1", "tenantId": "11111111-1111-1111-1111-111111111111", "tenantSlug": "acme", "tenantName": "Acme Energy" } ],
-              "integratorMemberships": [ { "integratorUserId": "iu-1", "integratorId": "44444444-4444-4444-4444-444444444444", "integratorSlug": "integ", "integratorName": "Integ AG", "tags": [] } ],
-              "platformMemberships": [] }
-            """;
+        private const string Me = """
+                                  { "user": { "identityProviderUserId": "idp-1", "email": "operator@example.test" }, "locale": "de", "notificationTopic": null,
+                                    "tenantMemberships": [ { "tenantUserId": "tu-1", "tenantId": "11111111-1111-1111-1111-111111111111", "tenantSlug": "acme", "tenantName": "Acme Energy" } ],
+                                    "integratorMemberships": [ { "integratorUserId": "iu-1", "integratorId": "44444444-4444-4444-4444-444444444444", "integratorSlug": "integ", "integratorName": "Integ AG", "tags": [] } ],
+                                    "platformMemberships": [] }
+                                  """;
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-006.4")]

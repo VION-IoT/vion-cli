@@ -27,7 +27,7 @@ namespace Vion.Cli.Infrastructure
 
         public static async Task RunAsync(bool json, CliServices services, CancellationToken cancellationToken)
         {
-            if (json || !services.Console.IsErrorTerminal || services.Environment.TryGetValue("VION_NO_UPDATE_CHECK", out var disabled) && !string.IsNullOrWhiteSpace(disabled))
+            if (json || !services.Console.IsErrorTerminal || (services.Environment.TryGetValue("VION_NO_UPDATE_CHECK", out var disabled) && !string.IsNullOrWhiteSpace(disabled)))
             {
                 return;
             }
@@ -104,8 +104,7 @@ namespace Vion.Cli.Infrastructure
                 var cache = JsonNode.Parse(File.ReadAllText(path)) as JsonObject;
                 var checkedAt = cache?["checkedAt"]?.ToString();
                 return (checkedAt != null && DateTimeOffset.TryParse(checkedAt, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed) ? parsed : null,
-                        cache?["latest"]?.ToString(),
-                        cache?["url"]?.ToString());
+                           cache?["latest"]?.ToString(), cache?["url"]?.ToString());
             }
             catch (JsonException)
             {

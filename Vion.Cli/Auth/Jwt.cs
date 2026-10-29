@@ -11,7 +11,10 @@ namespace Vion.Cli.Auth
     /// </summary>
     internal static class Jwt
     {
-        /// <summary>The subject as a person reads it: `preferred_username`, else `email`, else `sub`; null for a token that is no JWT.</summary>
+        /// <summary>
+        ///     The subject as a person reads it: `preferred_username`, else `email`, else `sub`; null for a token that is no
+        ///     JWT.
+        /// </summary>
         public static string? Subject(string token)
         {
             var payload = Payload(token);

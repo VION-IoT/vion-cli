@@ -4,7 +4,10 @@ using Vion.Cli.Test.TestHelpers;
 
 namespace Vion.Cli.Test.Context
 {
-    /// <summary>The order the environment and each root are resolved in — the option, the variables, the current context — proven where two of them disagree.</summary>
+    /// <summary>
+    ///     The order the environment and each root are resolved in — the option, the variables, the current context —
+    ///     proven where two of them disagree.
+    /// </summary>
     [TestClass]
     public class ContextResolverShould
     {

@@ -8,7 +8,10 @@ using Vion.Cli.Test.TestHelpers;
 
 namespace Vion.Cli.Test.Auth
 {
-    /// <summary>Where a call's bearer token comes from, in the one order every call tries; proven where two sources are both present.</summary>
+    /// <summary>
+    ///     Where a call's bearer token comes from, in the one order every call tries; proven where two sources are both
+    ///     present.
+    /// </summary>
     [TestClass]
     public class TokenSourceShould
     {
@@ -16,7 +19,13 @@ namespace Vion.Cli.Test.Auth
 
         private const string Api = "https://api.test.vion.swiss/";
 
-        private static readonly DateTimeOffset Now = new(2026, 10, 29, 8, 0, 0, TimeSpan.Zero);
+        private static readonly DateTimeOffset Now = new(2026,
+                                                         10,
+                                                         29,
+                                                         8,
+                                                         0,
+                                                         0,
+                                                         TimeSpan.Zero);
 
         private static readonly string[] List = ["tenant", "edge-gateway", "list", "--tenant", Tool.Tenant, "--env", "test"];
 

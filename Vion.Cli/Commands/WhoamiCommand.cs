@@ -35,7 +35,13 @@ namespace Vion.Cli.Commands
             var operation = Operations.All.First(o => o.Id == "me.identity.get");
             var token = await TokenSource.ResolveAsync(globals, context, services, cancellationToken);
             using var client = new ApiClient(services);
-            using var request = RequestBuilder.Build(context.Environment, operation.Method, operation.Template, new System.Collections.Generic.Dictionary<string, string>(), [], null, []);
+            using var request = RequestBuilder.Build(context.Environment,
+                                                     operation.Method,
+                                                     operation.Template,
+                                                     new System.Collections.Generic.Dictionary<string, string>(),
+                                                     [],
+                                                     null,
+                                                     []);
             var response = await client.SendAsync(request, token, globals.Verbose, cancellationToken);
             if (globals.Json || !response.IsSuccess || response.Json is not JsonObject me)
             {

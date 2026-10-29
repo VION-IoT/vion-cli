@@ -67,9 +67,16 @@ namespace Vion.Cli.Http
             var read = Operations.All.FirstOrDefault(o => o.Method == "GET" && o.Template == operation.Template);
             if (read != null)
             {
-                using var request = RequestBuilder.Build(context.Environment, "GET", expandedPath, new Dictionary<string, string>(StringComparer.Ordinal), [], null, []);
+                using var request = RequestBuilder.Build(context.Environment,
+                                                         "GET",
+                                                         expandedPath,
+                                                         new Dictionary<string, string>(StringComparer.Ordinal),
+                                                         [],
+                                                         null,
+                                                         []);
                 var current = await client.SendAsync(request, token, globals.Verbose, cancellationToken);
-                var fetched = current.Json is JsonObject row && row["meta"] is JsonObject rowMeta && rowMeta["version"] is JsonValue rowVersion ? rowVersion.ToString() : current.ETag;
+                var fetched = current.Json is JsonObject row && row["meta"] is JsonObject rowMeta && rowMeta["version"] is JsonValue rowVersion ? rowVersion.ToString() :
+                                  current.ETag;
                 if (current.IsSuccess && fetched != null)
                 {
                     headers.Add(new KeyValuePair<string, string>("If-Match", Tag(fetched)));
@@ -80,7 +87,8 @@ namespace Vion.Cli.Http
                 throw new CliFailure($"{operation.Id} replaces a versioned row, and {read.Id} answered {current.Status} without a version to send as If-Match.");
             }
 
-            throw new UsageException($"{operation.Id} replaces a versioned row: pass --if-match <version>, or --input the document from `get --json`, whose meta.version is the version; the list row's meta.version carries it too.");
+            throw new
+                UsageException($"{operation.Id} replaces a versioned row: pass --if-match <version>, or --input the document from `get --json`, whose meta.version is the version; the list row's meta.version carries it too.");
         }
 
         private static void StripMeta(Operation? operation, JsonNode? body)
