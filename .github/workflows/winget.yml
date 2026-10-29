@@ -37,10 +37,23 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh api repos/microsoft/winget-pkgs/contents/manifests/v/VION-IoT/vion --jq '.[].name' 2>$null | Out-Null
-          $present = ($LASTEXITCODE -eq 0)
-          if (-not $present) { Write-Host 'VION-IoT.vion is not in microsoft/winget-pkgs yet; the first version is submitted by hand (docs/releasing.md). Nothing to do.' }
+          # Only a 404 means absent; any other failure is reported, not read as "nothing to do". The explicit
+          # exit 0 matters: the runner ends a pwsh step with the last native command's exit code otherwise.
+          $out = gh api repos/microsoft/winget-pkgs/contents/manifests/v/VION-IoT/vion --jq '.[].name' 2>&1
+          if ($LASTEXITCODE -eq 0) {
+            $present = $true
+            Write-Host "VION-IoT.vion is in microsoft/winget-pkgs with versions: $(@($out) -join ', ')"
+          }
+          elseif ("$out" -match 'HTTP 404') {
+            $present = $false
+            Write-Host 'VION-IoT.vion is not in microsoft/winget-pkgs yet; the first version is submitted by hand (docs/releasing.md). Nothing to do.'
+          }
+          else {
+            Write-Host "::error::could not read microsoft/winget-pkgs: $out"
+            exit 1
+          }
           "present=$($present.ToString().ToLower())" >> $env:GITHUB_OUTPUT
+          exit 0
 
       - name: Wait for the win-x64 zip
         if: steps.package.outputs.present == 'true'
