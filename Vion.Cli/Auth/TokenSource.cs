@@ -53,6 +53,11 @@ namespace Vion.Cli.Auth
 
             var clientId = Variable(services, "VION_CLIENT_ID");
             var clientSecret = Variable(services, "VION_CLIENT_SECRET");
+            if (clientId != null != (clientSecret != null))
+            {
+                throw new UsageException("VION_CLIENT_ID and VION_CLIENT_SECRET go together; one of them is set and the other is not.");
+            }
+
             if (clientId != null && clientSecret != null)
             {
                 return new TokenPlan(TokenOrigin.ClientCredentialVariables, $"the client credentials of VION_CLIENT_ID {clientId}");

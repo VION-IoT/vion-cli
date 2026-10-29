@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Time.Testing;
@@ -170,6 +171,33 @@ namespace Vion.Cli.Test.Infrastructure
             Assert.AreEqual(0, run.ExitCode, run.Error);
             Assert.HasCount(1, handler.Requests);
             Assert.IsFalse(run.Error.Contains("0.2.0", StringComparison.Ordinal), run.Error);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-007.1")]
+        public async Task RecordFailedRequestInCacheAndKeepKnownVersion()
+        {
+            // Arrange
+            using var handler = new RecordingHandler(_ => throw new HttpRequestException("no route to host"));
+            using var home = new TemporaryHome();
+            home.Write("update-check.json",
+                       $$"""{ "checkedAt": "{{Now.AddHours(-25).ToString("o", System.Globalization.CultureInfo.InvariantCulture)}}", "latest": "0.2.0", "url": "https://github.com/VION-IoT/vion-cli/releases/tag/v0.2.0" }""");
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          ["ops"],
+                                          home: home.Root,
+                                          time: new FakeTimeProvider(Now),
+                                          errorTerminal: true,
+                                          version: "0.1.0");
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.HasCount(1, handler.Requests);
+            StringAssert.Contains(run.Error, "0.2.0");
+            var cache = JsonNode.Parse(File.ReadAllText(Path.Combine(home.Root, "update-check.json")))!;
+            Assert.AreEqual(Now, DateTimeOffset.Parse(cache["checkedAt"]!.GetValue<string>(), System.Globalization.CultureInfo.InvariantCulture));
+            Assert.AreEqual("0.2.0", cache["latest"]!.GetValue<string>());
         }
 
         [TestMethod]

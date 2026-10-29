@@ -195,7 +195,10 @@ namespace Vion.Cli.Commands
                                                             var resolved = ContextResolver.Resolve(globals, services);
                                                             var document = new JsonObject
                                                                            {
-                                                                               ["name"] = config.Current,
+                                                                               ["name"] = config.CurrentContext is { } current &&
+                                                                                          string.Equals(current.Env,
+                                                                                                        resolved.Environment.Name,
+                                                                                                        StringComparison.OrdinalIgnoreCase) ? config.Current : null,
                                                                                ["env"] = resolved.Environment.Name,
                                                                                ["apiUrl"] = resolved.Environment.ApiUrl,
                                                                                ["authUrl"] = resolved.Environment.AuthUrl,

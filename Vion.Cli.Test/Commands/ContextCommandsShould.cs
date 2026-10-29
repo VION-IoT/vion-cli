@@ -233,6 +233,26 @@ namespace Vion.Cli.Test.Commands
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-005.4")]
+        public async Task ShowNoContextNameWhenAnotherEnvironmentIsSelected()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(500);
+            using var home = new TemporaryHome();
+            home.Write("config.json", $$$"""{ "current": "work", "contexts": { "work": { "env": "test", "tenant": "{{{Tool.Tenant}}}" } } }""");
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["context", "show", "--json", "--env", "production"], home: home.Root);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            var shown = JsonNode.Parse(run.Out)!;
+            Assert.IsNull(shown["name"]);
+            Assert.AreEqual("production", shown["env"]!.GetValue<string>());
+            Assert.IsNull(shown["tenant"]);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-005.4")]
         public async Task ShowNoContextWhenNoneIsCurrent()
         {
             // Arrange

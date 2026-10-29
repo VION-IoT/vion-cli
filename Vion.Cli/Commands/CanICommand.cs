@@ -39,6 +39,7 @@ namespace Vion.Cli.Commands
         private static async Task<int> RunAsync(string operationId, GlobalValues globals, CliServices services, CancellationToken cancellationToken)
         {
             var context = ContextResolver.Resolve(globals, services);
+            var project = context.Root("project");
             var token = await TokenSource.ResolveAsync(globals, context, services, cancellationToken);
             using var client = new ApiClient(services);
 
@@ -107,7 +108,7 @@ namespace Vion.Cli.Commands
                     break;
                 case "Scope":
                 case "Filtered":
-                    if (globals.Project == null)
+                    if (project == null)
                     {
                         return Report(operationId,
                                       "allowed",
@@ -120,10 +121,10 @@ namespace Vion.Cli.Commands
                     }
 
                     var scope = (held["scopes"] as JsonArray)?.OfType<JsonObject>()
-                                                             .FirstOrDefault(s => string.Equals(s["projectId"]?.ToString(), globals.Project, StringComparison.OrdinalIgnoreCase) ||
-                                                                                  string.Equals(s["scopeId"]?.ToString(), globals.Project, StringComparison.OrdinalIgnoreCase));
+                                                             .FirstOrDefault(s => string.Equals(s["projectId"]?.ToString(), project, StringComparison.OrdinalIgnoreCase) ||
+                                                                                  string.Equals(s["scopeId"]?.ToString(), project, StringComparison.OrdinalIgnoreCase));
                     holding = scope != null ? Permissions(scope["permissions"]) : root;
-                    where = scope != null ? $"project {globals.Project}" : $"{domain} {rootId} (no own assignment at project {globals.Project})";
+                    where = scope != null ? $"project {project}" : $"{domain} {rootId} (no own assignment at project {project})";
                     break;
                 default:
                     return Report(operationId,

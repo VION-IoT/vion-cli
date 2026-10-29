@@ -170,6 +170,26 @@ namespace Vion.Cli.Test.Auth
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-004.4")]
+        [DataRow("VION_CLIENT_ID")]
+        [DataRow("VION_CLIENT_SECRET")]
+        public async Task RefuseHalfSetCredentialVariables(string variable)
+        {
+            // Arrange
+            using var handler = Realm("issued-1");
+            using var home = new TemporaryHome();
+            Store(home, "stored-at", Now.AddHours(1));
+
+            // Act
+            var run = await Tool.RunAsync(handler, List, home: home.Root, time: new FakeTimeProvider(Now), environment: new Dictionary<string, string?> { [variable] = "half" });
+
+            // Assert
+            Assert.AreEqual(2, run.ExitCode);
+            StringAssert.Contains(run.Error, "VION_CLIENT_SECRET");
+            Assert.IsEmpty(handler.Requests);
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-004.5")]
         public async Task RefuseNamingEverySourceWhenNoneYieldsToken()
         {

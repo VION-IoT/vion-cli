@@ -75,6 +75,24 @@ namespace Vion.Cli.Test.Commands
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-006.3")]
+        public async Task DecideScopeOperationAtContextProject()
+        {
+            // Arrange
+            using var handler = Environment("[]",
+                                            $$"""[ { "projectId": "{{Project}}", "scopeId": "{{Project}}", "scopeType": "Project", "permissions": ["Project.ManageDashboards"] } ]""");
+            using var home = new TemporaryHome();
+            home.Write("config.json", $$$"""{ "current": "work", "contexts": { "work": { "env": "test", "tenant": "{{{Tool.Tenant}}}", "project": "{{{Project}}}" } } }""");
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["can-i", "tenant.dashboardArrangement.upsert", "--token", "-"], Tool.Token, home: home.Root);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            StringAssert.Contains(run.Out, Project);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.3")]
         [DataRow("tenant.dashboardArrangement.upsert")]
         [DataRow("me.identity.get")]
         public async Task AllowWhenNothingDecides(string operation)

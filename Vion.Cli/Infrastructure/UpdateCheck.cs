@@ -43,7 +43,18 @@ namespace Vion.Cli.Infrastructure
                     return;
                 }
 
-                var (latest, url) = await ReadLatestAsync(services, cancellationToken);
+                // A read that fails — a status, a timeout, no network — keeps what was known and still stamps today, so
+                // the next command does not wait on the same network again; tomorrow retries.
+                var (latest, url) = (cache?.Latest, cache?.Url);
+                try
+                {
+                    (latest, url) = await ReadLatestAsync(services, cancellationToken) is var read && read.Latest != null ? read : (latest, url);
+                }
+                catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
+                {
+                    // Kept: the known version, the date below.
+                }
+
                 Files.WriteAtomically(path,
                                       new JsonObject { ["checkedAt"] = now.ToString("o", CultureInfo.InvariantCulture), ["latest"] = latest, ["url"] = url }.ToJsonString(Indented),
                                       false);
@@ -51,7 +62,7 @@ namespace Vion.Cli.Infrastructure
             }
             catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
             {
-                // A failed check is nobody's problem today; the cache's date, when it was written, retries it tomorrow.
+                // A failed check is nobody's problem today: an unwritable home directory is the one way to land here.
             }
         }
 
