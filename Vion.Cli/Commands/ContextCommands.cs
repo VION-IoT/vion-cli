@@ -171,7 +171,8 @@ namespace Vion.Cli.Commands
                                                         () =>
                                                         {
                                                             var config = ConfigStore.Load(services.HomeDirectory);
-                                                            if (config.CurrentContext == null && globals.Env == null && !services.Environment.ContainsKey("VION_ENV"))
+                                                            var variable = services.Environment.TryGetValue("VION_ENV", out var value) && !string.IsNullOrWhiteSpace(value);
+                                                            if (config.CurrentContext == null && globals.Env == null && !variable)
                                                             {
                                                                 if (globals.Json)
                                                                 {
