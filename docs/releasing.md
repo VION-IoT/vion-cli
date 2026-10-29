@@ -58,11 +58,14 @@ The package is `VION-IoT.vion`, moniker `vion`, a portable zip installer
 `winget install vion` works as `winget install gh` does for `GitHub.cli`.
 
 - **Every release after the first:** [`winget.yml`](../.github/workflows/winget.yml) runs on
-  `release: published`, waits for the win-x64 zip to be attached (the Linux archives can land first),
-  and submits the manifest update to `microsoft/winget-pkgs` through `winget-releaser`, pinned by
-  commit because it is handed `WINGET_TOKEN` — a classic personal access token with `public_repo`
-  on an account that owns a fork of `microsoft/winget-pkgs`. The pull request it opens is reviewed by
-  Microsoft's bots and merges on its own when the manifest validates.
+  `release: published` (a pre-release is skipped), waits up to twenty minutes for the win-x64 zip to
+  be attached (`gh release create` publishes before anything is built, and the Linux archives can land
+  first), and submits the manifest update to `microsoft/winget-pkgs` through `winget-releaser`,
+  pinned by commit because it is handed `WINGET_TOKEN` — a classic personal access token with
+  `public_repo` on an account that owns a fork of `microsoft/winget-pkgs`. The fork's owner is the
+  repository variable `WINGET_FORK_USER`, else this repository's owner. The pull request it opens is
+  reviewed by Microsoft's bots and merges on its own when the manifest validates; the run's log
+  carries its URL.
 - **The first release** of the package is submitted by hand, because `winget-releaser` updates an
   existing manifest only: `wingetcreate new <zip url>` generates the three manifest files, which are
   reviewed and submitted with `wingetcreate submit`. The reviewers' first pass takes days.
@@ -83,6 +86,8 @@ One-time setup per repository, by a maintainer:
   GitHub App that reads the private `architecture` repository — have selected-repository visibility;
   this repository must be in the selection (`gh api -X PUT orgs/VION-IoT/actions/secrets/<name>/repositories/<repo id>`),
   or `gates.yml`'s `vion-sdd` job is red. No value is copied into the repository.
-- GitHub secret `WINGET_TOKEN` — the personal access token above; `winget.yml` fails without it.
+- GitHub secret `WINGET_TOKEN` — the personal access token above; `winget.yml` fails without it. The
+  repository variable `WINGET_FORK_USER` names the account that owns the `microsoft/winget-pkgs`
+  fork when it is not `VION-IoT` (`gh variable set WINGET_FORK_USER --repo VION-IoT/vion-cli --body <login>`).
 - Labels `feat`, `fix`, `chore`; squash merging only; branch protection on `main` with one approving
   review and the required checks named after the first run.
