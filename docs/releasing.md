@@ -59,24 +59,27 @@ The package is `VION-IoT.vion`, moniker `vion`, a portable zip installer
 
 - **Every release after the first:** [`winget.yml`](../.github/workflows/winget.yml) runs on
   `release: released` — a full release, or a pre-release promoted to one; a pre-release as such never
-  fires it. It does nothing while `VION-IoT.vion` is not in `microsoft/winget-pkgs` (the first
-  version's hand submission, below, takes days to merge). Then it waits up to twenty minutes for the
-  win-x64 zip to be attached (`gh release create` publishes before anything is built, and the Linux
-  archives can land first), downloads `komac` at the version and SHA-256 committed in the workflow —
-  refused on a mismatch, so the code handed `WINGET_TOKEN` is the one reviewed — and runs
-  `komac sync-fork`, `komac update VION-IoT.vion --version <tag without v> --urls <zip url>
-  --release-notes-url <release page> --submit`, then `komac cleanup --only-merged`. `WINGET_TOKEN` is a
-  classic personal access token with `public_repo` and `workflow` (the fork sync fails intermittently
-  without `workflow`); komac submits from the token owner's fork of `microsoft/winget-pkgs`, the one
-  the first submission creates. The pull request it opens is reviewed by Microsoft's bots and merges
-  on its own when the manifest validates; the run's log carries its URL.
+  fires it. It waits up to twenty minutes for the win-x64 zip to be attached (`gh release create`
+  publishes before anything is built, and the Linux archives can land first), downloads `komac` at
+  the version and SHA-256 committed in the workflow — refused on a mismatch, so the code handed
+  `WINGET_TOKEN` is the one reviewed — and runs `komac sync-fork`, `komac update VION-IoT.vion
+  --version <tag without v> --urls <zip url> --release-notes-url <release page> --submit`, then
+  `komac cleanup --only-merged`. `WINGET_TOKEN` is a classic personal access token with `public_repo`
+  and `workflow` (the fork sync fails intermittently without `workflow`); komac submits from the token
+  owner's fork of `microsoft/winget-pkgs`, the one the first submission creates. The pull request it
+  opens is reviewed by Microsoft's bots and merges on its own when the manifest validates; the run's
+  log carries its URL.
 - **Upgrading komac:** a reviewed change to `KOMAC_VERSION` and `KOMAC_SHA256` in the workflow. The
   hash is the release's `SHA256SUMS` entry for `komac-<version>-x86_64-pc-windows-msvc.exe`, confirmed
   by downloading that file and hashing it (`Get-FileHash -Algorithm SHA256`); a hash copied without
   that check pins nothing.
-- **Recovery:** a release cut before the first manifest merged, or one whose wait ran out, is
-  submitted by re-running the `winget` job on that release's run once the manifest exists and the zip
-  is attached; nothing else is needed.
+- **Recovery:** a red `winget` run is rerun from its page; nothing else is needed. Three causes are
+  expected: a release after the first, cut before the first manifest merged, fails in `komac update`
+  until the manifest exists (nothing checks for it — a check did, and went red at random when GitHub
+  refused the contents API call); a wait that ran out is rerun once the zip is attached; and GitHub
+  can refuse komac's own reads of `winget-pkgs` the same way, which a rerun recovers. The first
+  release's own run is the exception: it goes red in `komac update` and stays red, never rerun — its
+  version is the hand submission.
 - **The first release** of the package is submitted by hand, because the workflow's `komac update`
   adds a version to a package `winget-pkgs` already has: `wingetcreate new <zip url>` generates the
   three manifest files, which are reviewed and submitted with `wingetcreate submit` from the token
