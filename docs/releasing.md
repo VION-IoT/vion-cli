@@ -74,10 +74,12 @@ The package is `VION-IoT.vion`, moniker `vion`, a portable zip installer
   by downloading that file and hashing it (`Get-FileHash -Algorithm SHA256`); a hash copied without
   that check pins nothing.
 - **Recovery:** a red `winget` run is rerun from its page; nothing else is needed. Three causes are
-  expected: a release cut before the first manifest merged fails in `komac update` until the manifest
-  exists (there is no check for it — the one there was went red at random when GitHub refused the
-  contents API call on v0.1.0's run); a wait that ran out is rerun once the zip is attached; and
-  GitHub can refuse komac's own reads of `winget-pkgs` the same way, which a rerun recovers.
+  expected: a release after the first, cut before the first manifest merged, fails in `komac update`
+  until the manifest exists (nothing checks for it — a check did, and went red at random when GitHub
+  refused the contents API call); a wait that ran out is rerun once the zip is attached; and GitHub
+  can refuse komac's own reads of `winget-pkgs` the same way, which a rerun recovers. The first
+  release's own run is the exception: it goes red in `komac update` and stays red, never rerun — its
+  version is the hand submission.
 - **The first release** of the package is submitted by hand, because the workflow's `komac update`
   adds a version to a package `winget-pkgs` already has: `wingetcreate new <zip url>` generates the
   three manifest files, which are reviewed and submitted with `wingetcreate submit` from the token

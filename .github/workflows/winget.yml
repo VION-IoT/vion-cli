@@ -10,10 +10,11 @@
 # twenty minutes; a wait that runs out is recovered by re-running this job once the zip is attached
 # (docs/releasing.md § winget).
 #
-# There is no check that VION-IoT.vion is in winget-pkgs yet: the one there was went red at random when
-# GitHub refused its contents API call (v0.1.0's run), and it only served releases cut before the first,
-# hand-submitted manifest merged. Such a release fails in `komac update` and is rerun once the manifest
-# exists; GitHub can refuse komac's own reads of winget-pkgs the same way, and a rerun recovers that too.
+# Nothing checks that VION-IoT.vion is in winget-pkgs: GitHub refuses a contents API read of winget-pkgs
+# at random, and the check would only serve a release cut before the first, hand-submitted manifest
+# merged. Such a release fails in `komac update` and is rerun once the manifest exists; the first
+# release's own run stays red. GitHub can refuse komac's own reads of winget-pkgs the same way, and a
+# rerun recovers that too (docs/releasing.md § winget).
 #
 # komac is pinned by version and SHA-256, KOMAC_VERSION and KOMAC_SHA256 below, because komac is the
 # code that is handed WINGET_TOKEN: a wrapper action pinned by commit freezes the wrapper only, not the
