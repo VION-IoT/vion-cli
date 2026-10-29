@@ -1,35 +1,49 @@
 # Submit the release's win-x64 zip to winget (microsoft/winget-pkgs) as VION-IoT.vion.
 #
-#   release: published (not a pre-release) -> wait for vion-<version>-win-x64.zip to be attached, then
-#                                             winget-releaser opens the manifest update pull request
+#   release: released (a full release, or a pre-release promoted to one)
+#     -> skip while VION-IoT.vion is not in winget-pkgs yet (the first version is submitted by hand)
+#     -> wait for vion-<version>-win-x64.zip to be attached, then winget-releaser opens the manifest
+#        update pull request
 #
 # The release is published by `gh release create` before ci-cd.yml has built anything, and the Linux job
-# and the Windows job attach their archives independently, so the first step waits for the zip: up to
-# twenty minutes, which is longer than the win-x64 publish has ever taken.
+# and the Windows job attach their archives independently, so the wait step polls for the zip, up to
+# twenty minutes; a wait that runs out is recovered by re-running this job once the zip is attached
+# (docs/releasing.md § winget).
 #
-# winget-releaser is pinned by commit (b7370d4d is the v2 tag on 2026-10-28), as spec-gates.yml pins
-# create-github-app-token: it is handed WINGET_TOKEN, a classic personal access token with `public_repo`
-# on an account that owns a fork of microsoft/winget-pkgs. The fork's owner is `fork-user`: the
-# repository variable WINGET_FORK_USER when set, else this repository's owner.
-#
-# The action updates an existing manifest only. The first version of the package is submitted by hand
-# with `wingetcreate new`, as docs/releasing.md § winget says; from the second release on this runs.
+# winget-releaser is pinned by commit, as spec-gates.yml pins create-github-app-token: it is handed
+# WINGET_TOKEN, a classic personal access token with `public_repo` on an account that owns a fork of
+# microsoft/winget-pkgs. The fork's owner is `fork-user`: the repository variable WINGET_FORK_USER when
+# set, else this repository's owner.
 name: winget
 run-name: winget ${{ github.event.release.tag_name }}
 
 on:
   release:
-    types: [published]
+    types: [released]
 
 permissions:
   contents: read
 
 jobs:
   submit:
-    if: ${{ !github.event.release.prerelease }}
     runs-on: windows-latest
     steps:
+      # The action updates an existing manifest only: until the hand-submitted first version has merged,
+      # a run would fail on a package winget-pkgs does not know. A release cut before then is submitted
+      # by re-running this job after the merge.
+      - name: Is VION-IoT.vion in winget-pkgs yet
+        id: package
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/microsoft/winget-pkgs/contents/manifests/v/VION-IoT/vion --jq '.[].name' 2>$null | Out-Null
+          $present = ($LASTEXITCODE -eq 0)
+          if (-not $present) { Write-Host 'VION-IoT.vion is not in microsoft/winget-pkgs yet; the first version is submitted by hand (docs/releasing.md). Nothing to do.' }
+          "present=$($present.ToString().ToLower())" >> $env:GITHUB_OUTPUT
+
       - name: Wait for the win-x64 zip
+        if: steps.package.outputs.present == 'true'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -37,15 +51,16 @@ jobs:
         run: |
           $deadline = (Get-Date).AddMinutes(20)
           while ($true) {
-            $assets = gh release view $env:TAG --repo $env:GITHUB_REPOSITORY --json assets --jq '.assets[].name'
+            $assets = gh release view $env:TAG --repo $env:GITHUB_REPOSITORY --json assets --jq '.assets[] | select(.state == "uploaded") | .name'
             $zip = @($assets) | Where-Object { $_ -match '-win-x64[.]zip$' }
             if ($zip) { Write-Host "attached: $zip"; break }
-            if ((Get-Date) -gt $deadline) { Write-Host '::error::no win-x64 zip on the release after twenty minutes'; exit 1 }
+            if ((Get-Date) -gt $deadline) { Write-Host '::error::no win-x64 zip on the release after twenty minutes; re-run this job once it is attached'; exit 1 }
             Write-Host "no win-x64 zip yet on $env:TAG; waiting"
             Start-Sleep -Seconds 30
           }
 
       - name: Submit the manifest update
+        if: steps.package.outputs.present == 'true'
         uses: vedantmgoyal9/winget-releaser@b7370d4d152efdce803a26cc6ca9eee58cb2ad54 # v2
         with:
           identifier: VION-IoT.vion

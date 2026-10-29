@@ -58,14 +58,18 @@ The package is `VION-IoT.vion`, moniker `vion`, a portable zip installer
 `winget install vion` works as `winget install gh` does for `GitHub.cli`.
 
 - **Every release after the first:** [`winget.yml`](../.github/workflows/winget.yml) runs on
-  `release: published` (a pre-release is skipped), waits up to twenty minutes for the win-x64 zip to
-  be attached (`gh release create` publishes before anything is built, and the Linux archives can land
-  first), and submits the manifest update to `microsoft/winget-pkgs` through `winget-releaser`,
-  pinned by commit because it is handed `WINGET_TOKEN` — a classic personal access token with
-  `public_repo` on an account that owns a fork of `microsoft/winget-pkgs`. The fork's owner is the
-  repository variable `WINGET_FORK_USER`, else this repository's owner. The pull request it opens is
-  reviewed by Microsoft's bots and merges on its own when the manifest validates; the run's log
-  carries its URL.
+  `release: released` — a full release, or a pre-release promoted to one; a pre-release as such never
+  fires it. It does nothing while `VION-IoT.vion` is not in `microsoft/winget-pkgs` (the first
+  version's hand submission, below, takes days to merge). Then it waits up to twenty minutes for the
+  win-x64 zip to be attached (`gh release create` publishes before anything is built, and the Linux
+  archives can land first) and submits the manifest update through `winget-releaser`, pinned by
+  commit because it is handed `WINGET_TOKEN` — a classic personal access token with `public_repo` on
+  an account that owns a fork of `microsoft/winget-pkgs`. The fork's owner is the repository variable
+  `WINGET_FORK_USER`, else this repository's owner. The pull request it opens is reviewed by
+  Microsoft's bots and merges on its own when the manifest validates; the run's log carries its URL.
+- **Recovery:** a release cut before the first manifest merged, or one whose wait ran out, is
+  submitted by re-running the `winget` job on that release's run once the manifest exists and the zip
+  is attached; nothing else is needed.
 - **The first release** of the package is submitted by hand, because `winget-releaser` updates an
   existing manifest only: `wingetcreate new <zip url>` generates the three manifest files, which are
   reviewed and submitted with `wingetcreate submit`. The reviewers' first pass takes days.
