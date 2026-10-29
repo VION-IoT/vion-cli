@@ -1,7 +1,6 @@
 # Submit the release's win-x64 zip to winget (microsoft/winget-pkgs) as VION-IoT.vion.
 #
 #   release: released (a full release, or a pre-release promoted to one)
-#     -> skip while VION-IoT.vion is not in winget-pkgs yet (the first version is submitted by hand)
 #     -> wait for vion-<version>-win-x64.zip to be attached
 #     -> download komac and refuse it unless its SHA-256 is the one committed here
 #     -> komac syncs the fork, opens the manifest update pull request, deletes its merged branches
@@ -10,6 +9,11 @@
 # and the Windows job attach their archives independently, so the wait step polls for the zip, up to
 # twenty minutes; a wait that runs out is recovered by re-running this job once the zip is attached
 # (docs/releasing.md § winget).
+#
+# There is no check that VION-IoT.vion is in winget-pkgs yet: the one there was went red at random when
+# GitHub refused its contents API call (v0.1.0's run), and it only served releases cut before the first,
+# hand-submitted manifest merged. Such a release fails in `komac update` and is rerun once the manifest
+# exists; GitHub can refuse komac's own reads of winget-pkgs the same way, and a rerun recovers that too.
 #
 # komac is pinned by version and SHA-256, KOMAC_VERSION and KOMAC_SHA256 below, because komac is the
 # code that is handed WINGET_TOKEN: a wrapper action pinned by commit freezes the wrapper only, not the
@@ -36,36 +40,8 @@ jobs:
   submit:
     runs-on: windows-latest
     steps:
-      # komac update adds a version to a package winget-pkgs already has: until the hand-submitted first
-      # version has merged, a run would fail on a package winget-pkgs does not know. A release cut before
-      # then is submitted by re-running this job after the merge.
-      - name: Is VION-IoT.vion in winget-pkgs yet
-        id: package
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # Only a 404 means absent; any other failure is reported, not read as "nothing to do". The explicit
-          # exit 0 matters: the runner ends a pwsh step with the last native command's exit code otherwise.
-          $out = gh api repos/microsoft/winget-pkgs/contents/manifests/v/VION-IoT/vion --jq '.[].name' 2>&1
-          if ($LASTEXITCODE -eq 0) {
-            $present = $true
-            Write-Host "VION-IoT.vion is in microsoft/winget-pkgs with versions: $(@($out) -join ', ')"
-          }
-          elseif ("$out" -match 'HTTP 404') {
-            $present = $false
-            Write-Host 'VION-IoT.vion is not in microsoft/winget-pkgs yet; the first version is submitted by hand (docs/releasing.md). Nothing to do.'
-          }
-          else {
-            Write-Host "::error::could not read microsoft/winget-pkgs: $out"
-            exit 1
-          }
-          "present=$($present.ToString().ToLower())" >> $env:GITHUB_OUTPUT
-          exit 0
-
       - name: Wait for the win-x64 zip
         id: zip
-        if: steps.package.outputs.present == 'true'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -85,7 +61,6 @@ jobs:
 
       - name: Download komac and verify its SHA-256
         id: komac
-        if: steps.package.outputs.present == 'true'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -105,7 +80,6 @@ jobs:
           exit 0
 
       - name: Submit the manifest update
-        if: steps.package.outputs.present == 'true'
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
