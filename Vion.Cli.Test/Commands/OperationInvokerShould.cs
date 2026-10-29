@@ -316,7 +316,9 @@ namespace Vion.Cli.Test.Commands
                                                       "--id",
                                                       Tool.Id,
                                                       "-f",
-                                                      "name=x"),
+                                                      "name=x",
+                                                      "--if-match",
+                                                      "1"),
                                           Tool.Token);
 
             // Assert
