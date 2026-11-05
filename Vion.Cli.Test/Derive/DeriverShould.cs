@@ -24,8 +24,8 @@ namespace Vion.Cli.Test.Derive
             var document = Deriver.Derive(snapshot, "{}");
 
             // Assert
-            Assert.HasCount(268, document.Operations);
-            Assert.HasCount(264, document.Operations.Where(o => o.Domain != "system").ToList());
+            Assert.HasCount(265, document.Operations);
+            Assert.HasCount(261, document.Operations.Where(o => o.Domain != "system").ToList());
             var listing = document.Operations.Single(o => o.Id == "tenant.edgeGateway.list");
             Assert.AreEqual("tenant edge-gateway list", $"{listing.CommandDomain} {listing.CommandAggregate} {listing.CommandVerb}");
             var marking = document.Operations.Single(o => o.Id == "me.notification.markRead");

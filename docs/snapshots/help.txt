@@ -72,9 +72,7 @@ Commands:
   white-label-theme               The white label theme operations.
   system-health                   The system health operations.
   system-event                    The system event operations.
-  system-event-topic              The system event topic operations.
   support-grant                   The support grant operations.
-  support-topic                   The support topic operations.
   support-session                 The support session operations.
   logic-block-instance            The logic block instance operations.
   service                         The service operations.
@@ -95,7 +93,6 @@ Commands:
   node-assignment                 The node assignment operations.
   node                            The node operations.
   measuring-point-series          The measuring point series operations.
-  log-level-topic                 The log level topic operations.
   log-level                       The log level operations.
   logic-configuration-template    The logic configuration template operations.
   logic-configuration             The logic configuration operations.
@@ -125,7 +122,6 @@ Commands:
   asset-tree-arrangement          The asset tree arrangement operations.
   alert                           The alert operations.
   chart                           The chart operations.
-  sync-status-topic               The sync status topic operations.
   sync-status                     The sync status operations.
 
 ---
@@ -422,14 +418,14 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  list  An event is in the project its gateway was in when it occurred, and on that gateway. The list ends 
-        where `nextCursor` is null.
+  list  Lists the system events of a tenant the caller reads, newest first. An event is in the project its 
+        gateway was in when it occurred, and on that gateway. The list ends where `nextCursor` is null.
 
 ---
 ## vion tenant system-event list
 Description:
-  An event is in the project its gateway was in when it occurred, and on that gateway. The list ends where 
-  `nextCursor` is null.
+  Lists the system events of a tenant the caller reads, newest first. An event is in the project its gateway 
+  was in when it occurred, and on that gateway. The list ends where `nextCursor` is null.
 
 Usage:
   vion tenant system-event list [options]
@@ -445,66 +441,9 @@ Options:
                             maximum of 500 returns 500 events and is not an error, and a value below 1 is.
   --cursor <value>          The `nextCursor` of the previous page, or none for the first page. A cursor is 
                             not bound to the filters it was read with, so sending it with other filters pages 
-                            a list it was not issued for. An event that arrives late, with a time older than 
-                            the last one a page listed, is not on the pages that follow it.
-  -?, -h, --help            Show help and usage information
-  --env <name>              The environment: production, test, or one defined with `context use`.
-  --integrator <id>         The integrator id, filling {integratorId} for this call.
-  --tenant <id>             The tenant id, filling {tenantId} for this call.
-  --project <id>            The project id, filling projectId for this call.
-  --platform <id>           The platform id, filling {platformId} for this call.
-  --json                    Write the response as JSON, and nothing else, to standard output.
-  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
-  --yes                     Confirm an irreversible operation without asking.
-  --dry-run                 Check the request without applying it, on an operation that offers it.
-  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
-  --if-match <version>      The version to send as If-Match on a versioned update.
-  --token <->               Read the bearer token from standard input: `--token -`.
-  --client-id <id>          A service account's client id, with --client-secret.
-  --client-secret <secret>  A service account's client secret, with --client-id.
-  --verbose                 Show the request and the response headers on standard error.
-
----
-## vion tenant system-event-topic
-Description:
-  The system event topic operations.
-
-Usage:
-  vion tenant system-event-topic [command] [options]
-
-Options:
-  -?, -h, --help            Show help and usage information
-  --env <name>              The environment: production, test, or one defined with `context use`.
-  --integrator <id>         The integrator id, filling {integratorId} for this call.
-  --tenant <id>             The tenant id, filling {tenantId} for this call.
-  --project <id>            The project id, filling projectId for this call.
-  --platform <id>           The platform id, filling {platformId} for this call.
-  --json                    Write the response as JSON, and nothing else, to standard output.
-  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
-  --yes                     Confirm an irreversible operation without asking.
-  --dry-run                 Check the request without applying it, on an operation that offers it.
-  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
-  --if-match <version>      The version to send as If-Match on a versioned update.
-  --token <->               Read the bearer token from standard input: `--token -`.
-  --client-id <id>          A service account's client id, with --client-secret.
-  --client-secret <secret>  A service account's client secret, with --client-id.
-  --verbose                 Show the request and the response headers on standard error.
-
-Commands:
-  list  Lists the topics of the system event pushes, one per edge gateway in a project that the caller reads.
-
----
-## vion tenant system-event-topic list
-Description:
-  Lists the topics of the system event pushes, one per edge gateway in a project that the caller reads.
-
-Usage:
-  vion tenant system-event-topic list [options]
-
-Options:
-  --edge-gateway-id <uuid>  Lists only the rows of this edge gateway of the tenant. It narrows the rows the 
-                            caller may read and never adds one, and an id that is no edge gateway of the 
-                            tenant is a 400.
+                            a list it was not issued for. An event that arrives after a page was read, with a 
+                            time later than the last one that page listed, is on none of the pages that 
+                            follow it; one with an earlier time is.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -549,8 +488,10 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  list     A holder of `EdgeGateway.ManageSupportAccess` at the root sees every grant. Anyone else sees the 
-           grants covering a gateway they read, and the grants at a scope where they hold it.
+  list     The grants the caller may see — the consent inbox (the `Requested` ones) and the audit trail of 
+           the tenant's consent in one list. A holder of `EdgeGateway.ManageSupportAccess` at the root sees 
+           every grant. Anyone else sees the grants covering a gateway they read, and the grants at a scope 
+           where they hold it.
   create   "Invite support": create consent directly, with no pending request behind it. Sessions of the 
            granted kinds then start without entering the inbox at all.
   approve  Approve a pending request on the terms the tenant chooses. One grant per checked grantee kind, 
@@ -562,8 +503,9 @@ Commands:
 ---
 ## vion tenant support-grant list
 Description:
-  A holder of `EdgeGateway.ManageSupportAccess` at the root sees every grant. Anyone else sees the grants 
-  covering a gateway they read, and the grants at a scope where they hold it.
+  The grants the caller may see — the consent inbox (the `Requested` ones) and the audit trail of the 
+  tenant's consent in one list. A holder of `EdgeGateway.ManageSupportAccess` at the root sees every grant. 
+  Anyone else sees the grants covering a gateway they read, and the grants at a scope where they hold it.
 
 Usage:
   vion tenant support-grant list [options]
@@ -705,66 +647,6 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 ---
-## vion tenant support-topic
-Description:
-  The support topic operations.
-
-Usage:
-  vion tenant support-topic [command] [options]
-
-Options:
-  -?, -h, --help            Show help and usage information
-  --env <name>              The environment: production, test, or one defined with `context use`.
-  --integrator <id>         The integrator id, filling {integratorId} for this call.
-  --tenant <id>             The tenant id, filling {tenantId} for this call.
-  --project <id>            The project id, filling projectId for this call.
-  --platform <id>           The platform id, filling {platformId} for this call.
-  --json                    Write the response as JSON, and nothing else, to standard output.
-  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
-  --yes                     Confirm an irreversible operation without asking.
-  --dry-run                 Check the request without applying it, on an operation that offers it.
-  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
-  --if-match <version>      The version to send as If-Match on a versioned update.
-  --token <->               Read the bearer token from standard input: `--token -`.
-  --client-id <id>          A service account's client id, with --client-secret.
-  --client-secret <secret>  A service account's client secret, with --client-id.
-  --verbose                 Show the request and the response headers on standard error.
-
-Commands:
-  list  Grant and session changes are pushed on the covered gateways' `notify` subtree, the same one the 
-        caller's other gateway pushes arrive on, so a subscriber tells them apart by their schema.
-
----
-## vion tenant support-topic list
-Description:
-  Grant and session changes are pushed on the covered gateways' `notify` subtree, the same one the caller's 
-  other gateway pushes arrive on, so a subscriber tells them apart by their schema.
-
-Usage:
-  vion tenant support-topic list [options]
-
-Options:
-  --edge-gateway-id <uuid>  Lists only the rows of this edge gateway of the tenant. It narrows the rows the 
-                            caller may read and never adds one, and an id that is no edge gateway of the 
-                            tenant is a 400.
-  -?, -h, --help            Show help and usage information
-  --env <name>              The environment: production, test, or one defined with `context use`.
-  --integrator <id>         The integrator id, filling {integratorId} for this call.
-  --tenant <id>             The tenant id, filling {tenantId} for this call.
-  --project <id>            The project id, filling projectId for this call.
-  --platform <id>           The platform id, filling {platformId} for this call.
-  --json                    Write the response as JSON, and nothing else, to standard output.
-  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
-  --yes                     Confirm an irreversible operation without asking.
-  --dry-run                 Check the request without applying it, on an operation that offers it.
-  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
-  --if-match <version>      The version to send as If-Match on a versioned update.
-  --token <->               Read the bearer token from standard input: `--token -`.
-  --client-id <id>          A service account's client id, with --client-secret.
-  --client-secret <secret>  A service account's client secret, with --client-id.
-  --verbose                 Show the request and the response headers on standard error.
-
----
 ## vion tenant support-session
 Description:
   The support session operations.
@@ -791,12 +673,16 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  list  A caller sees the sessions whose anchor gateway they read.
+  list  What support is doing now, or did: the sessions a tenant user did not open, on gateways the caller 
+        reads. Each one rides a grant this tenant gave — none of them is waiting for an answer here. A caller 
+        sees the sessions whose anchor gateway they read.
 
 ---
 ## vion tenant support-session list
 Description:
-  A caller sees the sessions whose anchor gateway they read.
+  What support is doing now, or did: the sessions a tenant user did not open, on gateways the caller reads. 
+  Each one rides a grant this tenant gave — none of them is waiting for an answer here. A caller sees the 
+  sessions whose anchor gateway they read.
 
 Usage:
   vion tenant support-session list [options]
@@ -850,8 +736,9 @@ Options:
 
 Commands:
   list    Lists the active logic-block instances of the tenant the caller reads.
-  rename  The name is kept by the instance id, so it outlives a re-activation of the configuration. A `null` 
-          or blank `displayName` shows the declared name again.
+  rename  Sets the name shown for an active logic-block instance in place of the name its configuration 
+          declares. The name is kept by the instance id, so it outlives a re-activation of the configuration. 
+          A `null` or blank `displayName` shows the declared name again.
 
 ---
 ## vion tenant logic-block-instance list
@@ -885,7 +772,8 @@ Options:
 ---
 ## vion tenant logic-block-instance rename
 Description:
-  The name is kept by the instance id, so it outlives a re-activation of the configuration. A `null` or blank 
+  Sets the name shown for an active logic-block instance in place of the name its configuration declares. The 
+  name is kept by the instance id, so it outlives a re-activation of the configuration. A `null` or blank 
   `displayName` shows the declared name again.
 
 Usage:
@@ -1004,12 +892,13 @@ Commands:
              the topic provided in the configuration of the service property. The flow is: call this endpoint 
              with the properties to watch and a subscriberId, then connect to the MQTT broker with the same 
              bearer token and read the values from the topics this call returns. subscriberId is not 
-             free-form: it must equal the MQTT client id used on that connection, 
-             {identityProviderUserId}_{exactly 6 alphanumeric characters}_, trailing underscore included, and 
-             the subscription must be made at QoS 0. RabbitMQ enforces both and fails silently on violation: 
-             CONNECT succeeds, SUBSCRIBE is refused, the connection closes, nothing names a reason. The 
-             subscription is kept alive by the MQTT connection, so the client must register the last will 
-             topic cloud/subscriber/lastWill/{identityProviderUserId}/{subscriberId} - the cloud tears the 
+             free-form: it must equal the MQTT client id used on that connection, which me.subscriber.create 
+             mints as {identityProviderUserId}_{exactly 6 alphanumeric characters}_, trailing underscore 
+             included; an id that is not the caller's in this form is refused with 400. The subscription must 
+             be made at QoS 0, which RabbitMQ enforces silently: CONNECT succeeds, SUBSCRIBE is refused, the 
+             connection closes, nothing names a reason. The subscription is kept alive by the MQTT 
+             connection, so the client must register the last will topic 
+             cloud/subscriber/lastWill/{identityProviderUserId}/{subscriberId} - the cloud tears the 
              subscription down when that last will fires. Worked examples: 
              https://docs.vion.swiss/cloud-api/minimal-client
   set        Set the value of a service property.
@@ -1021,10 +910,11 @@ Description:
   provided in the configuration of the service property. The flow is: call this endpoint with the properties 
   to watch and a subscriberId, then connect to the MQTT broker with the same bearer token and read the values 
   from the topics this call returns. subscriberId is not free-form: it must equal the MQTT client id used on 
-  that connection, {identityProviderUserId}_{exactly 6 alphanumeric characters}_, trailing underscore 
-  included, and the subscription must be made at QoS 0. RabbitMQ enforces both and fails silently on 
-  violation: CONNECT succeeds, SUBSCRIBE is refused, the connection closes, nothing names a reason. The 
-  subscription is kept alive by the MQTT connection, so the client must register the last will topic 
+  that connection, which me.subscriber.create mints as {identityProviderUserId}_{exactly 6 alphanumeric 
+  characters}_, trailing underscore included; an id that is not the caller's in this form is refused with 
+  400. The subscription must be made at QoS 0, which RabbitMQ enforces silently: CONNECT succeeds, SUBSCRIBE 
+  is refused, the connection closes, nothing names a reason. The subscription is kept alive by the MQTT 
+  connection, so the client must register the last will topic 
   cloud/subscriber/lastWill/{identityProviderUserId}/{subscriberId} - the cloud tears the subscription down 
   when that last will fires. Worked examples: https://docs.vion.swiss/cloud-api/minimal-client
 
@@ -1423,8 +1313,8 @@ Options:
 Commands:
   restart  Restarts a single component on one of the tenant's edge gateways.
   list     Returns all edge gateways for a tenant
-  update   A project given in the body moves the gateway to that project of the tenant; none leaves it where 
-           it is.
+  update   Renames an edge gateway and rewrites its description. A project given in the body moves the 
+           gateway to that project of the tenant; none leaves it where it is.
 
 ---
 ## vion tenant edge-gateway restart
@@ -1486,7 +1376,8 @@ Options:
 ---
 ## vion tenant edge-gateway update
 Description:
-  A project given in the body moves the gateway to that project of the tenant; none leaves it where it is.
+  Renames an edge gateway and rewrites its description. A project given in the body moves the gateway to that 
+  project of the tenant; none leaves it where it is.
 
 Usage:
   vion tenant edge-gateway update [options]
@@ -2572,66 +2463,6 @@ Options:
   --client-id <id>                              A service account's client id, with --client-secret.
   --client-secret <secret>                      A service account's client secret, with --client-id.
   --verbose                                     Show the request and the response headers on standard error.
-
----
-## vion tenant log-level-topic
-Description:
-  The log level topic operations.
-
-Usage:
-  vion tenant log-level-topic [command] [options]
-
-Options:
-  -?, -h, --help            Show help and usage information
-  --env <name>              The environment: production, test, or one defined with `context use`.
-  --integrator <id>         The integrator id, filling {integratorId} for this call.
-  --tenant <id>             The tenant id, filling {tenantId} for this call.
-  --project <id>            The project id, filling projectId for this call.
-  --platform <id>           The platform id, filling {platformId} for this call.
-  --json                    Write the response as JSON, and nothing else, to standard output.
-  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
-  --yes                     Confirm an irreversible operation without asking.
-  --dry-run                 Check the request without applying it, on an operation that offers it.
-  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
-  --if-match <version>      The version to send as If-Match on a versioned update.
-  --token <->               Read the bearer token from standard input: `--token -`.
-  --client-id <id>          A service account's client id, with --client-secret.
-  --client-secret <secret>  A service account's client secret, with --client-id.
-  --verbose                 Show the request and the response headers on standard error.
-
-Commands:
-  list  Returns the MQTT topic the UI should subscribe to in order to receive `LogLevelStateUpdate` 
-        notifications, one entry per edge gateway the caller is authorized to read.
-
----
-## vion tenant log-level-topic list
-Description:
-  Returns the MQTT topic the UI should subscribe to in order to receive `LogLevelStateUpdate` notifications, 
-  one entry per edge gateway the caller is authorized to read.
-
-Usage:
-  vion tenant log-level-topic list [options]
-
-Options:
-  --edge-gateway-id <uuid>  Lists only the rows of this edge gateway of the tenant. It narrows the rows the 
-                            caller may read and never adds one, and an id that is no edge gateway of the 
-                            tenant is a 400.
-  -?, -h, --help            Show help and usage information
-  --env <name>              The environment: production, test, or one defined with `context use`.
-  --integrator <id>         The integrator id, filling {integratorId} for this call.
-  --tenant <id>             The tenant id, filling {tenantId} for this call.
-  --project <id>            The project id, filling projectId for this call.
-  --platform <id>           The platform id, filling {platformId} for this call.
-  --json                    Write the response as JSON, and nothing else, to standard output.
-  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
-  --yes                     Confirm an irreversible operation without asking.
-  --dry-run                 Check the request without applying it, on an operation that offers it.
-  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
-  --if-match <version>      The version to send as If-Match on a versioned update.
-  --token <->               Read the bearer token from standard input: `--token -`.
-  --client-id <id>          A service account's client id, with --client-secret.
-  --client-secret <secret>  A service account's client secret, with --client-id.
-  --verbose                 Show the request and the response headers on standard error.
 
 ---
 ## vion tenant log-level
@@ -3925,7 +3756,8 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  get  Self-service: any authenticated tenant member, user or service account. Without `scopeId`, the scopes 
+  get  The current caller's effective permissions in the tenant, at the root and at a set of scopes. 
+       Self-service: any authenticated tenant member, user or service account. Without `scopeId`, the scopes 
        are those where the caller or one of its groups holds an assignment of its own; a scope not listed has 
        the permissions of its nearest listed ancestor, or the root's. A `scopeId` that is not part of the 
        tenant answers with no scope type and no permissions.
@@ -3933,10 +3765,11 @@ Commands:
 ---
 ## vion tenant my-permissions get
 Description:
-  Self-service: any authenticated tenant member, user or service account. Without `scopeId`, the scopes are 
-  those where the caller or one of its groups holds an assignment of its own; a scope not listed has the 
-  permissions of its nearest listed ancestor, or the root's. A `scopeId` that is not part of the tenant 
-  answers with no scope type and no permissions.
+  The current caller's effective permissions in the tenant, at the root and at a set of scopes. Self-service: 
+  any authenticated tenant member, user or service account. Without `scopeId`, the scopes are those where the 
+  caller or one of its groups holds an assignment of its own; a scope not listed has the permissions of its 
+  nearest listed ancestor, or the root's. A `scopeId` that is not part of the tenant answers with no scope 
+  type and no permissions.
 
 Usage:
   vion tenant my-permissions get [options]
@@ -5139,14 +4972,14 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  list  An alert is in the project its gateway was in when it was raised, and on that gateway. The list ends 
-        where `nextCursor` is null.
+  list  Lists the alerts of a tenant the caller reads, newest raised first. An alert is in the project its 
+        gateway was in when it was raised, and on that gateway. The list ends where `nextCursor` is null.
 
 ---
 ## vion tenant alert list
 Description:
-  An alert is in the project its gateway was in when it was raised, and on that gateway. The list ends where 
-  `nextCursor` is null.
+  Lists the alerts of a tenant the caller reads, newest raised first. An alert is in the project its gateway 
+  was in when it was raised, and on that gateway. The list ends where `nextCursor` is null.
 
 Usage:
   vion tenant alert list [options]
@@ -5239,64 +5072,6 @@ Options:
   --client-id <id>             A service account's client id, with --client-secret.
   --client-secret <secret>     A service account's client secret, with --client-id.
   --verbose                    Show the request and the response headers on standard error.
-
----
-## vion tenant sync-status-topic
-Description:
-  The sync status topic operations.
-
-Usage:
-  vion tenant sync-status-topic [command] [options]
-
-Options:
-  -?, -h, --help            Show help and usage information
-  --env <name>              The environment: production, test, or one defined with `context use`.
-  --integrator <id>         The integrator id, filling {integratorId} for this call.
-  --tenant <id>             The tenant id, filling {tenantId} for this call.
-  --project <id>            The project id, filling projectId for this call.
-  --platform <id>           The platform id, filling {platformId} for this call.
-  --json                    Write the response as JSON, and nothing else, to standard output.
-  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
-  --yes                     Confirm an irreversible operation without asking.
-  --dry-run                 Check the request without applying it, on an operation that offers it.
-  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
-  --if-match <version>      The version to send as If-Match on a versioned update.
-  --token <->               Read the bearer token from standard input: `--token -`.
-  --client-id <id>          A service account's client id, with --client-secret.
-  --client-secret <secret>  A service account's client secret, with --client-id.
-  --verbose                 Show the request and the response headers on standard error.
-
-Commands:
-  list  Lists the topics of the synchronization status pushes, one per edge gateway the caller reads.
-
----
-## vion tenant sync-status-topic list
-Description:
-  Lists the topics of the synchronization status pushes, one per edge gateway the caller reads.
-
-Usage:
-  vion tenant sync-status-topic list [options]
-
-Options:
-  --edge-gateway-id <uuid>  Lists only the rows of this edge gateway of the tenant. It narrows the rows the 
-                            caller may read and never adds one, and an id that is no edge gateway of the 
-                            tenant is a 400.
-  -?, -h, --help            Show help and usage information
-  --env <name>              The environment: production, test, or one defined with `context use`.
-  --integrator <id>         The integrator id, filling {integratorId} for this call.
-  --tenant <id>             The tenant id, filling {tenantId} for this call.
-  --project <id>            The project id, filling projectId for this call.
-  --platform <id>           The platform id, filling {platformId} for this call.
-  --json                    Write the response as JSON, and nothing else, to standard output.
-  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
-  --yes                     Confirm an irreversible operation without asking.
-  --dry-run                 Check the request without applying it, on an operation that offers it.
-  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
-  --if-match <version>      The version to send as If-Match on a versioned update.
-  --token <->               Read the bearer token from standard input: `--token -`.
-  --client-id <id>          A service account's client id, with --client-secret.
-  --client-secret <secret>  A service account's client secret, with --client-id.
-  --verbose                 Show the request and the response headers on standard error.
 
 ---
 ## vion tenant sync-status
@@ -6111,21 +5886,25 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  create  The machine-identity form of the owner invitation beside this: no email user, no token, no accept 
-          step — the redeem is the client_credentials grant. The created account does NOT appear in the 
-          tenant's owners list, which enumerates invited users; it appears in the tenant's own Access 
-          console, which is membership-driven.
+  create  Create a service account that owns the tenant. Returns the client ID and the client secret; the 
+          secret is shown exactly once and only its hint is stored. The machine-identity form of the owner 
+          invitation beside this: no email user, no token, no accept step — the redeem is the 
+          client_credentials grant. The created account does NOT appear in the tenant's owners list, which 
+          enumerates invited users; it appears in the tenant's own Access console, which is 
+          membership-driven.
   list    Get the service accounts that own the tenant. Never returns a secret.
-  delete  A service account's identity and its membership are one row, so revoking ownership means destroying 
+  delete  Revoke a service account that owns the tenant, destroying it and its identity provider client. A 
+          service account's identity and its membership are one row, so revoking ownership means destroying 
           the account — the honest mirror of removing an owner user.
 
 ---
 ## vion integrator tenant-owner-service-account create
 Description:
-  The machine-identity form of the owner invitation beside this: no email user, no token, no accept step — 
-  the redeem is the client_credentials grant. The created account does NOT appear in the tenant's owners 
-  list, which enumerates invited users; it appears in the tenant's own Access console, which is 
-  membership-driven.
+  Create a service account that owns the tenant. Returns the client ID and the client secret; the secret is 
+  shown exactly once and only its hint is stored. The machine-identity form of the owner invitation beside 
+  this: no email user, no token, no accept step — the redeem is the client_credentials grant. The created 
+  account does NOT appear in the tenant's owners list, which enumerates invited users; it appears in the 
+  tenant's own Access console, which is membership-driven.
 
 Usage:
   vion integrator tenant-owner-service-account create [options]
@@ -6181,8 +5960,9 @@ Options:
 ---
 ## vion integrator tenant-owner-service-account delete
 Description:
-  A service account's identity and its membership are one row, so revoking ownership means destroying the 
-  account — the honest mirror of removing an owner user.
+  Revoke a service account that owns the tenant, destroying it and its identity provider client. A service 
+  account's identity and its membership are one row, so revoking ownership means destroying the account — the 
+  honest mirror of removing an owner user.
 
 Usage:
   vion integrator tenant-owner-service-account delete [options]
@@ -6743,14 +6523,17 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  list  The same tree the tenant itself reads when it answers, so requester and approver name one structure. 
-        It carries scope ids, names and types only, and no principal.
+  list  The scopes of one of the integrator's own tenants a grant can be asked for: its gateways, its 
+        projects and its root, with the ancestors that say how they nest. The same tree the tenant itself 
+        reads when it answers, so requester and approver name one structure. It carries scope ids, names and 
+        types only, and no principal.
 
 ---
 ## vion integrator support-tenant-scope list
 Description:
-  The same tree the tenant itself reads when it answers, so requester and approver name one structure. It 
-  carries scope ids, names and types only, and no principal.
+  The scopes of one of the integrator's own tenants a grant can be asked for: its gateways, its projects and 
+  its root, with the ancestors that say how they nest. The same tree the tenant itself reads when it answers, 
+  so requester and approver name one structure. It carries scope ids, names and types only, and no principal.
 
 Usage:
   vion integrator support-tenant-scope list [options]
@@ -8694,7 +8477,8 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  get  Self-service: any authenticated integrator member, user or service account. Without `scopeId`, the 
+  get  The current caller's effective permissions in the integrator, at the root and at a set of scopes. 
+       Self-service: any authenticated integrator member, user or service account. Without `scopeId`, the 
        scopes are those where the caller or one of its groups holds an assignment of its own; a scope not 
        listed has the permissions of its nearest listed ancestor, or the root's. A `scopeId` that is not part 
        of the integrator answers with no scope type and no permissions.
@@ -8702,6 +8486,7 @@ Commands:
 ---
 ## vion integrator my-permissions get
 Description:
+  The current caller's effective permissions in the integrator, at the root and at a set of scopes. 
   Self-service: any authenticated integrator member, user or service account. Without `scopeId`, the scopes 
   are those where the caller or one of its groups holds an assignment of its own; a scope not listed has the 
   permissions of its nearest listed ancestor, or the root's. A `scopeId` that is not part of the integrator 
@@ -9560,12 +9345,14 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  list  VION support is bound to no integrator, so a tenant it may ask for consent is named from nowhere else.
+  list  Every tenant on the platform, named well enough to choose which of them to ask for consent. VION 
+        support is bound to no integrator, so a tenant it may ask for consent is named from nowhere else.
 
 ---
 ## vion platform support-tenant list
 Description:
-  VION support is bound to no integrator, so a tenant it may ask for consent is named from nowhere else.
+  Every tenant on the platform, named well enough to choose which of them to ask for consent. VION support is 
+  bound to no integrator, so a tenant it may ask for consent is named from nowhere else.
 
 Usage:
   vion platform support-tenant list [options]
@@ -9615,14 +9402,16 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  list  The same tree the tenant itself reads when it answers, so requester and approver name one structure. 
-        It carries scope ids, names and types only, and no principal.
+  list  The scopes of one tenant a grant can be asked for: its gateways, its projects and its root, with the 
+        ancestors that say how they nest. The same tree the tenant itself reads when it answers, so requester 
+        and approver name one structure. It carries scope ids, names and types only, and no principal.
 
 ---
 ## vion platform support-tenant-scope list
 Description:
-  The same tree the tenant itself reads when it answers, so requester and approver name one structure. It 
-  carries scope ids, names and types only, and no principal.
+  The scopes of one tenant a grant can be asked for: its gateways, its projects and its root, with the 
+  ancestors that say how they nest. The same tree the tenant itself reads when it answers, so requester and 
+  approver name one structure. It carries scope ids, names and types only, and no principal.
 
 Usage:
   vion platform support-tenant-scope list [options]
@@ -10077,19 +9866,21 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  recreate  Migrate existing principals to RabbitMQ authorization tables. Drops and recreates the RabbitMQ 
-            user records one principal at a time (no global wipe window) for all accepted tenant, integrator 
-            and platform users and the tenant and integrator service accounts, then cleans up orphaned 
-            RabbitMQ users - which are neither those principals nor edge gateways nor admins - and finally 
-            recreates the edge gateway records.
+  recreate  Reconciles the broker's users and permissions with the grants of every principal and edge 
+            gateway. Each broker user of an accepted tenant, integrator or platform user, of a tenant or 
+            integrator service account or of an edge gateway is left holding exactly the permissions its 
+            grants compute. A permission it keeps stays in place throughout. Every other broker user is 
+            deleted with its permissions, except a user tagged administrator, which the reconcile leaves 
+            untouched.
 
 ---
 ## vion platform rabbit-mq-permission recreate
 Description:
-  Migrate existing principals to RabbitMQ authorization tables. Drops and recreates the RabbitMQ user records 
-  one principal at a time (no global wipe window) for all accepted tenant, integrator and platform users and 
-  the tenant and integrator service accounts, then cleans up orphaned RabbitMQ users - which are neither 
-  those principals nor edge gateways nor admins - and finally recreates the edge gateway records.
+  Reconciles the broker's users and permissions with the grants of every principal and edge gateway. Each 
+  broker user of an accepted tenant, integrator or platform user, of a tenant or integrator service account 
+  or of an edge gateway is left holding exactly the permissions its grants compute. A permission it keeps 
+  stays in place throughout. Every other broker user is deleted with its permissions, except a user tagged 
+  administrator, which the reconcile leaves untouched.
 
 Usage:
   vion platform rabbit-mq-permission recreate [options]
@@ -10578,21 +10369,25 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  create  The machine-identity form of the owner invitation beside this: no email user, no token, no accept 
-          step — the redeem is the client_credentials grant. The created account does NOT appear in the 
-          integrator's owners list, which enumerates invited users; it appears in the integrator's own Access 
-          console, which is membership-driven.
+  create  Create a service account that owns the integrator. Returns the client ID and the client secret; the 
+          secret is shown exactly once and only its hint is stored. The machine-identity form of the owner 
+          invitation beside this: no email user, no token, no accept step — the redeem is the 
+          client_credentials grant. The created account does NOT appear in the integrator's owners list, 
+          which enumerates invited users; it appears in the integrator's own Access console, which is 
+          membership-driven.
   list    Get the service accounts that own the integrator. Never returns a secret.
-  delete  A service account's identity and its membership are one row, so revoking ownership means destroying 
+  delete  Revoke a service account that owns the integrator, destroying it and its identity provider client. 
+          A service account's identity and its membership are one row, so revoking ownership means destroying 
           the account — the honest mirror of removing an owner user.
 
 ---
 ## vion platform integrator-owner-service-account create
 Description:
-  The machine-identity form of the owner invitation beside this: no email user, no token, no accept step — 
-  the redeem is the client_credentials grant. The created account does NOT appear in the integrator's owners 
-  list, which enumerates invited users; it appears in the integrator's own Access console, which is 
-  membership-driven.
+  Create a service account that owns the integrator. Returns the client ID and the client secret; the secret 
+  is shown exactly once and only its hint is stored. The machine-identity form of the owner invitation beside 
+  this: no email user, no token, no accept step — the redeem is the client_credentials grant. The created 
+  account does NOT appear in the integrator's owners list, which enumerates invited users; it appears in the 
+  integrator's own Access console, which is membership-driven.
 
 Usage:
   vion platform integrator-owner-service-account create [options]
@@ -10648,7 +10443,8 @@ Options:
 ---
 ## vion platform integrator-owner-service-account delete
 Description:
-  A service account's identity and its membership are one row, so revoking ownership means destroying the 
+  Revoke a service account that owns the integrator, destroying it and its identity provider client. A 
+  service account's identity and its membership are one row, so revoking ownership means destroying the 
   account — the honest mirror of removing an owner user.
 
 Usage:
@@ -10923,7 +10719,8 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  get  Self-service: any authenticated platform member, user or service account. Without `scopeId`, the 
+  get  The current caller's effective permissions in the platform, at the root and at a set of scopes. 
+       Self-service: any authenticated platform member, user or service account. Without `scopeId`, the 
        scopes are those where the caller or one of its groups holds an assignment of its own; a scope not 
        listed has the permissions of its nearest listed ancestor, or the root's. A `scopeId` that is not part 
        of the platform answers with no scope type and no permissions.
@@ -10931,6 +10728,7 @@ Commands:
 ---
 ## vion platform my-permissions get
 Description:
+  The current caller's effective permissions in the platform, at the root and at a set of scopes. 
   Self-service: any authenticated platform member, user or service account. Without `scopeId`, the scopes are 
   those where the caller or one of its groups holds an assignment of its own; a scope not listed has the 
   permissions of its nearest listed ancestor, or the root's. A `scopeId` that is not part of the platform 
@@ -11649,6 +11447,7 @@ Commands:
   notification-preferences  The notification preferences operations.
   notification              The notification operations.
   identity                  The identity operations.
+  subscriber                The subscriber operations.
   profile                   The profile operations.
   invitation                The invitation operations.
 
@@ -11740,14 +11539,18 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  get     A switch is on unless the caller turned it off. On, each notification of the category uses the 
-          channel where its type does; off, none does. The inbox always receives, whatever the switches.
-  update  Repeatable: the same body again changes nothing. A switch can only turn a channel off for a 
+  get     Reads the caller's notification preferences: one switch per category and channel, across every 
+          membership. A switch is on unless the caller turned it off. On, each notification of the category 
+          uses the channel where its type does; off, none does. The inbox always receives, whatever the 
+          switches.
+  update  Replaces the caller's notification preferences with the channels switched off in the body. 
+          Repeatable: the same body again changes nothing. A switch can only turn a channel off for a 
           category's notifications, never add one their type does not use.
 
 ---
 ## vion me notification-preferences get
 Description:
+  Reads the caller's notification preferences: one switch per category and channel, across every membership. 
   A switch is on unless the caller turned it off. On, each notification of the category uses the channel 
   where its type does; off, none does. The inbox always receives, whatever the switches.
 
@@ -11777,8 +11580,9 @@ Options:
 ---
 ## vion me notification-preferences update
 Description:
-  Repeatable: the same body again changes nothing. A switch can only turn a channel off for a category's 
-  notifications, never add one their type does not use.
+  Replaces the caller's notification preferences with the channels switched off in the body. Repeatable: the 
+  same body again changes nothing. A switch can only turn a channel off for a category's notifications, never 
+  add one their type does not use.
 
 Usage:
   vion me notification-preferences update [options]
@@ -11834,19 +11638,22 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  list       A notification of a context the caller is no longer a member of is not listed or counted. A 
+  list       Lists the caller's notifications, newest first, with the unread counts of the whole inbox. A 
+             notification of a context the caller is no longer a member of is not listed or counted. A 
              service account has an empty inbox. A page can hold fewer notifications than the limit while 
              more follow; the list ends where `nextCursor` is null.
   get        Reads one of the caller's notifications.
-  mark-read  Repeatable: a notification already read keeps its time, and an id that is not the caller's 
+  mark-read  Marks the caller's notifications read: the ones named, or every one, optionally of one context 
+             only. Repeatable: a notification already read keeps its time, and an id that is not the caller's 
              changes nothing.
 
 ---
 ## vion me notification list
 Description:
-  A notification of a context the caller is no longer a member of is not listed or counted. A service account 
-  has an empty inbox. A page can hold fewer notifications than the limit while more follow; the list ends 
-  where `nextCursor` is null.
+  Lists the caller's notifications, newest first, with the unread counts of the whole inbox. A notification 
+  of a context the caller is no longer a member of is not listed or counted. A service account has an empty 
+  inbox. A page can hold fewer notifications than the limit while more follow; the list ends where 
+  `nextCursor` is null.
 
 Usage:
   vion me notification list [options]
@@ -11911,6 +11718,7 @@ Options:
 ---
 ## vion me notification mark-read
 Description:
+  Marks the caller's notifications read: the ones named, or every one, optionally of one context only. 
   Repeatable: a notification already read keeps its time, and an id that is not the caller's changes nothing.
 
 Usage:
@@ -11976,6 +11784,65 @@ Description:
 
 Usage:
   vion me identity get [options]
+
+Options:
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+
+---
+## vion me subscriber
+Description:
+  The subscriber operations.
+
+Usage:
+  vion me subscriber [command] [options]
+
+Options:
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+
+Commands:
+  create  Mints a subscriber for the caller to connect to the broker as, and stores nothing. Each call 
+          answers a new subscriber id, so two connections never share one. A caller whose broker user does 
+          not exist yet, such as a platform service account, is refused with 409.
+
+---
+## vion me subscriber create
+Description:
+  Mints a subscriber for the caller to connect to the broker as, and stores nothing. Each call answers a new 
+  subscriber id, so two connections never share one. A caller whose broker user does not exist yet, such as a 
+  platform service account, is refused with 409.
+
+Usage:
+  vion me subscriber create [options]
 
 Options:
   -?, -h, --help            Show help and usage information
@@ -12081,16 +11948,18 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  accept  The token must carry an email address its identity provider verified, else the answer is 403. An 
+  accept  Accepts an invitation sent to the caller's email address, by its id rather than the mailed token. 
+          The token must carry an email address its identity provider verified, else the answer is 403. An 
           invitation sent to another address is not found, as is an id nobody has. An invitation already 
           accepted is a conflict, and an expired one is refused as invalid.
 
 ---
 ## vion me invitation accept
 Description:
-  The token must carry an email address its identity provider verified, else the answer is 403. An invitation 
-  sent to another address is not found, as is an id nobody has. An invitation already accepted is a conflict, 
-  and an expired one is refused as invalid.
+  Accepts an invitation sent to the caller's email address, by its id rather than the mailed token. The token 
+  must carry an email address its identity provider verified, else the answer is 403. An invitation sent to 
+  another address is not found, as is an id nobody has. An invitation already accepted is a conflict, and an 
+  expired one is refused as invalid.
 
 Usage:
   vion me invitation accept [options]
