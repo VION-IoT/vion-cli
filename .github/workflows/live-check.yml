@@ -1,0 +1,171 @@
+# Run the latest release's Linux executable against both hosted environments, once a day, and keep one
+# issue in VION-IoT/architecture open while either differs or fails (docs/releasing.md § The live check).
+#
+#   schedule 04:17 UTC, workflow_dispatch
+#     -> the latest release's vion-<v>-linux-musl-x64.tar.gz, refused unless it matches its .sha256
+#     -> `vion ops --live --env test --json` and `… --env production --json`, tokenless and read-only
+#     -> both clean: nothing. Either not: a comment on the open `live-check` issue in architecture, or
+#        a new one when none is open; the run then goes red.
+#
+# It checks what the pull request gates do not: the released snapshot against what each host serves
+# today, and the static Linux executable's HTTPS over a real network. 04:17 UTC is after cloud-api's
+# European working day has deployed and before the next one starts; off the hour, because GitHub
+# delays scheduled runs that start on it. The latest release, not main's build: the release is what
+# users run, and derive.ps1 -Verify already proves main's snapshot on every pull request.
+#
+# Exit 1 is both "differs" and "failed" (AC-CLI-006.2 and Guard), so the run passes --json and reads
+# the one document AC-CLI-003.1 puts on standard output: `items` for a diff, `error` for a failure;
+# anything else (no document — a crash, an abort) is a failure too.
+#
+# This repository is public and gets no issues of its own. The issue token is the GitHub App gates.yml
+# uses, minted with issues: write on architecture and nothing else; GITHUB_TOKEN only reads this
+# repository's release. GitHub disables a public repository's scheduled workflows after sixty days
+# without a commit; a workflow_dispatch run or any commit re-enables it.
+name: Live check
+run-name: Live check of the latest release
+
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: The latest release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "archive=vion-${tag#v}-linux-musl-x64.tar.gz" >> "$GITHUB_OUTPUT"
+
+      - name: Download and verify its Linux x64 archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+          ARCHIVE: ${{ steps.release.outputs.archive }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/download" "$RUNNER_TEMP/vion"
+          cd "$RUNNER_TEMP/download"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$ARCHIVE" --pattern "$ARCHIVE.sha256"
+          sha256sum -c "$ARCHIVE.sha256"
+          tar -xzf "$ARCHIVE" -C "$RUNNER_TEMP/vion"
+          test -x "$RUNNER_TEMP/vion/vion"
+
+      # Each environment's standard output, standard error and exit code go to files under out/, and
+      # its state — clean, differs or fails — to <env>.state; `dirty` is whether any is not clean.
+      - name: vion ops --live, test and production
+        id: check
+        env:
+          VION_NO_UPDATE_CHECK: '1'
+        run: |
+          export VION_HOME="$RUNNER_TEMP/vion-home"
+          out="$RUNNER_TEMP/out"
+          mkdir -p "$out" "$VION_HOME"
+          dirty=false
+          for env in test production; do
+            set +e
+            "$RUNNER_TEMP/vion/vion" ops --live --env "$env" --json > "$out/$env.out" 2> "$out/$env.err"
+            code=$?
+            set -e
+            echo "$code" > "$out/$env.code"
+            if [ "$code" -eq 0 ]; then
+              state=clean
+            elif jq -e '(.items | type) == "array" and (.items | length) > 0' "$out/$env.out" > /dev/null 2>&1; then
+              state=differs
+            else
+              state=fails
+            fi
+            echo "$state" > "$out/$env.state"
+            [ "$state" = clean ] || dirty=true
+            echo "::group::$env: $state, exit $code"
+            cat "$out/$env.err" "$out/$env.out"
+            echo "::endgroup::"
+          done
+          echo "dirty=$dirty" >> "$GITHUB_OUTPUT"
+
+      # Pinned by commit as in gates.yml, since it is handed the App's private key. v3.3.0.
+      - name: An issues token for architecture
+        if: steps.check.outputs.dirty == 'true'
+        id: token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+        with:
+          client-id: ${{ secrets.ARCHITECTURE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.ARCHITECTURE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: architecture
+          permission-issues: write
+
+      # One open issue at a time, found by its label and title prefix: commented on when it exists,
+      # created when it does not. Closed by hand once a release fixes what it reports.
+      - name: Open or update the issue in architecture
+        if: steps.check.outputs.dirty == 'true'
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          REPO: VION-IoT/architecture
+          TAG: ${{ steps.release.outputs.tag }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          out="$RUNNER_TEMP/out"
+          body="$RUNNER_TEMP/body.md"
+          summary=""
+          {
+            echo "The live check of vion **$TAG** found a difference or a failure ([run]($RUN_URL))."
+            echo
+            for env in test production; do
+              state=$(cat "$out/$env.state")
+              summary="$summary${summary:+, }$env $state"
+              echo "### $env: $state, exit $(cat "$out/$env.code")"
+              echo
+              if [ "$state" = clean ]; then
+                echo "No differences."
+                echo
+                continue
+              fi
+              echo "\`vion ops --live --env $env --json\`, standard error:"
+              echo
+              echo '```text'
+              head -c 4000 "$out/$env.err"
+              echo
+              echo '```'
+              echo
+              echo "Standard output:"
+              echo
+              echo '```json'
+              head -c 25000 "$out/$env.out"
+              echo
+              echo '```'
+              echo
+            done
+            echo "- **differs**: the release's committed snapshot is stale against that host — pull the snapshot, derive, release (vion-cli \`docs/releasing.md\` § The snapshot is not a release)."
+            echo "- **fails**: the executable could not read the host's document — the host, the network or the executable's HTTPS."
+            echo
+            echo "One issue is kept open while the check is red; each red run comments on it. Close it by hand once a release fixes what it reports."
+          } > "$body"
+
+          if ! gh label list --repo "$REPO" --search live-check --json name --jq '.[].name' | grep -qx live-check; then
+            gh label create live-check --repo "$REPO" --color B60205 \
+              --description "vion-cli's daily live check of its latest release"
+          fi
+
+          number=$(gh issue list --repo "$REPO" --label live-check --state open --json number,title \
+            --jq '[.[] | select(.title | startswith("vion live check:"))] | sort_by(.number) | .[0].number // empty')
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --repo "$REPO" --body-file "$body"
+          else
+            gh issue create --repo "$REPO" --label live-check \
+              --title "vion live check: $TAG — $summary" --body-file "$body"
+          fi
+
+      - name: Red when either environment is not clean
+        if: steps.check.outputs.dirty == 'true'
+        run: |
+          for env in test production; do echo "$env: $(cat "$RUNNER_TEMP/out/$env.state")"; done
+          exit 1
