@@ -53,6 +53,8 @@ namespace Vion.Cli.Infrastructure
             var informational = typeof(CliServices).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
             var version = string.IsNullOrEmpty(informational) ? "0.0.0" : informational.Split('+')[0];
 
+            UseUtf8Console();
+
             // The handler and the streams live as long as the process; nothing outlives them to dispose them.
 #pragma warning disable CA2000
             return new CliServices(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(2) },
@@ -66,6 +68,25 @@ namespace Vion.Cli.Infrastructure
                                    OpenBrowserWithShell,
                                    version);
 #pragma warning restore CA2000
+        }
+
+        /// <summary>
+        ///     Switches the console's output code page to UTF-8. The writers <see cref="Real" /> builds already encode as UTF-8,
+        ///     which is all a redirected stream needs; a console window, though, decodes those bytes in its own code page, so
+        ///     on one left at OEM 850 every non-ASCII character — the em dash, a table rule — shows as two or three wrong ones.
+        ///     Nothing here restores the code page on exit, as <c>dale</c> does not. Best effort: a host that refuses the
+        ///     change is left alone.
+        /// </summary>
+        private static void UseUtf8Console()
+        {
+            try
+            {
+                System.Console.OutputEncoding = new UTF8Encoding(false);
+            }
+            catch (Exception)
+            {
+                // A process with no console attached, or a restricted sandbox, refuses the change.
+            }
         }
 
         private static bool OpenBrowserWithShell(Uri uri)
