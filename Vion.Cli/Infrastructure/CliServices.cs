@@ -72,11 +72,10 @@ namespace Vion.Cli.Infrastructure
 
         /// <summary>
         ///     Switches the console's output code page to UTF-8. The writers <see cref="Real" /> builds already encode as UTF-8,
-        ///     which is all a
-        ///     redirected stream needs; a console window, though, decodes those bytes in its own code page, so on one left
-        ///     at OEM 850 every non-ASCII character — the em dash, a table rule — shows as two or three wrong ones. Nothing
-        ///     here restores the code page on exit, as <c>dale</c> does not. Best effort: a host that refuses the change is
-        ///     left alone.
+        ///     which is all a redirected stream needs; a console window, though, decodes those bytes in its own code page, so
+        ///     on one left at OEM 850 every non-ASCII character — the em dash, a table rule — shows as two or three wrong ones.
+        ///     Nothing here restores the code page on exit, as <c>dale</c> does not. Best effort: a host that refuses the
+        ///     change is left alone.
         /// </summary>
         private static void UseUtf8Console()
         {
