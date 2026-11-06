@@ -10,9 +10,13 @@
         <RuntimeIdentifiers>linux-musl-x64;linux-musl-arm64;win-x64</RuntimeIdentifiers>
         <UseDefaultPublishRuntimeIdentifier>false</UseDefaultPublishRuntimeIdentifier>
 
-        <!-- The musl publishes link statically, so the archive's binary runs on a glibc distribution too; the
-             property is meaningful on Linux only. -->
+        <!-- The musl publishes link statically, so one archive's binary runs on a glibc distribution as well as
+             on Alpine. A static executable has no dlopen, and the runtime loads OpenSSL that way. Without
+             OpenSSL linked in, the first TLS call aborts with "No usable version of libssl was found", whatever
+             the host has installed. The static OpenSSL link compiles the runtime's shim, so the publish image
+             needs cmake, openssl-dev and openssl-libs-static. Both properties are meaningful on Linux only. -->
         <StaticExecutable Condition="$(RuntimeIdentifier.StartsWith('linux'))">true</StaticExecutable>
+        <StaticOpenSslLinking Condition="$(RuntimeIdentifier.StartsWith('linux'))">true</StaticOpenSslLinking>
         <StripSymbols>true</StripSymbols>
         <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
 

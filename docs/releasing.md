@@ -17,7 +17,9 @@ in `dotnet-aot-app.yml`).
 
 ## Cutting a release
 
-Prerequisites: `main` is green on the commit you want to release; `gh auth status` is signed in.
+Prerequisites: `main` is green on the commit you want to release; `gh auth status` is signed in;
+the README's install line (`v=`) names the version about to be cut, moved there in the last pull
+request before the release, so the archive the README installs is the one its claims describe.
 
 ```bash
 gh release create v0.2.0 --target main --generate-notes --title "v0.2.0" --notes "Short release summary."
@@ -30,7 +32,14 @@ gh release create v0.2.0 --target main --generate-notes --title "v0.2.0" --notes
 1. Builds and tests the solution, verifies code style, checks the committed lock files for
    dependency majors.
 2. Publishes NativeAOT for `linux-musl-x64` and `linux-musl-arm64` in Alpine containers and for
-   `win-x64` on a Windows runner.
+   `win-x64` on a Windows runner. The Linux executables link statically with OpenSSL included
+   (`StaticExecutable` and `StaticOpenSslLinking` in `Vion.Cli.csproj`), so one archive per
+   architecture runs on glibc and musl hosts with no OpenSSL installed. The two go together: a static
+   executable cannot `dlopen`, which is how the runtime otherwise finds the host's `libssl`, so a
+   static binary without OpenSSL linked in aborts on its first HTTPS call with "No usable version of
+   libssl was found", whatever the host has installed. The static link compiles the runtime's OpenSSL
+   shim with `cmake` against `openssl-dev` and `openssl-libs-static`, which the shared workflow's
+   `apk add` provides in the publish container; without them the publish fails in `build-local.sh`.
 3. Attaches to the release `vion-0.2.0-linux-musl-x64.tar.gz`, `vion-0.2.0-linux-musl-arm64.tar.gz`
    and `vion-0.2.0-win-x64.zip`, each with a `.sha256` in `sha256sum` format. The Linux job and the
    Windows job do not wait for each other, so the release can briefly hold two archives and no zip.

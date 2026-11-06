@@ -1,0 +1,3 @@
+2026-11-06 · brief · linux-https · The brief assumed StaticOpenSslLinking needs openssl-libs-static plus headers in the publish image; the publish also fails without cmake, which build-local.sh runs to compile the runtime's OpenSSL shim before the link. The STOP names three packages, not two. (self)
+
+2026-11-06 · gate · publish proof · Proving the linux-musl-x64 publish in the pinned Alpine SDK image from Git Bash: MSYS rewrote the container-side /src of docker create -w into C:/Program Files/Git/src, and with conversion off the host side of docker cp had to be given in Windows form; two empty runs before the first real publish. (self)
