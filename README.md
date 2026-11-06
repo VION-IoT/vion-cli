@@ -12,7 +12,7 @@ cloud API is a command, named after the operation — `vion tenant edge-gateway 
 winget install vion
 ```
 
-**Linux** (x64 or arm64; a static binary, any distribution)
+**Linux** (x64 or arm64; a static binary with TLS built in — any distribution, no OpenSSL to install)
 
 ```bash
 v=0.1.0; a=x64   # or arm64
