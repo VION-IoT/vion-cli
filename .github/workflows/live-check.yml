@@ -32,6 +32,11 @@ on:
 permissions:
   contents: read
 
+# One run at a time, so a run by hand overlapping the scheduled one cannot open a second issue.
+concurrency:
+  group: live-check
+  cancel-in-progress: false
+
 jobs:
   live-check:
     runs-on: ubuntu-latest
@@ -46,7 +51,11 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "archive=vion-${tag#v}-linux-musl-x64.tar.gz" >> "$GITHUB_OUTPUT"
 
+      # A missing archive or a checksum mismatch does not stop the job: the next step records it as
+      # both environments failing, so it reaches the issue as any failure does.
       - name: Download and verify its Linux x64 archive
+        id: download
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.release.outputs.tag }}
@@ -65,12 +74,22 @@ jobs:
         id: check
         env:
           VION_NO_UPDATE_CHECK: '1'
+          DOWNLOAD: ${{ steps.download.outcome }}
+          ARCHIVE: ${{ steps.release.outputs.archive }}
         run: |
           export VION_HOME="$RUNNER_TEMP/vion-home"
           out="$RUNNER_TEMP/out"
           mkdir -p "$out" "$VION_HOME"
           dirty=false
           for env in test production; do
+            if [ "$DOWNLOAD" != success ]; then
+              echo "$ARCHIVE could not be downloaded, verified against its .sha256 or extracted; the run's download step says which." > "$out/$env.err"
+              : > "$out/$env.out"
+              echo none > "$out/$env.code"
+              echo fails > "$out/$env.state"
+              dirty=true
+              continue
+            fi
             set +e
             "$RUNNER_TEMP/vion/vion" ops --live --env "$env" --json > "$out/$env.out" 2> "$out/$env.err"
             code=$?
@@ -142,10 +161,15 @@ jobs:
               head -c 25000 "$out/$env.out"
               echo
               echo '```'
+              size=$(wc -c < "$out/$env.out")
+              if [ "$size" -gt 25000 ]; then
+                echo
+                echo "Truncated at 25000 of $size bytes; the run's log holds the whole document."
+              fi
               echo
             done
             echo "- **differs**: the release's committed snapshot is stale against that host — pull the snapshot, derive, release (vion-cli \`docs/releasing.md\` § The snapshot is not a release)."
-            echo "- **fails**: the executable could not read the host's document — the host, the network or the executable's HTTPS."
+            echo "- **fails**: the executable could not read the host's document, or the archive could not be downloaded or verified — the host, the network, the release's assets or the executable's HTTPS."
             echo
             echo "One issue is kept open while the check is red; each red run comments on it. Close it by hand once a release fixes what it reports."
           } > "$body"

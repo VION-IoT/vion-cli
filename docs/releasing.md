@@ -117,8 +117,9 @@ carries the release, each environment's state and exit code, and what `ops --liv
 
 - **differs**: the release is stale against that host. Pull the snapshot, derive, release
   (§ The snapshot is not a release), then close the issue by hand.
-- **fails**: the executable could not read the host's document. That points at the host, the network
-  or the executable's HTTPS; a red that clears on the next run was the host or the network.
+- **fails**: the executable could not read the host's document, or the archive could not be
+  downloaded or failed its checksum. That points at the host, the network, the release's assets or
+  the executable's HTTPS; a red that clears on the next run was the host or the network.
 
 `workflow_dispatch` runs it on demand, from the Actions tab or with `gh workflow run live-check.yml`.
 The issue token is the architecture App's (§ Required configuration), minted with Issues: read and
@@ -134,8 +135,8 @@ One-time setup per repository, by a maintainer:
 - The organization secrets `ARCHITECTURE_APP_CLIENT_ID` and `ARCHITECTURE_APP_PRIVATE_KEY` — the
   GitHub App that reads the private `architecture` repository and writes its issues — have
   selected-repository visibility; this repository must be in the selection (`gh api -X PUT orgs/VION-IoT/actions/secrets/<name>/repositories/<repo id>`),
-  or `gates.yml`'s `vion-sdd` job is red. The App's installation grants Contents: read and Issues:
-  read and write; `live-check.yml`'s issue step needs the second. No value is copied into the repository.
+  or `gates.yml`'s `vion-sdd` job is red. The App's installation must grant Contents: read, for
+  `gates.yml`, and Issues: read and write, for `live-check.yml`'s issue step. No value is copied into the repository.
 - GitHub secret `WINGET_TOKEN` — a classic personal access token with `public_repo` and `workflow`,
   on the account whose fork of `microsoft/winget-pkgs` the submissions come from; `winget.yml` fails
   without it. No fork variable: komac uses the token owner's fork.
