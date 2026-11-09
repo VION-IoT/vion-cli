@@ -2263,8 +2263,8 @@ Commands:
   list    Get all Nodes for a tenant
   create  Create a new Node for a tenant
   update  Update an existing Node for a tenant
-  delete  Delete a Node for a tenant. if the Node is in use (e.g. edge gateway assigned to it), the delete 
-          should fail
+  delete  Delete a Node for a tenant. A node with child nodes is refused; the assignments on the node go with 
+          it.
 
 ---
 ## vion tenant node list
@@ -2356,7 +2356,7 @@ Options:
 ---
 ## vion tenant node delete
 Description:
-  Delete a Node for a tenant. if the Node is in use (e.g. edge gateway assigned to it), the delete should fail
+  Delete a Node for a tenant. A node with child nodes is refused; the assignments on the node go with it.
 
 Usage:
   vion tenant node delete [options]
@@ -5179,6 +5179,7 @@ Commands:
   software-deployment                The software deployment operations.
   software-profile                   The software profile operations.
   edge-gateway                       The edge gateway operations.
+  long-running-operation             The long running operation operations.
   logic-configuration-template       The logic configuration template operations.
   logic-block-library-translation    The logic block library translation operations.
   logic-block-translation-bundle     The logic block translation bundle operations.
@@ -7170,7 +7171,9 @@ Commands:
                 `POST /Tenant/{tenantId}/Restarts/{id}/{component}`, but is authorized at the integrator root 
                 instead of at the gateway's project.
   list          Returns all edge gateways for an integrator
-  create        Creates an edge gateway for an integrator
+  create        Creates an edge gateway for an integrator and answers the long-running operation that 
+                provisions a simulated gateway's namespace, already succeeded for any other; the long-running 
+                operation's result is the gateway's row.
   update        Allows to assign an edge gateway to a tenant
   delete        Deletes an edge gateway
   recommission  Re-commissions an existing edge gateway (preserves the gateway id).
@@ -7234,7 +7237,9 @@ Options:
 ---
 ## vion integrator edge-gateway create
 Description:
-  Creates an edge gateway for an integrator
+  Creates an edge gateway for an integrator and answers the long-running operation that provisions a 
+  simulated gateway's namespace, already succeeded for any other; the long-running operation's result is the 
+  gateway's row.
 
 Usage:
   vion integrator edge-gateway create [options]
@@ -7349,6 +7354,101 @@ Options:
   --client-id <id>             A service account's client id, with --client-secret.
   --client-secret <secret>     A service account's client secret, with --client-id.
   --verbose                    Show the request and the response headers on standard error.
+
+---
+## vion integrator long-running-operation
+Description:
+  The long running operation operations.
+
+Usage:
+  vion integrator long-running-operation [command] [options]
+
+Options:
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+
+Commands:
+  list  Lists the long-running operations started under the integrator, newest first. A finished operation is 
+        kept for the retention the host configures and then removed.
+  get   Reads one long-running operation started under the integrator. While the operation is `Queued` or 
+        `Running` the answer carries `Retry-After`; once it is `Succeeded` or `Failed` it carries none, and 
+        exactly one of `result` and `error`.
+
+---
+## vion integrator long-running-operation list
+Description:
+  Lists the long-running operations started under the integrator, newest first. A finished operation is kept 
+  for the retention the host configures and then removed.
+
+Usage:
+  vion integrator long-running-operation list [options]
+
+Options:
+  --limit <n>               The largest number of operations on the page, 30 when omitted. A value above the 
+                            maximum of 100 returns 100 operations and is not an error, and a value below 1 
+                            is.
+  --cursor <value>          The `nextCursor` of the previous page, or none for the first page.
+  --state <value>           Lists only the operations in this state. One of: Queued, Running, Succeeded, 
+                            Failed.
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+
+---
+## vion integrator long-running-operation get
+Description:
+  Reads one long-running operation started under the integrator. While the operation is `Queued` or `Running` 
+  the answer carries `Retry-After`; once it is `Succeeded` or `Failed` it carries none, and exactly one of 
+  `result` and `error`.
+
+Usage:
+  vion integrator long-running-operation get [options]
+
+Options:
+  --id <uuid>               The operation's id. An operation of another integrator is not found.
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
 
 ---
 ## vion integrator logic-configuration-template
@@ -8251,14 +8351,16 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
 
 Commands:
-  update  Updates a simulated edge gateway's namespace to the current templates and image versions (PVCs are 
-          preserved).
+  update  Queues the update of a simulated edge gateway's namespace to the current templates and image 
+          versions, and answers the long-running operation to poll; the long-running operation's result is 
+          the gateway's row. Persistent volume claims are preserved.
 
 ---
 ## vion integrator edge-gateway-simulation update
 Description:
-  Updates a simulated edge gateway's namespace to the current templates and image versions (PVCs are 
-  preserved).
+  Queues the update of a simulated edge gateway's namespace to the current templates and image versions, and 
+  answers the long-running operation to poll; the long-running operation's result is the gateway's row. 
+  Persistent volume claims are preserved.
 
 Usage:
   vion integrator edge-gateway-simulation update [options]
@@ -11446,6 +11548,7 @@ Commands:
   onboarding                The onboarding operations.
   notification-preferences  The notification preferences operations.
   notification              The notification operations.
+  long-running-operation    The long running operation operations.
   identity                  The identity operations.
   subscriber                The subscriber operations.
   profile                   The profile operations.
@@ -11479,13 +11582,17 @@ Options:
 
 Commands:
   provision  Provision a new onboarding environment. Creates Integrator, Tenant, Project, EdgeGateway, 
-             assigns roles, and triggers software deployments.
+             assigns roles, and triggers software deployments, and answers the long-running operation that 
+             provisions a simulated gateway's namespace, already succeeded for any other; the long-running 
+             operation's result is what was provisioned.
 
 ---
 ## vion me onboarding provision
 Description:
   Provision a new onboarding environment. Creates Integrator, Tenant, Project, EdgeGateway, assigns roles, 
-  and triggers software deployments.
+  and triggers software deployments, and answers the long-running operation that provisions a simulated 
+  gateway's namespace, already succeeded for any other; the long-running operation's result is what was 
+  provisioned.
 
 Usage:
   vion me onboarding provision [options]
@@ -11745,6 +11852,102 @@ Options:
   --client-id <id>             A service account's client id, with --client-secret.
   --client-secret <secret>     A service account's client secret, with --client-id.
   --verbose                    Show the request and the response headers on standard error.
+
+---
+## vion me long-running-operation
+Description:
+  The long running operation operations.
+
+Usage:
+  vion me long-running-operation [command] [options]
+
+Options:
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+
+Commands:
+  list  Lists the long-running operations the caller started, newest first. An operation another principal 
+        started is not listed. A finished operation is kept for the retention the host configures and then 
+        removed.
+  get   Reads one of the long-running operations the caller started. While the operation is `Queued` or 
+        `Running` the answer carries `Retry-After`; once it is `Succeeded` or `Failed` it carries none, and 
+        exactly one of `result` and `error`.
+
+---
+## vion me long-running-operation list
+Description:
+  Lists the long-running operations the caller started, newest first. An operation another principal started 
+  is not listed. A finished operation is kept for the retention the host configures and then removed.
+
+Usage:
+  vion me long-running-operation list [options]
+
+Options:
+  --limit <n>               The largest number of operations on the page, 30 when omitted. A value above the 
+                            maximum of 100 returns 100 operations and is not an error, and a value below 1 
+                            is.
+  --cursor <value>          The `nextCursor` of the previous page, or none for the first page.
+  --state <value>           Lists only the operations in this state. One of: Queued, Running, Succeeded, 
+                            Failed.
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+
+---
+## vion me long-running-operation get
+Description:
+  Reads one of the long-running operations the caller started. While the operation is `Queued` or `Running` 
+  the answer carries `Retry-After`; once it is `Succeeded` or `Failed` it carries none, and exactly one of 
+  `result` and `error`.
+
+Usage:
+  vion me long-running-operation get [options]
+
+Options:
+  --id <uuid>               The operation's id. An operation another principal started is not found.
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
 
 ---
 ## vion me identity

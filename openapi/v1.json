@@ -92,7 +92,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -217,7 +218,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -388,7 +390,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -522,7 +525,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -608,7 +612,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -714,7 +719,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -859,7 +865,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -945,7 +952,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -1070,7 +1078,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -1217,7 +1226,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -1353,7 +1363,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -1489,7 +1500,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -1595,7 +1607,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -1701,7 +1714,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -1848,7 +1862,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -1955,7 +1970,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -2083,7 +2099,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -2258,7 +2275,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -2364,7 +2382,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -2470,7 +2489,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -2576,7 +2596,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -2732,7 +2753,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -2912,7 +2934,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -3057,7 +3080,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -3202,7 +3226,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -3280,7 +3305,8 @@
           "effect": "Reversible",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -3386,7 +3412,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -3513,7 +3540,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -3640,7 +3668,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -3776,7 +3805,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -3884,7 +3914,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -3992,7 +4023,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -4089,7 +4121,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -4214,7 +4247,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -4385,7 +4419,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -4519,7 +4554,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -4632,7 +4668,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "put": {
@@ -4777,7 +4814,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -4911,7 +4949,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -4997,7 +5036,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "put": {
@@ -5146,7 +5186,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -5260,7 +5301,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -5357,7 +5399,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -5482,7 +5525,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -5618,7 +5662,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -5715,7 +5760,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -5840,7 +5886,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -6011,14 +6058,15 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
         "tags": [
           "Tenant"
         ],
-        "description": "Delete a Node for a tenant. if the Node is in use (e.g. edge gateway assigned to it), the\ndelete should fail",
+        "description": "Delete a Node for a tenant. A node with child nodes is refused; the assignments on the node go with it.",
         "operationId": "tenant.node.delete",
         "parameters": [
           {
@@ -6145,7 +6193,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -6338,7 +6387,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -6444,7 +6494,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -6600,7 +6651,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -6686,7 +6738,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -6783,7 +6836,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -6908,7 +6962,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -7090,7 +7145,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -7224,7 +7280,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -7368,7 +7425,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": true
+          "dryRun": true,
+          "completion": "Response"
         }
       }
     },
@@ -7462,7 +7520,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -7548,7 +7607,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -7654,7 +7714,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -7825,7 +7886,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -7911,7 +7973,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -8008,7 +8071,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -8133,7 +8197,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -8315,7 +8380,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -8449,7 +8515,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -8555,7 +8622,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -8680,7 +8748,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -8851,7 +8920,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -8985,7 +9055,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -9091,7 +9162,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -9216,7 +9288,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -9387,7 +9460,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -9521,7 +9595,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -9627,7 +9702,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -9752,7 +9828,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -9923,7 +10000,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -10057,7 +10135,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -10165,7 +10244,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -10273,7 +10353,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -10359,7 +10440,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -10457,7 +10539,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -10545,7 +10628,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -10670,7 +10754,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -10841,7 +10926,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -10975,7 +11061,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -11090,7 +11177,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -11178,7 +11266,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -11303,7 +11392,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -11439,7 +11529,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -11527,7 +11618,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -11615,7 +11707,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -11703,7 +11796,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -11800,7 +11894,8 @@
           "effect": "Reversible",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -11971,7 +12066,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -12105,7 +12201,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -12213,7 +12310,8 @@
           "effect": "Irreversible",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -12301,7 +12399,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -12426,7 +12525,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -12562,7 +12662,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -12698,7 +12799,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -12803,7 +12905,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "put": {
@@ -12971,7 +13074,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -13104,7 +13208,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -13201,7 +13306,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -13372,7 +13478,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -13506,7 +13613,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -13677,7 +13785,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -13811,7 +13920,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -13964,7 +14074,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -14089,7 +14200,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -14195,7 +14307,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -14259,7 +14372,8 @@
           "effect": "Irreversible",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -14324,7 +14438,8 @@
           "effect": "Irreversible",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -14412,7 +14527,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -14537,7 +14653,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -14625,7 +14742,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -14733,7 +14851,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -14821,7 +14940,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -14946,7 +15066,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -15082,7 +15203,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -15190,7 +15312,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -15298,7 +15421,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -15406,7 +15530,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -15494,7 +15619,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -15619,7 +15745,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -15755,7 +15882,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -15871,7 +15999,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -15959,7 +16088,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -16095,7 +16225,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -16222,7 +16353,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -16310,7 +16442,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -16435,7 +16568,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -16606,7 +16740,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -16740,7 +16875,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -16887,7 +17023,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -17033,7 +17170,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -17172,7 +17310,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -17291,7 +17430,8 @@
           "effect": "Reversible",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "get": {
@@ -17397,7 +17537,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -17543,7 +17684,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -17647,7 +17789,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -17755,7 +17898,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -17863,7 +18007,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -17949,7 +18094,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -18047,7 +18193,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -18162,7 +18309,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -18250,7 +18398,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -18375,7 +18524,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -18511,7 +18661,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -18599,7 +18750,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -18687,7 +18839,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -18775,7 +18928,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -18872,7 +19026,8 @@
           "effect": "Reversible",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -19043,7 +19198,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -19177,7 +19333,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -19285,7 +19442,8 @@
           "effect": "Irreversible",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -19373,7 +19531,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -19498,7 +19657,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -19634,7 +19794,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -19770,7 +19931,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -19779,7 +19941,7 @@
         "tags": [
           "Onboarding"
         ],
-        "description": "Provision a new onboarding environment.\nCreates Integrator, Tenant, Project, EdgeGateway, assigns roles, and triggers software deployments.",
+        "description": "Provision a new onboarding environment.\nCreates Integrator, Tenant, Project, EdgeGateway, assigns roles, and triggers software deployments, and answers\nthe long-running operation that provisions a simulated gateway's namespace, already succeeded for any other; the\nlong-running operation's result is what was provisioned.",
         "operationId": "me.onboarding.provision",
         "parameters": [
           {
@@ -19805,9 +19967,21 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK",
+          "202": {
+            "description": "The work is queued and the long-running operation to poll is answered; its result, once Succeeded, is the body the operation names in x-vion-longRunningOperationResult.",
             "headers": {
+              "Retry-After": {
+                "description": "The seconds to wait before polling the long-running operation again; absent once it is Succeeded or Failed.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Operation-Location": {
+                "description": "The long-running operation's own GET path, to be followed as given until the long-running operation is Succeeded or Failed.",
+                "schema": {
+                  "type": "string"
+                }
+              },
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
                 "schema": {
@@ -19818,7 +19992,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProvisionOutput"
+                  "$ref": "#/components/schemas/LongRunningOperationOutput"
                 }
               }
             }
@@ -19885,7 +20059,11 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "LongRunningOperation"
+        },
+        "x-vion-longRunningOperationResult": {
+          "$ref": "#/components/schemas/ProvisionOutput"
         }
       }
     },
@@ -19971,7 +20149,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "put": {
@@ -20094,7 +20273,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -20226,7 +20406,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -20332,7 +20513,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -20455,7 +20637,223 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
+        }
+      }
+    },
+    "/me/longRunningOperations": {
+      "get": {
+        "tags": [
+          "User",
+          "Tenant",
+          "Integrator"
+        ],
+        "description": "Lists the long-running operations the caller started, newest first.\n\nAn operation another principal started is not listed. A finished operation is kept for the retention the host\nconfigures and then removed.",
+        "operationId": "me.longRunningOperation.list",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The largest number of operations on the page, 30 when omitted. A value above the maximum of 100 returns 100\noperations and is not an error, and a value below 1 is.",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "The `nextCursor` of the previous page, or none for the first page.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Lists only the operations in this state.",
+            "schema": {
+              "$ref": "#/components/schemas/LongRunningOperationState"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of operations and the cursor of the next page.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageOutputOfLongRunningOperationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was malformed or failed input validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server-side error. The exceptionId correlates the response with the server logs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated, but the caller lacks the required permission at the requested scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated. The response has no body by design; the WWW-Authenticate header carries the reason.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer challenge naming the error and, when the token was rejected rather than missing, why.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "x-vion-authorization": {
+          "mode": "Caller",
+          "permissions": [],
+          "scopeType": null,
+          "scopeFrom": null
+        },
+        "x-vion-capability": {
+          "effect": "Read",
+          "idempotent": false,
+          "versioned": false,
+          "dryRun": false,
+          "completion": "Response"
+        }
+      }
+    },
+    "/me/longRunningOperations/{id}": {
+      "get": {
+        "tags": [
+          "User",
+          "Tenant",
+          "Integrator"
+        ],
+        "description": "Reads one of the long-running operations the caller started.\n\nWhile the operation is `Queued` or `Running` the answer carries `Retry-After`; once it is\n`Succeeded` or `Failed` it carries none, and exactly one of `result` and `error`.",
+        "operationId": "me.longRunningOperation.get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The operation's id. An operation another principal started is not found.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation.",
+            "headers": {
+              "Retry-After": {
+                "description": "The seconds to wait before polling the long-running operation again; absent once it is Succeeded or Failed.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LongRunningOperationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was malformed or failed input validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server-side error. The exceptionId correlates the response with the server logs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated, but the caller lacks the required permission at the requested scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated. The response has no body by design; the WWW-Authenticate header carries the reason.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer challenge naming the error and, when the token was rejected rather than missing, why.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A route parameter names a target that does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          }
+        },
+        "x-vion-authorization": {
+          "mode": "Caller",
+          "permissions": [],
+          "scopeType": null,
+          "scopeFrom": null
+        },
+        "x-vion-capability": {
+          "effect": "Read",
+          "idempotent": false,
+          "versioned": false,
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -20543,7 +20941,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -20668,7 +21067,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -20839,7 +21239,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -20973,7 +21374,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -21061,7 +21463,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -21232,7 +21635,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -21318,7 +21722,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "put": {
@@ -21467,7 +21872,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -21555,7 +21961,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -21680,7 +22087,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -21851,7 +22259,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -21985,7 +22394,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -22132,7 +22542,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -22278,7 +22689,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -22417,7 +22829,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -22536,7 +22949,8 @@
           "effect": "Reversible",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "get": {
@@ -22642,7 +23056,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -22788,7 +23203,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -22874,7 +23290,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "put": {
@@ -23023,7 +23440,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -23111,7 +23529,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -23282,7 +23701,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -23416,7 +23836,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -23504,7 +23925,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -23629,7 +24051,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -23800,7 +24223,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -23934,7 +24358,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -24022,7 +24447,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -24110,7 +24536,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -24235,7 +24662,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -24343,7 +24771,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -24431,7 +24860,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -24556,7 +24986,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -24692,7 +25123,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -24800,7 +25232,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -24908,7 +25341,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -25016,7 +25450,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -25151,7 +25586,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": true
+          "dryRun": true,
+          "completion": "Response"
         }
       },
       "get": {
@@ -25237,7 +25673,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -25325,7 +25762,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -25413,7 +25851,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -25538,7 +25977,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -25709,7 +26149,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -25843,7 +26284,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -25988,7 +26430,243 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
+        }
+      }
+    },
+    "/integrator/{integratorId}/longRunningOperations": {
+      "get": {
+        "tags": [
+          "Integrator"
+        ],
+        "description": "Lists the long-running operations started under the integrator, newest first.\n\nA finished operation is kept for the retention the host configures and then removed.",
+        "operationId": "integrator.longRunningOperation.list",
+        "parameters": [
+          {
+            "name": "integratorId",
+            "in": "path",
+            "description": "The integrator's id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The largest number of operations on the page, 30 when omitted. A value above the maximum of 100 returns 100\noperations and is not an error, and a value below 1 is.",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "The `nextCursor` of the previous page, or none for the first page.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Lists only the operations in this state.",
+            "schema": {
+              "$ref": "#/components/schemas/LongRunningOperationState"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of operations and the cursor of the next page.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageOutputOfLongRunningOperationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was malformed or failed input validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server-side error. The exceptionId correlates the response with the server logs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated, but the caller lacks the required permission at the requested scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated. The response has no body by design; the WWW-Authenticate header carries the reason.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer challenge naming the error and, when the token was rejected rather than missing, why.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "x-vion-authorization": {
+          "mode": "Root",
+          "permissions": [
+            "Integrator.Read"
+          ],
+          "scopeType": "Integrator",
+          "scopeFrom": "integratorId"
+        },
+        "x-vion-capability": {
+          "effect": "Read",
+          "idempotent": false,
+          "versioned": false,
+          "dryRun": false,
+          "completion": "Response"
+        }
+      }
+    },
+    "/integrator/{integratorId}/longRunningOperations/{id}": {
+      "get": {
+        "tags": [
+          "Integrator"
+        ],
+        "description": "Reads one long-running operation started under the integrator.\n\nWhile the operation is `Queued` or `Running` the answer carries `Retry-After`; once it is\n`Succeeded` or `Failed` it carries none, and exactly one of `result` and `error`.",
+        "operationId": "integrator.longRunningOperation.get",
+        "parameters": [
+          {
+            "name": "integratorId",
+            "in": "path",
+            "description": "The integrator's id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The operation's id. An operation of another integrator is not found.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation.",
+            "headers": {
+              "Retry-After": {
+                "description": "The seconds to wait before polling the long-running operation again; absent once it is Succeeded or Failed.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LongRunningOperationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was malformed or failed input validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server-side error. The exceptionId correlates the response with the server logs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated, but the caller lacks the required permission at the requested scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated. The response has no body by design; the WWW-Authenticate header carries the reason.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer challenge naming the error and, when the token was rejected rather than missing, why.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A route parameter names a target that does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          }
+        },
+        "x-vion-authorization": {
+          "mode": "Root",
+          "permissions": [
+            "Integrator.Read"
+          ],
+          "scopeType": "Integrator",
+          "scopeFrom": "integratorId"
+        },
+        "x-vion-capability": {
+          "effect": "Read",
+          "idempotent": false,
+          "versioned": false,
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -26076,7 +26754,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -26201,7 +26880,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -26372,7 +27052,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -26506,7 +27187,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -26614,7 +27296,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "put": {
@@ -26759,7 +27442,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -26904,7 +27588,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -27020,7 +27705,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -27178,7 +27864,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -27272,7 +27959,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -27360,7 +28048,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -27531,7 +28220,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -27665,7 +28355,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -27762,7 +28453,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -27887,7 +28579,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -28023,7 +28716,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -28119,7 +28813,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -28273,7 +28968,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -28444,7 +29140,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -28532,7 +29229,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -28620,14 +29318,15 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
         "tags": [
           "Integrator"
         ],
-        "description": "Creates an edge gateway for an integrator",
+        "description": "Creates an edge gateway for an integrator and answers the long-running operation that provisions a simulated\ngateway's namespace, already succeeded for any other; the long-running operation's result is the gateway's row.",
         "operationId": "integrator.edgeGateway.create",
         "parameters": [
           {
@@ -28671,9 +29370,21 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK",
+          "202": {
+            "description": "The work is queued and the long-running operation to poll is answered; its result, once Succeeded, is the body the operation names in x-vion-longRunningOperationResult.",
             "headers": {
+              "Retry-After": {
+                "description": "The seconds to wait before polling the long-running operation again; absent once it is Succeeded or Failed.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Operation-Location": {
+                "description": "The long-running operation's own GET path, to be followed as given until the long-running operation is Succeeded or Failed.",
+                "schema": {
+                  "type": "string"
+                }
+              },
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
                 "schema": {
@@ -28684,7 +29395,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateEdgeGatewayOutput"
+                  "$ref": "#/components/schemas/LongRunningOperationOutput"
                 }
               }
             }
@@ -28753,7 +29464,11 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": true
+          "dryRun": true,
+          "completion": "LongRunningOperation"
+        },
+        "x-vion-longRunningOperationResult": {
+          "$ref": "#/components/schemas/CreateEdgeGatewayOutput"
         }
       }
     },
@@ -28924,7 +29639,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -29058,7 +29774,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -29205,7 +29922,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -29352,7 +30070,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -29361,7 +30080,7 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Updates a simulated edge gateway's namespace to the current templates and image versions (PVCs are preserved).",
+        "description": "Queues the update of a simulated edge gateway's namespace to the current templates and image versions, and\nanswers the long-running operation to poll; the long-running operation's result is the gateway's row. Persistent\nvolume claims are preserved.",
         "operationId": "integrator.edgeGatewaySimulation.update",
         "parameters": [
           {
@@ -29396,9 +30115,21 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK",
+          "202": {
+            "description": "The work is queued and the long-running operation to poll is answered; its result, once Succeeded, is the body the operation names in x-vion-longRunningOperationResult.",
             "headers": {
+              "Retry-After": {
+                "description": "The seconds to wait before polling the long-running operation again; absent once it is Succeeded or Failed.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Operation-Location": {
+                "description": "The long-running operation's own GET path, to be followed as given until the long-running operation is Succeeded or Failed.",
+                "schema": {
+                  "type": "string"
+                }
+              },
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
                 "schema": {
@@ -29409,7 +30140,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateEdgeGatewayOutput"
+                  "$ref": "#/components/schemas/LongRunningOperationOutput"
                 }
               }
             }
@@ -29488,7 +30219,11 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "LongRunningOperation"
+        },
+        "x-vion-longRunningOperationResult": {
+          "$ref": "#/components/schemas/CreateEdgeGatewayOutput"
         }
       }
     },
@@ -29596,7 +30331,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -29704,7 +30440,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -29790,7 +30527,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -29888,7 +30626,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -30003,7 +30742,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -30091,7 +30831,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -30216,7 +30957,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -30352,7 +31094,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -30440,7 +31183,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -30528,7 +31272,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -30616,7 +31361,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -30713,7 +31459,8 @@
           "effect": "Reversible",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -30884,7 +31631,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": true,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "delete": {
@@ -31018,7 +31766,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -31126,7 +31875,8 @@
           "effect": "Irreversible",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -31214,7 +31964,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       },
       "post": {
@@ -31339,7 +32090,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -31475,7 +32227,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -31611,7 +32364,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -31738,7 +32492,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -31814,7 +32569,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -31890,7 +32646,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -32007,7 +32764,8 @@
           "effect": "Reversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -32083,7 +32841,8 @@
           "effect": "Read",
           "idempotent": false,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     },
@@ -32209,7 +32968,8 @@
           "effect": "Irreversible",
           "idempotent": true,
           "versioned": false,
-          "dryRun": false
+          "dryRun": false,
+          "completion": "Response"
         }
       }
     }
@@ -32917,6 +33677,10 @@
         "type": "string"
       },
       "ApiExceptionDto": {
+        "required": [
+          "statusCode",
+          "exceptionId"
+        ],
         "type": "object",
         "properties": {
           "statusCode": {
@@ -33050,6 +33814,24 @@
             }
           }
         }
+      },
+      "ApiProblem": {
+        "required": [
+          "code",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "The class name of that exception, as exceptionType names a single one."
+          },
+          "message": {
+            "type": "string",
+            "description": "Its message."
+          }
+        },
+        "description": "One problem a validation found, named by the exception its check throws when it is the only one."
       },
       "ApproveSupportAccessRequestInput": {
         "required": [
@@ -33334,6 +34116,7 @@
           "idempotent",
           "versioned",
           "dryRun",
+          "completion",
           "authorization"
         ],
         "type": "object",
@@ -33365,6 +34148,10 @@
           "dryRun": {
             "type": "boolean",
             "description": "Whether the operation takes `dryRun=true` to check a request without applying it."
+          },
+          "completion": {
+            "description": "How the caller learns the outcome: the response itself, or a long-running operation to poll until it ends.",
+            "$ref": "#/components/schemas/Completion"
           },
           "authorization": {
             "description": "What the operation requires of its caller.",
@@ -33521,6 +34308,14 @@
           "null",
           "string"
         ]
+      },
+      "Completion": {
+        "enum": [
+          "Response",
+          "LongRunningOperation"
+        ],
+        "type": "string",
+        "description": "How the caller learns an operation's outcome, a closed set published whole."
       },
       "CompositionAuthor": {
         "enum": [
@@ -34867,7 +35662,7 @@
           },
           "assignedObjectType": {
             "type": "string",
-            "description": "The type of the assigned object (e.g., \"EdgeGateway\", \"LogicBlock\")."
+            "description": "The type of the assigned object: EdgeGateway or LogicBlock, matched exactly."
           },
           "projectId": {
             "type": "string",
@@ -34935,8 +35730,7 @@
       "CreateNodeInput": {
         "required": [
           "projectId",
-          "name",
-          "description"
+          "name"
         ],
         "type": "object",
         "properties": {
@@ -34963,7 +35757,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -34972,8 +35769,7 @@
           "id",
           "tenantId",
           "projectId",
-          "name",
-          "description"
+          "name"
         ],
         "type": "object",
         "properties": {
@@ -35015,7 +35811,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -35259,7 +36058,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 latitude, -90..90. Both-or-neither with double? ProjectData.Longitude.",
+            "description": "WGS 84 latitude, -90..90. Sent together with the longitude or not at all.",
             "format": "double"
           },
           "longitude": {
@@ -35269,7 +36068,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 longitude, -180..180. Both-or-neither with double? ProjectData.Latitude.",
+            "description": "WGS 84 longitude, -180..180. Sent together with the latitude or not at all.",
             "format": "double"
           }
         }
@@ -35302,7 +36101,7 @@
               "integer",
               "string"
             ],
-            "description": "Read-only. `null` means the project has no site photo; otherwise it increments on every image\nchange and is what the image GET's cache is busted with (`?v=&lt;imageVersion&gt;`).",
+            "description": "Read-only. Null means the project has no site photo; otherwise it increases on every photo set, and a\nclient busts its cache of the photo by sending it as the query parameter v.",
             "format": "int32"
           },
           "meta": {
@@ -35341,7 +36140,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 latitude, -90..90. Both-or-neither with double? ProjectData.Longitude.",
+            "description": "WGS 84 latitude, -90..90. Sent together with the longitude or not at all.",
             "format": "double"
           },
           "longitude": {
@@ -35351,7 +36150,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 longitude, -180..180. Both-or-neither with double? ProjectData.Latitude.",
+            "description": "WGS 84 longitude, -180..180. Sent together with the latitude or not at all.",
             "format": "double"
           }
         }
@@ -37339,6 +38138,78 @@
           "Unknown",
           "Unhealthy",
           "Healthy"
+        ],
+        "type": "string"
+      },
+      "HttpStatusCode": {
+        "enum": [
+          "Continue",
+          "SwitchingProtocols",
+          "Processing",
+          "EarlyHints",
+          "OK",
+          "Created",
+          "Accepted",
+          "NonAuthoritativeInformation",
+          "NoContent",
+          "ResetContent",
+          "PartialContent",
+          "MultiStatus",
+          "AlreadyReported",
+          "IMUsed",
+          "MultipleChoices",
+          "Ambiguous",
+          "MovedPermanently",
+          "Moved",
+          "Found",
+          "Redirect",
+          "SeeOther",
+          "RedirectMethod",
+          "NotModified",
+          "UseProxy",
+          "Unused",
+          "TemporaryRedirect",
+          "RedirectKeepVerb",
+          "PermanentRedirect",
+          "BadRequest",
+          "Unauthorized",
+          "PaymentRequired",
+          "Forbidden",
+          "NotFound",
+          "MethodNotAllowed",
+          "NotAcceptable",
+          "ProxyAuthenticationRequired",
+          "RequestTimeout",
+          "Conflict",
+          "Gone",
+          "LengthRequired",
+          "PreconditionFailed",
+          "RequestEntityTooLarge",
+          "RequestUriTooLong",
+          "UnsupportedMediaType",
+          "RequestedRangeNotSatisfiable",
+          "ExpectationFailed",
+          "MisdirectedRequest",
+          "UnprocessableEntity",
+          "UnprocessableContent",
+          "Locked",
+          "FailedDependency",
+          "UpgradeRequired",
+          "PreconditionRequired",
+          "TooManyRequests",
+          "RequestHeaderFieldsTooLarge",
+          "UnavailableForLegalReasons",
+          "InternalServerError",
+          "NotImplemented",
+          "BadGateway",
+          "ServiceUnavailable",
+          "GatewayTimeout",
+          "HttpVersionNotSupported",
+          "VariantAlsoNegotiates",
+          "InsufficientStorage",
+          "LoopDetected",
+          "NotExtended",
+          "NetworkAuthenticationRequired"
         ],
         "type": "string"
       },
@@ -40696,6 +41567,98 @@
           }
         }
       },
+      "LongRunningOperationOutput": {
+        "required": [
+          "operationId",
+          "state",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The long-running operation's id, or null for a dry run, which stores nothing.",
+            "format": "uuid"
+          },
+          "operationId": {
+            "type": "string",
+            "description": "The operationId of the operation that started it."
+          },
+          "targetId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The id of the aggregate the start named, or null where it named none.",
+            "format": "uuid"
+          },
+          "state": {
+            "$ref": "#/components/schemas/LongRunningOperationState"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When the work started, or null while it is queued.",
+            "format": "date-time"
+          },
+          "finishedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When the work ended, or null until it has.",
+            "format": "date-time"
+          },
+          "result": {
+            "description": "The body the synchronous call would have answered, present once the operation succeeded."
+          },
+          "error": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The error body the synchronous call would have answered, present once the operation failed.",
+                "$ref": "#/components/schemas/ApiExceptionDto"
+              }
+            ]
+          },
+          "meta": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OutputMeta"
+              }
+            ]
+          },
+          "correlationId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "description": "The handle of work that outlives its request: the body a start answers with 202 and the body its reads answer."
+      },
+      "LongRunningOperationState": {
+        "enum": [
+          "Queued",
+          "Running",
+          "Succeeded",
+          "Failed"
+        ],
+        "type": "string",
+        "description": "Where an operation is between its start and its end, a closed set published whole."
+      },
       "MarkNotificationsReadInput": {
         "type": "object",
         "properties": {
@@ -41093,8 +42056,7 @@
           "id",
           "tenantId",
           "projectId",
-          "name",
-          "description"
+          "name"
         ],
         "type": "object",
         "properties": {
@@ -41132,7 +42094,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -41624,6 +42589,29 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AlertOutput"
+            },
+            "description": "The items of this list."
+          }
+        }
+      },
+      "PageOutputOfLongRunningOperationOutput": {
+        "required": [
+          "nextCursor",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "nextCursor": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The cursor of the next page, or null on the last page."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LongRunningOperationOutput"
             },
             "description": "The items of this list."
           }
@@ -42293,7 +43281,7 @@
               "integer",
               "string"
             ],
-            "description": "Read-only. `null` means the project has no site photo; otherwise it increments on every image\nchange and is what the image GET's cache is busted with (`?v=&lt;imageVersion&gt;`).",
+            "description": "Read-only. Null means the project has no site photo; otherwise it increases on every photo set, and a\nclient busts its cache of the photo by sending it as the query parameter v.",
             "format": "int32"
           },
           "meta": {
@@ -42332,7 +43320,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 latitude, -90..90. Both-or-neither with double? ProjectData.Longitude.",
+            "description": "WGS 84 latitude, -90..90. Sent together with the longitude or not at all.",
             "format": "double"
           },
           "longitude": {
@@ -42342,7 +43330,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 longitude, -180..180. Both-or-neither with double? ProjectData.Latitude.",
+            "description": "WGS 84 longitude, -180..180. Sent together with the latitude or not at all.",
             "format": "double"
           }
         }
@@ -44406,6 +45394,9 @@
         }
       },
       "SetProjectImageInput": {
+        "required": [
+          "image"
+        ],
         "type": "object",
         "properties": {
           "image": {
@@ -44414,6 +45405,7 @@
                 "type": "null"
               },
               {
+                "description": "The photo to store; a body without it is refused, since clearing the photo is the DELETE.",
                 "$ref": "#/components/schemas/ProjectImageInput"
               }
             ]
@@ -44455,7 +45447,7 @@
               "integer",
               "string"
             ],
-            "description": "Read-only. `null` means the project has no site photo; otherwise it increments on every image\nchange and is what the image GET's cache is busted with (`?v=&lt;imageVersion&gt;`).",
+            "description": "Read-only. Null means the project has no site photo; otherwise it increases on every photo set, and a\nclient busts its cache of the photo by sending it as the query parameter v.",
             "format": "int32"
           },
           "meta": {
@@ -44494,7 +45486,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 latitude, -90..90. Both-or-neither with double? ProjectData.Longitude.",
+            "description": "WGS 84 latitude, -90..90. Sent together with the longitude or not at all.",
             "format": "double"
           },
           "longitude": {
@@ -44504,7 +45496,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 longitude, -180..180. Both-or-neither with double? ProjectData.Latitude.",
+            "description": "WGS 84 longitude, -180..180. Sent together with the latitude or not at all.",
             "format": "double"
           }
         }
@@ -47507,8 +48499,7 @@
       "UpdateNodeInput": {
         "required": [
           "parentNodeId",
-          "name",
-          "description"
+          "name"
         ],
         "type": "object",
         "properties": {
@@ -47531,7 +48522,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -47540,8 +48534,7 @@
           "id",
           "tenantId",
           "projectId",
-          "name",
-          "description"
+          "name"
         ],
         "type": "object",
         "properties": {
@@ -47583,7 +48576,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -47776,7 +48772,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 latitude, -90..90. Both-or-neither with double? ProjectData.Longitude.",
+            "description": "WGS 84 latitude, -90..90. Sent together with the longitude or not at all.",
             "format": "double"
           },
           "longitude": {
@@ -47786,7 +48782,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 longitude, -180..180. Both-or-neither with double? ProjectData.Latitude.",
+            "description": "WGS 84 longitude, -180..180. Sent together with the latitude or not at all.",
             "format": "double"
           }
         }
@@ -47819,7 +48815,7 @@
               "integer",
               "string"
             ],
-            "description": "Read-only. `null` means the project has no site photo; otherwise it increments on every image\nchange and is what the image GET's cache is busted with (`?v=&lt;imageVersion&gt;`).",
+            "description": "Read-only. Null means the project has no site photo; otherwise it increases on every photo set, and a\nclient busts its cache of the photo by sending it as the query parameter v.",
             "format": "int32"
           },
           "meta": {
@@ -47858,7 +48854,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 latitude, -90..90. Both-or-neither with double? ProjectData.Longitude.",
+            "description": "WGS 84 latitude, -90..90. Sent together with the longitude or not at all.",
             "format": "double"
           },
           "longitude": {
@@ -47868,7 +48864,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 longitude, -180..180. Both-or-neither with double? ProjectData.Latitude.",
+            "description": "WGS 84 longitude, -180..180. Sent together with the latitude or not at all.",
             "format": "double"
           }
         }
