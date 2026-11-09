@@ -113,7 +113,9 @@ like any change. A release never pulls the snapshot.
 the latest release's `vion-<v>-linux-musl-x64.tar.gz`, refuses it unless it matches its `.sha256`,
 and runs `vion ops --live --env test --json` and `… --env production --json`, tokenless. It covers
 what the pull request gates do not: the released snapshot against what each host serves today, and
-the static Linux executable's HTTPS over a real network.
+the static Linux executable's HTTPS over a real network. It sees only what `ops --live` compares,
+the derived table's members: a host that changes no more than what an operation answers, or a
+member of `x-vion-capability` the table does not carry, leaves it green.
 
 When both are clean, nothing happens. When either is not, the run comments on the open issue
 labelled `live-check` in `VION-IoT/architecture`, or opens one titled `vion live check: …` when
