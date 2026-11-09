@@ -100,7 +100,12 @@ Verify the result with `winget show VION-IoT.vion` once the manifest merges.
 
 `scripts/snapshot-pull.ps1` and `scripts/derive.ps1` move the tool to a newer API document; that is
 a `chore` pull request whose diff of `Vion.Cli/Derived/Operations.g.cs` and `docs/snapshots/help.txt`
-is the review. It ships at the next release like any change. A release never pulls the snapshot.
+is the review. The derived table carries no response and, of `x-vion-capability`, only `effect`,
+`idempotent`, `versioned` and `dryRun`, so the diff of `openapi/v1.json` is read for the rest: an
+operation that changes what it answers, for example a `200` with the row becoming a `202` with a
+long-running operation, changes what its command prints while the table stays put. The pull request
+body names each such operation beside those added, removed and changed. It ships at the next release
+like any change. A release never pulls the snapshot.
 
 ## The live check
 
