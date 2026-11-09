@@ -13,19 +13,21 @@ namespace Vion.Cli.Test.TestHelpers
     {
         private static readonly string[] Methods = ["get", "put", "post", "delete", "patch"];
 
+        private static readonly Lazy<string[]> OperationIds = new(ReadOperationIds);
+
         /// <summary>Every operation the document declares, the `system` ones included.</summary>
         public static int OperationCount
         {
-            get => OperationIds().Count();
+            get => OperationIds.Value.Length;
         }
 
         /// <summary>The operations that become tree commands: every one outside the `system` domain.</summary>
         public static int TreeOperationCount
         {
-            get => OperationIds().Count(id => !id.StartsWith("system.", StringComparison.Ordinal));
+            get => OperationIds.Value.Count(id => !id.StartsWith("system.", StringComparison.Ordinal));
         }
 
-        private static string[] OperationIds()
+        private static string[] ReadOperationIds()
         {
             using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "v1.json")));
             return document.RootElement
