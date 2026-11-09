@@ -23,7 +23,7 @@ namespace Vion.Cli.Test.Commands
             // Assert
             var items = System.Text.Json.Nodes.JsonNode.Parse(run.Out)!["items"]!.AsArray();
             var commands = items.Select(i => i!["command"]!.GetValue<string>()).ToList();
-            Assert.HasCount(261, commands);
+            Assert.HasCount(Snapshot.TreeOperationCount, commands);
             CollectionAssert.AreEquivalent(Operations.All.Where(o => o.InTree).Select(o => "vion " + o.CommandPath).ToList(), commands);
             Assert.IsFalse(commands.Any(c => c.StartsWith("vion system", System.StringComparison.Ordinal)));
         }

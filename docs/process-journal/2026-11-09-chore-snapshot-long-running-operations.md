@@ -1,0 +1,3 @@
+2026-11-09 · gate · snapshot tests · Pulling the snapshot turned seven tests red: they carried the operation counts as literals, which the previous snapshot move bumped by hand and filed as a follow-up that never landed. (self)
+
+2026-11-09 · gate · ops --live · The live check reported test's and production's move as four added operations; completion, added to every operation's x-vion-capability, and three operations moved from a 200 with the row to a 202 with a long-running operation went unreported, since only effect, idempotent, versioned and dryRun are compared while AC-CLI-006.2 names x-vion-capability whole. (self)
