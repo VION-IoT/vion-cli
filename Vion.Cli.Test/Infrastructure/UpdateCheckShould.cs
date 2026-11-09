@@ -218,7 +218,7 @@ namespace Vion.Cli.Test.Infrastructure
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
-            Assert.AreEqual("261 operations\r\n".Replace("\r\n", Environment.NewLine, StringComparison.Ordinal), run.Error);
+            Assert.AreEqual($"{Snapshot.TreeOperationCount} operations{Environment.NewLine}", run.Error);
             var cache = JsonNode.Parse(File.ReadAllText(Path.Combine(home.Root, "update-check.json")))!;
             Assert.IsNull(cache["latest"]);
             Assert.AreEqual(Now, DateTimeOffset.Parse(cache["checkedAt"]!.GetValue<string>(), System.Globalization.CultureInfo.InvariantCulture));

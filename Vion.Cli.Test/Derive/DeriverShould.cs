@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Vion.Cli.Derive;
+using Vion.Cli.Test.TestHelpers;
 
 namespace Vion.Cli.Test.Derive
 {
@@ -24,8 +25,8 @@ namespace Vion.Cli.Test.Derive
             var document = Deriver.Derive(snapshot, "{}");
 
             // Assert
-            Assert.HasCount(265, document.Operations);
-            Assert.HasCount(261, document.Operations.Where(o => o.Domain != "system").ToList());
+            Assert.HasCount(Snapshot.OperationCount, document.Operations);
+            Assert.HasCount(Snapshot.TreeOperationCount, document.Operations.Where(o => o.Domain != "system").ToList());
             var listing = document.Operations.Single(o => o.Id == "tenant.edgeGateway.list");
             Assert.AreEqual("tenant edge-gateway list", $"{listing.CommandDomain} {listing.CommandAggregate} {listing.CommandVerb}");
             var marking = document.Operations.Single(o => o.Id == "me.notification.markRead");

@@ -27,7 +27,7 @@ namespace Vion.Cli.Test.Commands
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
             var items = JsonNode.Parse(run.Out)!["items"]!.AsArray();
-            Assert.HasCount(261, items);
+            Assert.HasCount(Snapshot.TreeOperationCount, items);
             var listing = items.Single(i => i!["operationId"]!.GetValue<string>() == "tenant.edgeGateway.list")!;
             Assert.AreEqual("vion tenant edge-gateway list", listing["command"]!.GetValue<string>());
             Assert.AreEqual("GET", listing["method"]!.GetValue<string>());
@@ -51,7 +51,7 @@ namespace Vion.Cli.Test.Commands
 
             // Assert
             var items = JsonNode.Parse(run.Out)!["items"]!.AsArray();
-            Assert.HasCount(265, items);
+            Assert.HasCount(Snapshot.OperationCount, items);
             var catalog = items.Single(i => i!["operationId"]!.GetValue<string>() == "system.capability.list")!;
             Assert.IsNull(catalog["command"]);
         }
@@ -69,7 +69,7 @@ namespace Vion.Cli.Test.Commands
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
             StringAssert.Contains(run.Out, "tenant.edgeGateway.list");
-            StringAssert.Contains(run.Error, "261 operations");
+            StringAssert.Contains(run.Error, $"{Snapshot.TreeOperationCount} operations");
         }
 
         [TestMethod]
@@ -132,7 +132,7 @@ namespace Vion.Cli.Test.Commands
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
             StringAssert.Contains(run.Error, "no differences");
-            StringAssert.Contains(run.Error, "265");
+            StringAssert.Contains(run.Error, Snapshot.OperationCount.ToString(System.Globalization.CultureInfo.InvariantCulture));
         }
     }
 }
