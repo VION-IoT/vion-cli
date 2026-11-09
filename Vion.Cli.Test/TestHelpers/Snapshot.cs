@@ -28,7 +28,8 @@ namespace Vion.Cli.Test.TestHelpers
         private static string[] OperationIds()
         {
             using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "v1.json")));
-            return document.RootElement.GetProperty("paths")
+            return document.RootElement
+                           .GetProperty("paths")
                            .EnumerateObject()
                            .SelectMany(path => path.Value.EnumerateObject().Where(method => Methods.Contains(method.Name)))
                            .Select(method => method.Value.GetProperty("operationId").GetString()!)
