@@ -352,10 +352,11 @@ namespace Vion.Cli.Test.Http
         {
             // Arrange
             // A body and a header a long-running operation would carry, so that a wait which did not ignore the flag would poll.
+            var time = new FakeTimeProvider();
             using var handler = new RecordingHandler(_ => Answer(200, State("Queued"), Location, null));
 
             // Act
-            var run = await Tool.RunAsync(handler, Tool.OnTest("me", "identity", "get", "--wait", "--json"), Tool.Token);
+            var run = await Tool.RunAdvancingAsync(time, () => Tool.RunAsync(handler, Tool.OnTest("me", "identity", "get", "--wait", "--json"), Tool.Token, time: time));
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
@@ -368,10 +369,11 @@ namespace Vion.Cli.Test.Http
         public async Task RefuseOperationLocationOnOtherOrigin()
         {
             // Arrange
+            var time = new FakeTimeProvider();
             using var handler = new RecordingHandler(_ => Answer(202, State("Queued"), "https://elsewhere.example.test/operations/1", null));
 
             // Act
-            var run = await Tool.RunAsync(handler, Tool.OnTest([.. Start, "--wait"]), Tool.Token);
+            var run = await Tool.RunAdvancingAsync(time, () => Tool.RunAsync(handler, Tool.OnTest([.. Start, "--wait"]), Tool.Token, time: time));
 
             // Assert
             Assert.AreEqual(1, run.ExitCode);
