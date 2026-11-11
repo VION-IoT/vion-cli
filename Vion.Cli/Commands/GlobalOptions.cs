@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.Globalization;
 
 namespace Vion.Cli.Commands
 {
@@ -19,7 +21,13 @@ namespace Vion.Cli.Commands
         string? Token,
         string? ClientId,
         string? ClientSecret,
-        bool Verbose);
+        bool Verbose,
+        bool Wait,
+        TimeSpan? Timeout)
+    {
+        /// <summary>How long `--wait` waits when `--timeout` is absent: past the host's run timeout, queue time on top.</summary>
+        public static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(15);
+    }
 
     /// <summary>The body of a call as the user gave it: a document, raw pairs, typed pairs, a file.</summary>
     internal sealed record BodyValues(string? Input, IReadOnlyList<string> RawFields, IReadOnlyList<string> Fields, string? File)
@@ -36,6 +44,9 @@ namespace Vion.Cli.Commands
     /// </summary>
     internal sealed class GlobalOptions
     {
+        /// <summary>The longest `--timeout` taken: a week, far past any run the host lets live, and far from overflow.</summary>
+        public static readonly TimeSpan MaxTimeout = TimeSpan.FromDays(7);
+
         public Option<string> Env { get; } =
             new("--env") { Description = "The environment: production, test, or one defined with `context use`.", Recursive = true, HelpName = "name" };
 
@@ -72,6 +83,15 @@ namespace Vion.Cli.Commands
 
         public Option<bool> Verbose { get; } = new("--verbose") { Description = "Show the request and the response headers on standard error.", Recursive = true };
 
+        public Option<bool> Wait { get; } = new("--wait")
+                                            {
+                                                Description =
+                                                    "Wait for a long-running operation to end and exit by its outcome; a command whose answer is already the outcome ignores it.",
+                                                Recursive = true,
+                                            };
+
+        public Option<string> Timeout { get; } = CreateTimeout();
+
         public IEnumerable<Option> All
         {
             get
@@ -91,6 +111,8 @@ namespace Vion.Cli.Commands
                 yield return ClientId;
                 yield return ClientSecret;
                 yield return Verbose;
+                yield return Wait;
+                yield return Timeout;
             }
         }
 
@@ -103,8 +125,7 @@ namespace Vion.Cli.Commands
                                     result.GetValue(Project),
                                     result.GetValue(Platform),
                                     result.GetValue(Json),
-                                    string.IsNullOrWhiteSpace(fields) ? [] :
-                                        fields.Split(',', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries),
+                                    string.IsNullOrWhiteSpace(fields) ? [] : fields.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
                                     result.GetValue(Yes),
                                     result.GetValue(DryRun),
                                     result.GetValue(IdempotencyKey),
@@ -112,7 +133,57 @@ namespace Vion.Cli.Commands
                                     result.GetValue(Token),
                                     result.GetValue(ClientId),
                                     result.GetValue(ClientSecret),
-                                    result.GetValue(Verbose));
+                                    result.GetValue(Verbose),
+                                    result.GetValue(Wait),
+                                    TryParseDuration(result.GetValue(Timeout), out var timeout) ? timeout : null);
+        }
+
+        /// <summary>
+        ///     A duration as `90s`, `15m`, `1h`, or bare seconds, up to <see cref="MaxTimeout" />; anything else, or zero, is
+        ///     not one.
+        /// </summary>
+        public static bool TryParseDuration(string? text, out TimeSpan duration)
+        {
+            duration = TimeSpan.Zero;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return false;
+            }
+
+            var unit = char.IsAsciiLetter(text[^1]) ? char.ToLowerInvariant(text[^1]) : 's';
+            var digits = char.IsAsciiLetter(text[^1]) ? text[..^1] : text;
+            long seconds = unit switch
+            {
+                's' => 1,
+                'm' => 60,
+                'h' => 3600,
+                _ => 0,
+            };
+            if (seconds == 0 || !int.TryParse(digits, NumberStyles.None, CultureInfo.InvariantCulture, out var amount) || amount <= 0 || amount > MaxTimeout.TotalSeconds / seconds)
+            {
+                return false;
+            }
+
+            duration = TimeSpan.FromSeconds(amount * seconds);
+            return true;
+        }
+
+        private static Option<string> CreateTimeout()
+        {
+            var option = new Option<string>("--timeout")
+                         {
+                             Description = "How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running then exits 3.",
+                             Recursive = true,
+                             HelpName = "duration",
+                         };
+            option.Validators.Add(result =>
+                                  {
+                                      if (result.GetValueOrDefault<string>() is { } value && !TryParseDuration(value, out _))
+                                      {
+                                          result.AddError($"--timeout takes a duration such as 90s, 15m or 1h, at most 7 days; '{value}' is not one.");
+                                      }
+                                  });
+            return option;
         }
     }
 

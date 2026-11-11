@@ -8,8 +8,9 @@ namespace Vion.Cli.Test.Derive
 {
     /// <summary>
     ///     The derive step over the real snapshot and over the synthetic document: which operations become commands, how a
-    ///     parameter becomes an option, and what cli.json may name. One premise test cites no id by design: the refusal of
-    ///     an operation without an effect guards the derivation itself, which no user observes.
+    ///     parameter becomes an option, and what cli.json may name. Two premise tests cite no id by design: the refusals of
+    ///     an operation without an effect and of a completion outside its two values guard the derivation itself, which
+    ///     no user observes.
     /// </summary>
     [TestClass]
     public class DeriverShould
@@ -133,6 +134,41 @@ namespace Vion.Cli.Test.Derive
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-008.1")]
+        public void CarryCompletionAndLongRunningAnswerOfEveryOperation()
+        {
+            // Arrange
+            var snapshot = Fixture("v1.json");
+            using var json = System.Text.Json.JsonDocument.Parse(snapshot);
+            var published = json.RootElement
+                                .GetProperty("paths")
+                                .EnumerateObject()
+                                .SelectMany(path => path.Value.EnumerateObject())
+                                .Where(method => method.Value.TryGetProperty("operationId", out _))
+                                .ToDictionary(method => method.Value.GetProperty("operationId").GetString()!,
+                                              method => method.Value.GetProperty("x-vion-capability").GetProperty("completion").GetString());
+
+            // Act
+            var document = Deriver.Derive(snapshot, "{}");
+
+            // Assert
+            foreach (var operation in document.Operations)
+            {
+                Assert.AreEqual(published[operation.Id], operation.Completion, operation.Id);
+            }
+
+            CollectionAssert.AreEquivalent(new[]
+                                           {
+                                               "me.onboarding.provision",
+                                               "integrator.edgeGateway.create",
+                                               "integrator.edgeGatewaySimulation.update",
+                                               "me.longRunningOperation.get",
+                                               "integrator.longRunningOperation.get",
+                                           },
+                                           document.Operations.Where(o => o.AnswersLongRunningOperation).Select(o => o.Id).ToList());
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-002.7")]
         public void ReadMultipartBodyParts()
         {
@@ -175,6 +211,17 @@ namespace Vion.Cli.Test.Derive
             // Act / Assert
             var exception = Assert.ThrowsExactly<DeriveException>(() => Deriver.Derive(synthetic, "{}"));
             StringAssert.Contains(exception.Message, "x-vion-capability.effect");
+        }
+
+        [TestMethod]
+        public void RefuseCompletionOutsideItsTwoValues()
+        {
+            // Arrange
+            var synthetic = Fixture("synthetic.json").Replace("\"effect\": \"Read\",", "\"effect\": \"Read\", \"completion\": \"Eventually\",", StringComparison.Ordinal);
+
+            // Act / Assert
+            var exception = Assert.ThrowsExactly<DeriveException>(() => Deriver.Derive(synthetic, "{}"));
+            StringAssert.Contains(exception.Message, "x-vion-capability.completion 'Eventually'");
         }
 
         private static string Fixture(string name)

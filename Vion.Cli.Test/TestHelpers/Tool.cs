@@ -54,7 +54,8 @@ namespace Vion.Cli.Test.TestHelpers
                                                   FakeTimeProvider? time = null,
                                                   Func<Uri, bool>? openBrowser = null,
                                                   bool errorTerminal = false,
-                                                  string version = "0.0.0-test")
+                                                  string version = "0.0.0-test",
+                                                  System.Threading.CancellationToken cancellationToken = default)
         {
             var output = new StringWriter();
             var error = new StringWriter();
@@ -68,7 +69,7 @@ namespace Vion.Cli.Test.TestHelpers
                                            new FakeConsoleShape(inputTerminal, errorTerminal),
                                            openBrowser ?? (_ => true),
                                            version);
-            var exitCode = await VionCli.RunAsync(args, services, operations);
+            var exitCode = await VionCli.RunAsync(args, services, operations, cancellationToken);
             return new CliRun(exitCode, output.ToString(), error.ToString());
         }
 

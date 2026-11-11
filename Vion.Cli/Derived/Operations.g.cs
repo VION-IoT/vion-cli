@@ -13,7 +13,7 @@ internal static partial class Operations
 
     public const string ApiVersion = "v1";
 
-    public static readonly IReadOnlyList<string> GlobalOptionNames = new[] { "env", "integrator", "tenant", "project", "platform", "json", "fields", "yes", "dry-run", "idempotency-key", "if-match", "input", "raw-field", "field", "file", "token", "client-id", "client-secret", "verbose", "help", "version" };
+    public static readonly IReadOnlyList<string> GlobalOptionNames = new[] { "env", "integrator", "tenant", "project", "platform", "json", "fields", "yes", "dry-run", "idempotency-key", "if-match", "input", "raw-field", "field", "file", "token", "client-id", "client-secret", "verbose", "wait", "timeout", "help", "version" };
 
     public static readonly IReadOnlyList<Operation> All = new Operation[]
     {
@@ -28,6 +28,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -41,6 +42,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateTenantWidgetDefinitionInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageWidgetDefinitions" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -55,6 +57,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateTenantWidgetDefinitionInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageWidgetDefinitions" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -69,6 +72,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageWidgetDefinitions" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -82,6 +86,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -97,6 +102,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "EdgeGateway", "edgeGatewayId"),
             false, null),
         new Operation(
@@ -116,6 +122,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -129,6 +136,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -142,6 +150,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateSupportAccessGrantInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "EdgeGateway.ManageSupportAccess" }, null, "input.ScopeId"),
             false, null),
         new Operation(
@@ -156,6 +165,7 @@ internal static partial class Operations
             },
             new Body("application/json", "ApproveSupportAccessRequestInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "EdgeGateway.ManageSupportAccess" }, null, "meta"),
             false, null),
         new Operation(
@@ -170,6 +180,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "EdgeGateway.ManageSupportAccess" }, null, "meta"),
             false, null),
         new Operation(
@@ -184,6 +195,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "EdgeGateway.ManageSupportAccess" }, null, "meta"),
             false, null),
         new Operation(
@@ -199,6 +211,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "EdgeGateway", "edgeGatewayId"),
             false, null),
         new Operation(
@@ -214,6 +227,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "LogicBlock.Read" }, "LogicBlock", "id"),
             false, null),
         new Operation(
@@ -228,6 +242,7 @@ internal static partial class Operations
             },
             new Body("application/json", "RenameLogicBlockInstanceInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "LogicBlock.Write" }, "LogicBlock", "id"),
             false, null),
         new Operation(
@@ -243,6 +258,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "LogicBlock.Read", "ServiceProvider.Read" }, null, "meta"),
             false, null),
         new Operation(
@@ -256,6 +272,7 @@ internal static partial class Operations
             },
             new Body("application/json", "SubscribePropertiesInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "LogicBlock.Read", "ServiceProvider.Read" }, null, null),
             false, null),
         new Operation(
@@ -273,6 +290,7 @@ internal static partial class Operations
             },
             new Body("application/json", "SetPropertyValueInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "LogicBlock.Write", "ServiceProvider.Write" }, null, "meta"),
             false, null),
         new Operation(
@@ -288,6 +306,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "ServiceProvider.Read" }, null, "meta"),
             false, null),
         new Operation(
@@ -303,6 +322,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "EdgeGateway", "edgeGatewayId"),
             false, null),
         new Operation(
@@ -318,6 +338,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "EdgeGateway", "edgeGatewayId"),
             false, null),
         new Operation(
@@ -333,6 +354,7 @@ internal static partial class Operations
             },
             new Body("application/json", "SubmitSetupSelectionInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageEdgeGateways" }, "EdgeGateway", "id"),
             false, null),
         new Operation(
@@ -348,6 +370,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateRegistrationStatusInput", null, new string[0]),
             Effect.Irreversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageEdgeGateways" }, "EdgeGateway", "id"),
             false, null),
         new Operation(
@@ -363,6 +386,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageEdgeGateways" }, "EdgeGateway", "id"),
             false, null),
         new Operation(
@@ -378,6 +402,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageEdgeGateways" }, "EdgeGateway", "id"),
             false, null),
         new Operation(
@@ -388,6 +413,7 @@ internal static partial class Operations
             new Parameter[0],
             new Body("application/json", "ConsoleJoinInput", null, new string[0]),
             Effect.Reversible, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Anonymous", new string[0], null, null),
             false, null),
         new Operation(
@@ -403,6 +429,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "EdgeGateway.Read" }, "EdgeGateway", "edgeGatewayId"),
             false, null),
         new Operation(
@@ -416,6 +443,7 @@ internal static partial class Operations
             },
             new Body("application/json", "RequestTenantRemoteAccessSessionInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "EdgeGateway.RemoteAccess" }, "EdgeGateway", "input.EdgeGatewayId"),
             false, null),
         new Operation(
@@ -429,6 +457,7 @@ internal static partial class Operations
             },
             new Body("application/json", "RequestTenantRemoteAccessSessionInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "EdgeGateway.RemoteAccess" }, "EdgeGateway", "input.EdgeGatewayId"),
             false, null),
         new Operation(
@@ -443,6 +472,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "EdgeGateway.RemoteAccess" }, "EdgeGateway", "edgeGatewayId"),
             false, null),
         new Operation(
@@ -457,6 +487,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "EdgeGateway.RemoteAccess" }, "EdgeGateway", "edgeGatewayId"),
             false, null),
         new Operation(
@@ -471,6 +502,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "EdgeGateway.RemoteAccess" }, "EdgeGateway", "edgeGatewayId"),
             false, null),
         new Operation(
@@ -485,6 +517,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "Project", "id"),
             false, null),
         new Operation(
@@ -498,6 +531,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateProjectInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageProjects" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -512,6 +546,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateProjectInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageProjects" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -526,6 +561,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageProjects" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -540,6 +576,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "Project.Read" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -554,6 +591,7 @@ internal static partial class Operations
             },
             new Body("application/json", "SetProjectImageInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageProjects" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -568,6 +606,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageProjects" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -581,6 +620,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -594,6 +634,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpsertOwnOverviewCompositionInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageTenantOverview" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -607,6 +648,7 @@ internal static partial class Operations
             },
             null,
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageTenantOverview" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -621,6 +663,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -634,6 +677,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateNodeAssignmentInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "Project.ManageNodes" }, "Project", "input.ProjectId"),
             false, null),
         new Operation(
@@ -648,6 +692,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageNodes" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -662,6 +707,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "Node", "id"),
             false, null),
         new Operation(
@@ -675,6 +721,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateNodeInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "Project.ManageNodes" }, "Project", "input.ProjectId"),
             false, null),
         new Operation(
@@ -689,6 +736,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateNodeInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageNodes" }, "Node", "id"),
             false, null),
         new Operation(
@@ -703,6 +751,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageNodes" }, "Node", "id"),
             false, null),
         new Operation(
@@ -726,6 +775,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "LogicBlock.Read", "Project.Read", "ServiceProvider.Read" }, null, null),
             false, null),
         new Operation(
@@ -741,6 +791,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "EdgeGateway", "edgeGatewayId"),
             false, null),
         new Operation(
@@ -756,6 +807,7 @@ internal static partial class Operations
             },
             new Body("application/json", "SetLogLevelInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageEdgeGateways" }, "EdgeGateway", "id"),
             false, null),
         new Operation(
@@ -769,6 +821,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -783,6 +836,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -796,6 +850,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateLogicConfigurationInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "Project.ManageLogicConfigurations" }, "Project", "input.ProjectId"),
             false, null),
         new Operation(
@@ -810,6 +865,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateLogicConfigurationInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageLogicConfigurations" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -824,6 +880,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageLogicConfigurations" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -839,6 +896,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, true, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageLogicConfigurations" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -853,6 +911,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -866,6 +925,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -881,6 +941,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "EdgeGateway", "id"),
             false, null),
         new Operation(
@@ -895,6 +956,7 @@ internal static partial class Operations
             },
             new Body("application/json", "TenantUpdateEdgeGatewayInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageEdgeGateways" }, "EdgeGateway", "id"),
             false, null),
         new Operation(
@@ -908,6 +970,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -922,6 +985,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -935,6 +999,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateDashboardInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "Project.ManageDashboards" }, "Project", "input.ProjectId"),
             false, null),
         new Operation(
@@ -949,6 +1014,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateDashboardInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageDashboards" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -963,6 +1029,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageDashboards" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -978,6 +1045,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -991,6 +1059,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateAlertRuleInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "Project.ManageAutomations" }, "Project", "input.ProjectId"),
             false, null),
         new Operation(
@@ -1005,6 +1074,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateAlertRuleInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageAutomations" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -1019,6 +1089,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageAutomations" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -1034,6 +1105,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -1047,6 +1119,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateRuleInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "Project.ManageAutomations" }, "Project", "input.ProjectId"),
             false, null),
         new Operation(
@@ -1061,6 +1134,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateRuleInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageAutomations" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -1075,6 +1149,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageAutomations" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -1090,6 +1165,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -1103,6 +1179,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateScheduleInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "Project.ManageAutomations" }, "Project", "input.ProjectId"),
             false, null),
         new Operation(
@@ -1117,6 +1194,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateScheduleInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageAutomations" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -1131,6 +1209,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Entity", new[] { "Project.ManageAutomations" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -1145,6 +1224,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1159,6 +1239,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1172,6 +1253,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1186,6 +1268,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1199,6 +1282,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1212,6 +1296,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateTenantGroupInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1226,6 +1311,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateTenantGroupInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1240,6 +1326,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1250,6 +1337,7 @@ internal static partial class Operations
             new Parameter[0],
             new Body("application/json", "AcceptTenantInvitationInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -1263,6 +1351,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1276,6 +1365,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateTenantRoleAssignmentInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1290,6 +1380,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1303,6 +1394,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1316,6 +1408,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1329,6 +1422,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageServiceAccounts" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1342,6 +1436,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateTenantServiceAccountInput", null, new string[0]),
             Effect.Reversible, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageServiceAccounts" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1356,6 +1451,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateTenantServiceAccountInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageServiceAccounts" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1370,6 +1466,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageServiceAccounts" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1384,6 +1481,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageServiceAccounts" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1397,6 +1495,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1410,6 +1509,7 @@ internal static partial class Operations
             },
             new Body("application/json", "InviteTenantUserInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1424,6 +1524,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1438,6 +1539,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageUsers" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1452,6 +1554,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1466,6 +1569,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpsertArrangementInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageTenantOverview" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1480,6 +1584,7 @@ internal static partial class Operations
             },
             null,
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Tenant.ManageTenantOverview" }, "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1494,6 +1599,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -1508,6 +1614,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpsertArrangementInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "Project.ManageDashboards" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -1522,6 +1629,7 @@ internal static partial class Operations
             },
             null,
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "Project.ManageDashboards" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -1536,6 +1644,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpsertArrangementInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "Project.ManageNodes" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -1550,6 +1659,7 @@ internal static partial class Operations
             },
             null,
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Scope", new[] { "Project.ManageNodes" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -1570,6 +1680,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "Project", "projectId"),
             false, null),
         new Operation(
@@ -1583,6 +1694,7 @@ internal static partial class Operations
             },
             new Body("application/json", "GenerateInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Tenant", "tenantId"),
             false, null),
         new Operation(
@@ -1598,6 +1710,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Filtered", new[] { "Project.Read" }, "EdgeGateway", "targetId"),
             false, null),
         new Operation(
@@ -1608,6 +1721,7 @@ internal static partial class Operations
             new Parameter[0],
             null,
             Effect.Irreversible, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Anonymous", new string[0], null, null),
             false, null),
         new Operation(
@@ -1618,6 +1732,7 @@ internal static partial class Operations
             new Parameter[0],
             new Body("application/json", "JwtInput", null, new string[0]),
             Effect.Irreversible, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Anonymous", new string[0], null, null),
             false, null),
         new Operation(
@@ -1631,6 +1746,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.Read" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1644,6 +1760,7 @@ internal static partial class Operations
             },
             new Body("application/json", "RequestSupportAccessGrantInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.SupportAccess" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1657,6 +1774,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.Read" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1671,6 +1789,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.Read" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1684,6 +1803,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.Read" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1697,6 +1817,7 @@ internal static partial class Operations
             },
             new Body("application/json", "RequestRemoteAccessSessionInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.SupportAccess" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1711,6 +1832,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.SupportAccess" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1725,6 +1847,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.SupportAccess" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1739,6 +1862,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.SupportAccess" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1753,6 +1877,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.SupportAccess" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1766,6 +1891,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1779,6 +1905,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateRabbitMqAdminUserInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1793,6 +1920,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1806,6 +1934,7 @@ internal static partial class Operations
             },
             null,
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1819,6 +1948,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.Read" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1833,6 +1963,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageOnboardingSessions" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1846,6 +1977,7 @@ internal static partial class Operations
             },
             new Body("application/json", "ProvisionDashboardsInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1859,6 +1991,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.Read" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1872,6 +2005,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateIntegratorInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageIntegrators" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1886,6 +2020,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateIntegratorInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageIntegrators" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1900,6 +2035,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageIntegrators" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1914,6 +2050,7 @@ internal static partial class Operations
             },
             new Body("application/json", "InviteIntegratorOwnerInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageIntegrators" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1929,6 +2066,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageIntegrators" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1944,6 +2082,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageIntegrators" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1958,6 +2097,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateIntegratorOwnerServiceAccountInput", null, new string[0]),
             Effect.Reversible, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageIntegrators" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1972,6 +2112,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageIntegrators" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1987,6 +2128,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageIntegrators" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -1997,6 +2139,7 @@ internal static partial class Operations
             new Parameter[0],
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -2011,6 +2154,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2025,6 +2169,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2038,6 +2183,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2052,6 +2198,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2062,6 +2209,7 @@ internal static partial class Operations
             new Parameter[0],
             new Body("application/json", "AcceptPlatformInvitationInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -2075,6 +2223,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2088,6 +2237,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreatePlatformRoleAssignmentInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2102,6 +2252,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2115,6 +2266,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.Read" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2128,6 +2280,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2141,6 +2294,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageServiceAccounts" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2154,6 +2308,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreatePlatformServiceAccountInput", null, new string[0]),
             Effect.Reversible, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageServiceAccounts" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2168,6 +2323,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdatePlatformServiceAccountInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageServiceAccounts" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2182,6 +2338,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageServiceAccounts" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2196,6 +2353,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageServiceAccounts" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2209,6 +2367,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2222,6 +2381,7 @@ internal static partial class Operations
             },
             new Body("application/json", "InvitePlatformUserInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2236,6 +2396,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2250,6 +2411,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Platform.ManageUsers" }, "Platform", "platformId"),
             false, null),
         new Operation(
@@ -2260,6 +2422,7 @@ internal static partial class Operations
             new Parameter[0],
             new Body("application/json", "ProvisionInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.LongRunningOperation, true,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -2273,6 +2436,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -2286,6 +2450,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateNotificationPreferencesInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -2304,6 +2469,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -2318,6 +2484,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -2328,6 +2495,7 @@ internal static partial class Operations
             new Parameter[0],
             new Body("application/json", null, null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -2343,6 +2511,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -2356,6 +2525,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, true,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -2369,6 +2539,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2382,6 +2553,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateWidgetDefinitionInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageWidgetDefinitions" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2396,6 +2568,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateWidgetDefinitionInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageWidgetDefinitions" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2410,6 +2583,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageWidgetDefinitions" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2423,6 +2597,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageWhiteLabel" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2437,6 +2612,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpsertWhiteLabelThemeInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageWhiteLabel" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2450,6 +2626,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2463,6 +2640,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpsertWhiteLabelThemeInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageWhiteLabel" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2476,6 +2654,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2489,6 +2668,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateTenantInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenants" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2503,6 +2683,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateTenantInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenants" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2517,6 +2698,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenants" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2531,6 +2713,7 @@ internal static partial class Operations
             },
             new Body("application/json", "InviteTenantOwnerInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenants" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2546,6 +2729,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenants" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2561,6 +2745,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenants" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2575,6 +2760,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateTenantOwnerServiceAccountInput", null, new string[0]),
             Effect.Reversible, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenants" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2589,6 +2775,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenants" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2604,6 +2791,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenants" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2617,6 +2805,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2630,6 +2819,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpsertTenantOverviewCompositionInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenantDashboardTemplates" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2643,6 +2833,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenantDashboardTemplates" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2657,6 +2848,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpsertTenantOverviewCompositionLayerInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenantDashboardTemplates" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2671,6 +2863,7 @@ internal static partial class Operations
             },
             null,
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenantDashboardTemplates" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2684,6 +2877,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2697,6 +2891,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateTenantDashboardTemplateInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenantDashboardTemplates" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2711,6 +2906,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateTenantDashboardTemplateInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenantDashboardTemplates" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2725,6 +2921,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageTenantDashboardTemplates" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2738,6 +2935,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2751,6 +2949,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2764,6 +2963,7 @@ internal static partial class Operations
             },
             new Body("application/json", "RequestSupportAccessGrantInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.SupportAccess" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2778,6 +2978,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2791,6 +2992,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2804,6 +3006,7 @@ internal static partial class Operations
             },
             new Body("application/json", "RequestRemoteAccessSessionInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.SupportAccess" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2818,6 +3021,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.SupportAccess" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2832,6 +3036,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.SupportAccess" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2846,6 +3051,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.SupportAccess" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2860,6 +3066,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.SupportAccess" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2874,6 +3081,7 @@ internal static partial class Operations
             },
             new Body("application/json", "DeployInput", null, new string[0]),
             Effect.Irreversible, true, false, true, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageEdgeGateways" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2887,6 +3095,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2900,6 +3109,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2913,6 +3123,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2926,6 +3137,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateSoftwareProfileInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageSoftwareProfiles" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2940,6 +3152,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateSoftwareProfileInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageSoftwareProfiles" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2954,6 +3167,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageSoftwareProfiles" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2969,6 +3183,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageEdgeGateways" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2985,6 +3200,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -2999,6 +3215,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, true,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3012,6 +3229,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3025,6 +3243,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateLogicConfigurationTemplateInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageLogicConfigurationTemplates" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3039,6 +3258,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateLogicConfigurationTemplateInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageLogicConfigurationTemplates" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3053,6 +3273,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageLogicConfigurationTemplates" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3067,6 +3288,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageLibraries" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3081,6 +3303,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpsertLogicBlockTranslationsInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageLibraries" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3095,6 +3318,7 @@ internal static partial class Operations
             },
             new Body("application/json", "DeleteLogicBlockTranslationsInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageLibraries" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3110,6 +3334,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageLibraries" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3125,6 +3350,7 @@ internal static partial class Operations
             },
             new Body("multipart/form-data", null, "file", new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageLibraries" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3139,6 +3365,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3152,6 +3379,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3166,6 +3394,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateLogicBlockLibraryInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageLibraries" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3180,6 +3409,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageLibraries" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3194,6 +3424,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3207,6 +3438,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateLogicBlockLibraryGrantInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageLibraries" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3221,6 +3453,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageLibraries" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3235,6 +3468,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3248,6 +3482,7 @@ internal static partial class Operations
             },
             new Body("multipart/form-data", null, "nugetPackageFile", new[] { "releaseNotes", "tags" }),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageLibraries" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3262,6 +3497,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateLogicBlockLibraryVersionInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageLibraries" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3275,6 +3511,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3288,6 +3525,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3302,6 +3540,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateEdgeGatewayInput", null, new string[0]),
             Effect.Reversible, true, false, true, false,
+            Completion.LongRunningOperation, true,
             new Authorization("Root", new[] { "Integrator.ManageEdgeGateways" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3316,6 +3555,7 @@ internal static partial class Operations
             },
             new Body("application/json", "IntegratorUpdateEdgeGatewayInput", null, new string[0]),
             Effect.Irreversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageEdgeGateways" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3330,6 +3570,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageEdgeGateways" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3344,6 +3585,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdatePendingCertificateRequestInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageEdgeGateways" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3358,6 +3600,7 @@ internal static partial class Operations
             },
             new Body("application/json", "RecommissionEdgeGatewayInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageEdgeGateways" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3372,6 +3615,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.LongRunningOperation, true,
             new Authorization("Root", new[] { "Integrator.ManageEdgeGateways" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3386,6 +3630,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageUsers" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3400,6 +3645,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageUsers" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3413,6 +3659,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3427,6 +3674,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Membership", new string[0], "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3437,6 +3685,7 @@ internal static partial class Operations
             new Parameter[0],
             new Body("application/json", "AcceptIntegratorInvitationInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -3450,6 +3699,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageUsers" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3463,6 +3713,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateIntegratorRoleAssignmentInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageUsers" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3477,6 +3728,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageUsers" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3490,6 +3742,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.Read" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3503,6 +3756,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageUsers" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3516,6 +3770,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageServiceAccounts" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3529,6 +3784,7 @@ internal static partial class Operations
             },
             new Body("application/json", "CreateIntegratorServiceAccountInput", null, new string[0]),
             Effect.Reversible, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageServiceAccounts" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3543,6 +3799,7 @@ internal static partial class Operations
             },
             new Body("application/json", "UpdateIntegratorServiceAccountInput", null, new string[0]),
             Effect.Reversible, true, true, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageServiceAccounts" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3557,6 +3814,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageServiceAccounts" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3571,6 +3829,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageServiceAccounts" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3584,6 +3843,7 @@ internal static partial class Operations
             },
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageUsers" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3597,6 +3857,7 @@ internal static partial class Operations
             },
             new Body("application/json", "InviteIntegratorUserInput", null, new string[0]),
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageUsers" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3611,6 +3872,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageUsers" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3625,6 +3887,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageUsers" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3638,6 +3901,7 @@ internal static partial class Operations
             },
             new Body("application/json", "GenerateInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Root", new[] { "Integrator.ManageWidgetDefinitions" }, "Integrator", "integratorId"),
             false, null),
         new Operation(
@@ -3648,6 +3912,7 @@ internal static partial class Operations
             new Parameter[0],
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -3658,6 +3923,7 @@ internal static partial class Operations
             new Parameter[0],
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -3668,6 +3934,7 @@ internal static partial class Operations
             new Parameter[0],
             new Body("application/json", "UpsertPersonProfileInput", null, new string[0]),
             Effect.Reversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -3678,6 +3945,7 @@ internal static partial class Operations
             new Parameter[0],
             null,
             Effect.Read, false, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
         new Operation(
@@ -3691,6 +3959,7 @@ internal static partial class Operations
             },
             null,
             Effect.Irreversible, true, false, false, false,
+            Completion.Response, false,
             new Authorization("Caller", new string[0], null, null),
             false, null),
     };

@@ -23,6 +23,11 @@ namespace Vion.Cli.Commands
                 Report(globals, services, exception.Message, ExitCodes.Usage);
                 return ExitCodes.Usage;
             }
+            catch (WaitLeftRunning exception)
+            {
+                Report(globals, services, exception.Message, exception.ExitCode, exception.Handle);
+                return exception.ExitCode;
+            }
             catch (CliFailure exception)
             {
                 Report(globals, services, exception.Message, ExitCodes.Failure);
@@ -42,11 +47,17 @@ namespace Vion.Cli.Commands
             }
         }
 
-        public static void Report(GlobalValues globals, CliServices services, string message, int exitCode)
+        public static void Report(GlobalValues globals, CliServices services, string message, int exitCode, JsonNode? longRunningOperation = null)
         {
             if (globals.Json)
             {
-                var error = new JsonObject { ["error"] = new JsonObject { ["message"] = message, ["exitCode"] = exitCode } };
+                var body = new JsonObject { ["message"] = message, ["exitCode"] = exitCode };
+                if (longRunningOperation != null)
+                {
+                    body["longRunningOperation"] = longRunningOperation;
+                }
+
+                var error = new JsonObject { ["error"] = body };
                 Renderer.WriteJson(error, services);
             }
             else

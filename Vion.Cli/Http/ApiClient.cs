@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -24,6 +25,18 @@ namespace Vion.Cli.Http
         string? ETag,
         string? NextCursorHint)
     {
+        /// <summary>The status line's reason phrase, as the host sent it.</summary>
+        public string? Reason { get; init; }
+
+        /// <summary>Every header of the answer, content headers included, in the order received; a repeated one joined by commas.</summary>
+        public IReadOnlyList<KeyValuePair<string, string>> Headers { get; init; } = [];
+
+        /// <summary>Where a long-running operation is read, as the host wrote it: a path, normally.</summary>
+        public string? OperationLocation { get; init; }
+
+        /// <summary>How long the host asks the caller to wait before reading again.</summary>
+        public TimeSpan? RetryAfter { get; init; }
+
         public bool IsSuccess
         {
             get => Status is >= 200 and < 300;
@@ -110,6 +123,12 @@ namespace Vion.Cli.Http
                                replayedValues.Any(v => string.Equals(v, "true", StringComparison.OrdinalIgnoreCase));
                 var wwwAuthenticate = response.Headers.WwwAuthenticate.Count > 0 ? string.Join(", ", response.Headers.WwwAuthenticate.Select(h => h.ToString())) : null;
                 var etag = response.Headers.ETag?.Tag;
+                var headers = response.Headers
+                                      .Concat(response.Content.Headers)
+                                      .Select(header => new KeyValuePair<string, string>(header.Key, string.Join(", ", header.Value)))
+                                      .ToList();
+                var location = response.Headers.TryGetValues("Operation-Location", out var locations) ? locations.FirstOrDefault() : null;
+                var retryAfter = response.Headers.RetryAfter is { } retry ? retry.Delta ?? retry.Date - _services.Time.GetUtcNow() : null;
                 return new ApiResponse((int)response.StatusCode,
                                        json,
                                        json == null && hasBody ? text : null,
@@ -117,7 +136,13 @@ namespace Vion.Cli.Http
                                        replayed,
                                        wwwAuthenticate,
                                        etag,
-                                       null);
+                                       null)
+                       {
+                           Reason = response.ReasonPhrase,
+                           Headers = headers,
+                           OperationLocation = location,
+                           RetryAfter = retryAfter,
+                       };
             }
         }
     }

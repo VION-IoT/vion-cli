@@ -29,7 +29,7 @@ namespace Vion.Cli.Commands
             var live = new Option<bool>("--live")
                        { Description = "Read the environment's document and list the operations added, removed or changed against the committed one; exit 1 on any." };
             var command = new Command("ops",
-                                      "List the operations of the committed document: the command, the operationId, the method and path, the effect and the write-safety flags.");
+                                      "List the operations of the committed document: the command, the operationId, the method and path, the effect, the completion and the write-safety flags.");
             command.Options.Add(all);
             command.Options.Add(live);
             command.SetAction((result, cancellationToken) =>
@@ -55,6 +55,7 @@ namespace Vion.Cli.Commands
                                        ["method"] = operation.Method,
                                        ["path"] = operation.Template,
                                        ["effect"] = operation.Effect.ToString(),
+                                       ["completion"] = operation.Completion.ToString(),
                                        ["idempotent"] = operation.Idempotent,
                                        ["versioned"] = operation.Versioned,
                                        ["dryRun"] = operation.DryRun,
@@ -106,6 +107,7 @@ namespace Vion.Cli.Commands
                                         ["method"] = row["method"]!.DeepClone(),
                                         ["path"] = row["path"]!.DeepClone(),
                                         ["effect"] = row["effect"]!.DeepClone(),
+                                        ["completion"] = row["completion"]!.DeepClone(),
                                         ["flags"] = string.Join(" ", flags),
                                     });
             }
@@ -266,7 +268,8 @@ namespace Vion.Cli.Commands
             }
 
             return served["effect"]?.ToString() == committed.Effect.ToString() && Flag(served, "idempotent") == committed.Idempotent &&
-                   Flag(served, "versioned") == committed.Versioned && Flag(served, "dryRun") == committed.DryRun;
+                   Flag(served, "versioned") == committed.Versioned && Flag(served, "dryRun") == committed.DryRun &&
+                   (served["completion"]?.ToString() ?? "Response") == committed.Completion.ToString();
         }
 
         private static bool Flag(JsonObject node, string member)

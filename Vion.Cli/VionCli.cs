@@ -16,7 +16,14 @@ namespace Vion.Cli
     /// </summary>
     internal static class VionCli
     {
-        public static async Task<int> RunAsync(IReadOnlyList<string> args, CliServices services, IReadOnlyList<Derived.Operation>? operations = null)
+        /// <summary>
+        ///     <paramref name="cancellationToken" /> stops a run as Ctrl+C does, which System.CommandLine links into the
+        ///     same token.
+        /// </summary>
+        public static async Task<int> RunAsync(IReadOnlyList<string> args,
+                                               CliServices services,
+                                               IReadOnlyList<Derived.Operation>? operations = null,
+                                               CancellationToken cancellationToken = default)
         {
             var tree = CliTree.Build(services, operations);
             var parse = tree.Root.Parse(args, new ParserConfiguration { ResponseFileTokenReplacer = null });
@@ -38,9 +45,16 @@ namespace Vion.Cli
                 return ExitCodes.Usage;
             }
 
+            if (parse.GetResult(tree.Globals.Timeout) != null && !parse.GetValue(tree.Globals.Wait))
+            {
+                Guard.Report(tree.Globals.Read(parse), services, "--timeout bounds --wait, and --wait is absent; it does not bound a call.", ExitCodes.Usage);
+                return ExitCodes.Usage;
+            }
+
             try
             {
-                var exitCode = await parse.InvokeAsync(new InvocationConfiguration { Output = services.Out, Error = services.Error, EnableDefaultExceptionHandler = false });
+                var exitCode = await parse.InvokeAsync(new InvocationConfiguration { Output = services.Out, Error = services.Error, EnableDefaultExceptionHandler = false },
+                                                       cancellationToken);
 
                 // After the command, so the notice is the last line a person reads; not after help, the version, or a
                 // hidden command — the help snapshot runs on a terminal and must not reach the network.

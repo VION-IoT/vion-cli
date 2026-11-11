@@ -33,6 +33,14 @@ namespace Vion.Cli.Derived
         Irreversible,
     }
 
+    /// <summary>How the caller learns an operation's outcome: the answer itself, or a long-running operation to poll.</summary>
+    internal enum Completion
+    {
+        Response,
+
+        LongRunningOperation,
+    }
+
     /// <summary>
     ///     One path or query parameter as the tool takes it. <see cref="OptionName" /> is null when a global supplies the
     ///     value, and <see cref="Global" /> then names which: a context key (<c>tenant</c>, <c>integrator</c>,
@@ -77,6 +85,8 @@ namespace Vion.Cli.Derived
         bool Versioned,
         bool DryRun,
         bool Deprecated,
+        Completion Completion,
+        bool AnswersLongRunningOperation,
         Authorization Authorization,
         bool Hidden,
         string? Alias)

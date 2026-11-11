@@ -112,6 +112,8 @@ namespace Vion.Cli.Test.Commands
                                  false,
                                  false,
                                  deprecated,
+                                 Completion.Response,
+                                 false,
                                  new Authorization("Root", ["X"], null, null),
                                  false,
                                  null);
