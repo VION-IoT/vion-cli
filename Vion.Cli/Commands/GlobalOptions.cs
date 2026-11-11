@@ -44,6 +44,9 @@ namespace Vion.Cli.Commands
     /// </summary>
     internal sealed class GlobalOptions
     {
+        /// <summary>The longest `--timeout` taken: a week, far past any run the host lets live, and far from overflow.</summary>
+        public static readonly TimeSpan MaxTimeout = TimeSpan.FromDays(7);
+
         public Option<string> Env { get; } =
             new("--env") { Description = "The environment: production, test, or one defined with `context use`.", Recursive = true, HelpName = "name" };
 
@@ -135,7 +138,10 @@ namespace Vion.Cli.Commands
                                     TryParseDuration(result.GetValue(Timeout), out var timeout) ? timeout : null);
         }
 
-        /// <summary>A duration as `90s`, `15m`, `1h`, or bare seconds; anything else, or zero, is not one.</summary>
+        /// <summary>
+        ///     A duration as `90s`, `15m`, `1h`, or bare seconds, up to <see cref="MaxTimeout" />; anything else, or zero, is
+        ///     not one.
+        /// </summary>
         public static bool TryParseDuration(string? text, out TimeSpan duration)
         {
             duration = TimeSpan.Zero;
@@ -146,25 +152,20 @@ namespace Vion.Cli.Commands
 
             var unit = char.IsAsciiLetter(text[^1]) ? char.ToLowerInvariant(text[^1]) : 's';
             var digits = char.IsAsciiLetter(text[^1]) ? text[..^1] : text;
-            if (!int.TryParse(digits, NumberStyles.None, CultureInfo.InvariantCulture, out var amount) || amount <= 0)
+            long seconds = unit switch
+            {
+                's' => 1,
+                'm' => 60,
+                'h' => 3600,
+                _ => 0,
+            };
+            if (seconds == 0 || !int.TryParse(digits, NumberStyles.None, CultureInfo.InvariantCulture, out var amount) || amount <= 0 || amount > MaxTimeout.TotalSeconds / seconds)
             {
                 return false;
             }
 
-            switch (unit)
-            {
-                case 's':
-                    duration = TimeSpan.FromSeconds(amount);
-                    return true;
-                case 'm':
-                    duration = TimeSpan.FromMinutes(amount);
-                    return true;
-                case 'h':
-                    duration = TimeSpan.FromHours(amount);
-                    return true;
-                default:
-                    return false;
-            }
+            duration = TimeSpan.FromSeconds(amount * seconds);
+            return true;
         }
 
         private static Option<string> CreateTimeout()
@@ -179,7 +180,7 @@ namespace Vion.Cli.Commands
                                   {
                                       if (result.GetValueOrDefault<string>() is { } value && !TryParseDuration(value, out _))
                                       {
-                                          result.AddError($"--timeout takes a duration such as 90s, 15m or 1h; '{value}' is not one.");
+                                          result.AddError($"--timeout takes a duration such as 90s, 15m or 1h, at most 7 days; '{value}' is not one.");
                                       }
                                   });
             return option;

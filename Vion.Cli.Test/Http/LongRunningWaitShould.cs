@@ -449,6 +449,8 @@ namespace Vion.Cli.Test.Http
         [DataRow("ten")]
         [DataRow("0")]
         [DataRow("5d")]
+        [DataRow("169h")]
+        [DataRow("999999999h")]
         public async Task ExitTwoOnMalformedTimeout(string timeout)
         {
             // Arrange
