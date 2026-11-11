@@ -55,11 +55,30 @@ Two modes. In JSON mode standard output is the API's answer, verbatim, or one er
 a script has to strip. In table mode a list is rows, anything else is key–value pairs, and a failure
 goes to standard error. Notices — a replayed answer, a next cursor — go to standard error in both.
 
-- `AC-CLI-003.1` (Optional): WHERE `--json` is given THE SYSTEM SHALL write exactly one JSON document to standard output, the response body or an object with an `error` member, and every notice to standard error.
+- `AC-CLI-003.1` (Optional): WHERE `--json` is given THE SYSTEM SHALL write exactly one JSON document to standard output, the response body, an object with an `error` member, or under `api --include` an object with `status`, `headers` and `body`, and every notice to standard error.
 - `AC-CLI-003.2` (Optional): WHERE `--fields` names members THE SYSTEM SHALL project each row of a list and any other object to those members, by dotted path, in table and JSON mode alike.
 - `AC-CLI-003.3` (Ubiquitous): THE SYSTEM SHALL render a list answer as a row table of its items' scalar members and any other object as a key–value table in table mode, and SHALL report a paged answer's `nextCursor` as a notice.
 - `AC-CLI-003.4` (Event-driven): WHEN the API answers an error THE SYSTEM SHALL report its status and message and, where present, each `problems` entry, `requiredPermissions`, `currentVersion` and `exceptionId`, and exit 1.
-- `AC-CLI-003.5` (Ubiquitous): THE SYSTEM SHALL exit 0 on success, 1 on a failed call or sign-in, and 2 on a usage error.
+- `AC-CLI-003.5` (Ubiquitous): THE SYSTEM SHALL exit 0 on success, 1 on a failed call or sign-in, 2 on a usage error, and 3 when a wait ends at its timeout with the work still running.
+
+## Waiting for the outcome
+
+An operation published `completion: LongRunningOperation` answers `202` with a long-running
+operation, not its result. With `--wait` the tool follows it to its end and exits by it, so a job
+reads one exit code; the start's answer is the first read, so a start already `Succeeded` — a dry
+run always is — needs none. What is followed is read off the committed document, never named per
+operation. cloud-api's `cloud-api/AC-LRO-002.1`, `cloud-api/AC-LRO-002.4` and `cloud-api/AC-LRO-003.1`
+are the contract being followed.
+
+- `AC-CLI-008.1` (Optional): WHERE `--wait` is given and the operation is published `LongRunningOperation`, or is a `GET` answering a long-running operation, THE SYSTEM SHALL read the state from the answer and, while it is `Queued` or `Running`, read `Operation-Location`, else the path just read, again after each answer's `Retry-After` or two seconds, resolving the token again once when a read answers 401, until it is `Succeeded` or `Failed`.
+- `AC-CLI-008.2` (Event-driven): WHEN a waited long-running operation ends `Succeeded` THE SYSTEM SHALL render its `result` as the command's answer, name its id where it has one as a notice, and exit 0.
+- `AC-CLI-008.3` (Event-driven): WHEN a waited long-running operation ends `Failed` THE SYSTEM SHALL report its `error` as an error answer of the API and exit 1.
+- `AC-CLI-008.4` (Unwanted): IF a wait reaches `--timeout`, fifteen minutes unless given, with the work `Queued` or `Running` THEN THE SYSTEM SHALL report that it is still running with its `Operation-Location` and `vion api GET <Operation-Location> --wait`, carry the last answer as `longRunningOperation` in the error object under `--json`, and exit 3.
+- `AC-CLI-008.5` (Unwanted): IF a wait is interrupted, or a poll answers an error, THEN THE SYSTEM SHALL report that the work may still be running with its `Operation-Location` and the same pick-up command, and exit 1.
+- `AC-CLI-008.6` (Optional): WHERE `--wait` is given to `api` on a path no long-running operation's template matches THE SYSTEM SHALL wait as for one when the answer carries `Operation-Location`, and otherwise render the answer as without `--wait`.
+- `AC-CLI-008.7` (Unwanted): IF `Operation-Location` names an origin other than the environment's API THEN THE SYSTEM SHALL refuse to follow it before sending the token and exit 1.
+- `AC-CLI-008.8` (Event-driven): WHEN an answer carries `Operation-Location` and `--wait` is absent THE SYSTEM SHALL name it and `--wait` as a notice.
+- `AC-CLI-008.9` (Optional): WHERE `--wait` is given on an operation published `Response` that is not a `GET` answering a long-running operation THE SYSTEM SHALL send and render as without `--wait`.
 
 ## Sign-in
 
@@ -90,11 +109,13 @@ the roots a call fills in; the flags and the `VION_*` variables override it per 
 against the committed document; `can-i` joins the environment's catalog with the caller's own
 permissions as the dashboard does; `api` is the raw call for anything the tree does not name.
 
-- `AC-CLI-006.1` (Event-driven): WHEN `ops` runs THE SYSTEM SHALL list, from the committed document and without a request, every tree command with its operationId, method, path, effect and flags, and with `--all` the `system` operations too.
+- `AC-CLI-006.1` (Event-driven): WHEN `ops` runs THE SYSTEM SHALL list, from the committed document and without a request, every tree command with its operationId, method, path, effect, completion and flags, and with `--all` the `system` operations too.
 - `AC-CLI-006.2` (Event-driven): WHEN `ops --live` runs THE SYSTEM SHALL read the environment's document and print the operations added, removed or changed in method, path, `x-vion-authorization` or `x-vion-capability` against the committed document, exiting 0 only when none differ.
 - `AC-CLI-006.3` (Event-driven): WHEN `can-i <operationId>` runs THE SYSTEM SHALL decide from the environment's catalog row and the context root's own permissions — a `Root` operation from the root set, a `Filtered` or `Scope` operation at `--project` from the held scope of that project else the root set, any other case allowed, an unlisted operation unknown — and exit 0 when allowed, 1 when denied and 2 when unknown.
 - `AC-CLI-006.4` (Event-driven): WHEN `whoami` runs THE SYSTEM SHALL print the caller's identity and memberships with their ids from `me.identity.get`.
-- `AC-CLI-006.5` (Event-driven): WHEN `api <METHOD> <path>` runs THE SYSTEM SHALL send that request to the environment's API with the resolved token, the `-f` and `-F` pairs as the query on `GET` and as the JSON body otherwise, and render the answer as any command's.
+- `AC-CLI-006.5` (Event-driven): WHEN `api <METHOD> <path>` runs THE SYSTEM SHALL send that request to the environment's API with the resolved token, the `-f` and `-F` pairs as the query on `GET` and as the JSON body otherwise, the write-safety headers and refusals of the operation whose template the path matches, and render the answer as any command's.
+- `AC-CLI-006.6` (Optional): WHERE `api` is given `--no-write-safety` THE SYSTEM SHALL send the method, path, query and body as given, with `Idempotency-Key` and `If-Match` only from `--idempotency-key` and `--if-match`, reading nothing before the request and refusing no `--dry-run`.
+- `AC-CLI-006.7` (Optional): WHERE `api` is given `--include` THE SYSTEM SHALL write the answer's status and headers to standard output before the body in table mode, and under `--json` one object with `status`, `headers` and `body` whatever the status, and SHALL refuse `--wait` beside it with exit 2.
 
 ## The update check
 

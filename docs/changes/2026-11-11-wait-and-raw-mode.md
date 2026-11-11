@@ -250,6 +250,17 @@ header for `--verbose`, so this is one more member, not another read.
 
 - 2026-11-11: the brief's "`vion api` … prints no response headers" — `--verbose` prints them on
   standard error; the gap is the `--json` document (§ What the brief assumed, checked).
+- 2026-11-11: D11's "every poll takes its token as a new call does" became "a read answering 401
+  resolves the token again, once": resolving per poll would mint a service account's token from the
+  realm every two seconds. `AC-CLI-008.1`'s clause carries the rule as built.
+- 2026-11-11: `--include` beside `--wait` is refused, exit 2 — one answer's headers against the
+  outcome of several reads; `AC-CLI-006.7` carries the refusal. Not foreseen in D10.
+- 2026-11-11: the inert case of D1 got its own criterion, `AC-CLI-008.9`; `AC-CLI-008.6` states
+  only `api`'s header-only rule.
+- 2026-11-11: `VionCli.RunAsync` takes a cancellation token, which System.CommandLine links with
+  Ctrl+C, so a test interrupts a wait as a person does (`AC-CLI-008.5`). Production passes none.
+- 2026-11-11: `Retry-After` in its date form is read as the time until that date; cloud-api sends
+  seconds (`LongRunningOperationHeaders.cs`).
 
 ---
 
@@ -273,13 +284,14 @@ header for `--verbose`, so this is one more member, not another read.
 - MODIFIED AC-CLI-006.1 -> docs/specs/cli.md : WHEN `ops` runs THE SYSTEM SHALL list, from the committed document and without a request, every tree command with its operationId, method, path, effect, completion and flags, and with `--all` the `system` operations too.
 - MODIFIED AC-CLI-006.5 -> docs/specs/cli.md : WHEN `api <METHOD> <path>` runs THE SYSTEM SHALL send that request to the environment's API with the resolved token, the `-f` and `-F` pairs as the query on `GET` and as the JSON body otherwise, the write-safety headers and refusals of the operation whose template the path matches, and render the answer as any command's.
 - ADDED AC-CLI-006.6 -> docs/specs/cli.md : WHERE `api` is given `--no-write-safety` THE SYSTEM SHALL send the method, path, query and body as given, with `Idempotency-Key` and `If-Match` only from `--idempotency-key` and `--if-match`, reading nothing before the request and refusing no `--dry-run`.
-- ADDED AC-CLI-006.7 -> docs/specs/cli.md : WHERE `api` is given `--include` THE SYSTEM SHALL write the answer's status and headers to standard output before the body in table mode, and under `--json` one object with `status`, `headers` and `body` whatever the status.
-- ADDED AC-CLI-008.1 -> docs/specs/cli.md : WHERE `--wait` is given and the operation is published `LongRunningOperation`, or is a `GET` answering a long-running operation, THE SYSTEM SHALL read the state from the answer and, while it is `Queued` or `Running`, read `Operation-Location`, else the path just read, again after each answer's `Retry-After` or two seconds, with a token resolved as for a new call, until it is `Succeeded` or `Failed`.
-- ADDED AC-CLI-008.2 -> docs/specs/cli.md : WHEN a waited long-running operation ends `Succeeded` THE SYSTEM SHALL render its `result` as the command's answer, name its id as a notice, and exit 0.
+- ADDED AC-CLI-006.7 -> docs/specs/cli.md : WHERE `api` is given `--include` THE SYSTEM SHALL write the answer's status and headers to standard output before the body in table mode, and under `--json` one object with `status`, `headers` and `body` whatever the status, and SHALL refuse `--wait` beside it with exit 2.
+- ADDED AC-CLI-008.1 -> docs/specs/cli.md : WHERE `--wait` is given and the operation is published `LongRunningOperation`, or is a `GET` answering a long-running operation, THE SYSTEM SHALL read the state from the answer and, while it is `Queued` or `Running`, read `Operation-Location`, else the path just read, again after each answer's `Retry-After` or two seconds, resolving the token again once when a read answers 401, until it is `Succeeded` or `Failed`.
+- ADDED AC-CLI-008.2 -> docs/specs/cli.md : WHEN a waited long-running operation ends `Succeeded` THE SYSTEM SHALL render its `result` as the command's answer, name its id where it has one as a notice, and exit 0.
 - ADDED AC-CLI-008.3 -> docs/specs/cli.md : WHEN a waited long-running operation ends `Failed` THE SYSTEM SHALL report its `error` as an error answer of the API and exit 1.
 - ADDED AC-CLI-008.4 -> docs/specs/cli.md : IF a wait reaches `--timeout`, fifteen minutes unless given, with the work `Queued` or `Running` THEN THE SYSTEM SHALL report that it is still running with its `Operation-Location` and `vion api GET <Operation-Location> --wait`, carry the last answer as `longRunningOperation` in the error object under `--json`, and exit 3.
 - ADDED AC-CLI-008.5 -> docs/specs/cli.md : IF a wait is interrupted, or a poll answers an error, THEN THE SYSTEM SHALL report that the work may still be running with its `Operation-Location` and the same pick-up command, and exit 1.
 - ADDED AC-CLI-008.6 -> docs/specs/cli.md : WHERE `--wait` is given to `api` on a path no long-running operation's template matches THE SYSTEM SHALL wait as for one when the answer carries `Operation-Location`, and otherwise render the answer as without `--wait`.
+- ADDED AC-CLI-008.9 -> docs/specs/cli.md : WHERE `--wait` is given on an operation published `Response` that is not a `GET` answering a long-running operation THE SYSTEM SHALL send and render as without `--wait`.
 - ADDED AC-CLI-008.7 -> docs/specs/cli.md : IF `Operation-Location` names an origin other than the environment's API THEN THE SYSTEM SHALL refuse to follow it before sending the token and exit 1.
 - ADDED AC-CLI-008.8 -> docs/specs/cli.md : WHEN an answer carries `Operation-Location` and `--wait` is absent THE SYSTEM SHALL name it and `--wait` as a notice.
 
@@ -293,7 +305,7 @@ header for `--verbose`, so this is one more member, not another read.
 - `T-001` (`AC-CLI-008.1`): derive `Completion` and `AnswersLongRunningOperation` into the table; regenerate `Operations.g.cs`.
 - `T-002` (`AC-CLI-006.7`, `AC-CLI-003.1`): `ApiResponse` carries status reason and headers; `api --include` in both modes.
 - `T-003` (`AC-CLI-006.6`, `AC-CLI-006.5`): `api --no-write-safety`.
-- `T-004` (`AC-CLI-008.1`–`.8`, `AC-CLI-003.5`): `--wait`, `--timeout`, the shared wait, exit 3, the notice; derived and `api`.
+- `T-004` (`AC-CLI-008.1`–`.9`, `AC-CLI-003.5`): `--wait`, `--timeout`, the shared wait, exit 3, the notice; derived and `api`.
 - `T-007` (`AC-CLI-006.1`, `AC-CLI-006.2`): `ops` lists `completion`; `ops --live` compares it — a test red before the change.
 - `T-005`: help snapshot via `scripts/derive.ps1`; distill the delta into `cli.md`; archive this doc.
 - `T-006`: live check on test per `architecture/runbooks/test-environment-checks.md` — `integrator.edgeGatewaySimulation.update --wait` on a simulated gateway, and `api --no-write-safety` provoking a 428 — or "not run, routes to a human".

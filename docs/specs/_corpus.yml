@@ -51,5 +51,5 @@ tests:
 # A citation is `<repo>/AC-…` with `<repo>` listed here. It is never counted as declared and never
 # needs a test in this repo — the repo that owns it proves it. A qualified id naming a repo that
 # is not listed fails the lint, so a corpus cannot drift into citing something nobody declared.
-cites: [dale-sdk]
+cites: [dale-sdk, cloud-api]
 
