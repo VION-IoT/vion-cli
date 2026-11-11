@@ -142,11 +142,8 @@ namespace Vion.Cli.Derive
 
             foreach (var response in responses.EnumerateObject())
             {
-                if (response.Name.StartsWith('2') &&
-                    response.Value.TryGetProperty("content", out var content) &&
-                    content.TryGetProperty("application/json", out var json) &&
-                    json.TryGetProperty("schema", out var schema) &&
-                    TryString(schema, "$ref") == "#/components/schemas/LongRunningOperationOutput")
+                if (response.Name.StartsWith('2') && response.Value.TryGetProperty("content", out var content) && content.TryGetProperty("application/json", out var json) &&
+                    json.TryGetProperty("schema", out var schema) && TryString(schema, "$ref") == "#/components/schemas/LongRunningOperationOutput")
                 {
                     return true;
                 }

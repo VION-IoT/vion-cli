@@ -53,7 +53,8 @@ namespace Vion.Cli
 
             try
             {
-                var exitCode = await parse.InvokeAsync(new InvocationConfiguration { Output = services.Out, Error = services.Error, EnableDefaultExceptionHandler = false }, cancellationToken);
+                var exitCode = await parse.InvokeAsync(new InvocationConfiguration { Output = services.Out, Error = services.Error, EnableDefaultExceptionHandler = false },
+                                                       cancellationToken);
 
                 // After the command, so the notice is the last line a person reads; not after help, the version, or a
                 // hidden command — the help snapshot runs on a terminal and must not reach the network.

@@ -160,7 +160,13 @@ namespace Vion.Cli.Test.Commands
 
             // Act
             var run = await Tool.RunAsync(handler,
-                                          Tool.OnTest("api", "PUT", $"/tenant/{Tool.Tenant}/overviewComposition", "--input", "-", "--no-write-safety", "--json"),
+                                          Tool.OnTest("api",
+                                                      "PUT",
+                                                      $"/tenant/{Tool.Tenant}/overviewComposition",
+                                                      "--input",
+                                                      "-",
+                                                      "--no-write-safety",
+                                                      "--json"),
                                           Tool.Token + "\n" + """{ "a": "b", "meta": { "version": 7 } }""");
 
             // Assert
@@ -184,7 +190,16 @@ namespace Vion.Cli.Test.Commands
 
             // Act
             var run = await Tool.RunAsync(handler,
-                                          Tool.OnTest("api", "PUT", $"/tenant/{Tool.Tenant}/overviewComposition", "-f", "a=b", "--no-write-safety", "--idempotency-key", key, "--if-match", version),
+                                          Tool.OnTest("api",
+                                                      "PUT",
+                                                      $"/tenant/{Tool.Tenant}/overviewComposition",
+                                                      "-f",
+                                                      "a=b",
+                                                      "--no-write-safety",
+                                                      "--idempotency-key",
+                                                      key,
+                                                      "--if-match",
+                                                      version),
                                           Tool.Token);
 
             // Assert
@@ -241,7 +256,8 @@ namespace Vion.Cli.Test.Commands
             CollectionAssert.Contains(lines, "Operation-Location: /me/longRunningOperations/1");
             CollectionAssert.Contains(lines, "Content-Type: application/json; charset=utf-8");
             var blank = lines.IndexOf("");
-            Assert.IsTrue(blank > 0 && run.Out.IndexOf("Queued", System.StringComparison.Ordinal) > run.Out.IndexOf("Operation-Location", System.StringComparison.Ordinal), run.Out);
+            Assert.IsTrue(blank > 0 && run.Out.IndexOf("Queued", System.StringComparison.Ordinal) > run.Out.IndexOf("Operation-Location", System.StringComparison.Ordinal),
+                          run.Out);
         }
 
         [TestMethod]
@@ -255,7 +271,14 @@ namespace Vion.Cli.Test.Commands
             using var handler = RecordingHandler.Json(status, """{ "state": "Queued" }""", response => response.Headers.Add("Retry-After", "2"));
 
             // Act
-            var run = await Tool.RunAsync(handler, Tool.OnTest("api", "POST", "/onboarding/provision", "--yes", "--include", "--json"), Tool.Token);
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("api",
+                                                      "POST",
+                                                      "/onboarding/provision",
+                                                      "--yes",
+                                                      "--include",
+                                                      "--json"),
+                                          Tool.Token);
 
             // Assert
             Assert.AreEqual(exitCode, run.ExitCode, run.Error);

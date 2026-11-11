@@ -34,8 +34,7 @@ namespace Vion.Cli.Test.Commands
             Assert.AreEqual("/tenant/{tenantId}/edgeGateways", listing["path"]!.GetValue<string>());
             Assert.AreEqual("Read", listing["effect"]!.GetValue<string>());
             Assert.AreEqual("Response", listing["completion"]!.GetValue<string>());
-            Assert.AreEqual("LongRunningOperation",
-                            items.Single(i => i!["operationId"]!.GetValue<string>() == "integrator.edgeGateway.create")!["completion"]!.GetValue<string>());
+            Assert.AreEqual("LongRunningOperation", items.Single(i => i!["operationId"]!.GetValue<string>() == "integrator.edgeGateway.create")!["completion"]!.GetValue<string>());
             var activation = items.Single(i => i!["operationId"]!.GetValue<string>() == "tenant.logicConfiguration.activate")!;
             Assert.IsTrue(activation["dryRun"]!.GetValue<bool>());
             Assert.IsTrue(activation["idempotent"]!.GetValue<bool>());

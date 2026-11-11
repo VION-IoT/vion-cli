@@ -139,7 +139,8 @@ namespace Vion.Cli.Test.Derive
             // Arrange
             var snapshot = Fixture("v1.json");
             using var json = System.Text.Json.JsonDocument.Parse(snapshot);
-            var published = json.RootElement.GetProperty("paths")
+            var published = json.RootElement
+                                .GetProperty("paths")
                                 .EnumerateObject()
                                 .SelectMany(path => path.Value.EnumerateObject())
                                 .Where(method => method.Value.TryGetProperty("operationId", out _))

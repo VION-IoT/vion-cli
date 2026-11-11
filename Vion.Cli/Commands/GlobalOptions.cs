@@ -122,8 +122,7 @@ namespace Vion.Cli.Commands
                                     result.GetValue(Project),
                                     result.GetValue(Platform),
                                     result.GetValue(Json),
-                                    string.IsNullOrWhiteSpace(fields) ? [] :
-                                        fields.Split(',', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries),
+                                    string.IsNullOrWhiteSpace(fields) ? [] : fields.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
                                     result.GetValue(Yes),
                                     result.GetValue(DryRun),
                                     result.GetValue(IdempotencyKey),

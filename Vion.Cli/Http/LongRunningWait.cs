@@ -89,7 +89,13 @@ namespace Vion.Cli.Http
                 try
                 {
                     await Task.Delay(delay < left ? delay : left, services.Time, cancellationToken);
-                    (current, token) = await PollAsync(pollUri, globals, context, token, client, services, cancellationToken);
+                    (current, token) = await PollAsync(pollUri,
+                                                       globals,
+                                                       context,
+                                                       token,
+                                                       client,
+                                                       services,
+                                                       cancellationToken);
                 }
                 catch (OperationCanceledException)
                 {
@@ -142,12 +148,12 @@ namespace Vion.Cli.Http
         ///     piped into `--token -` cannot be read twice and is kept.
         /// </summary>
         private static async Task<(ApiResponse Answer, string Token)> PollAsync(Uri uri,
-                                                         GlobalValues globals,
-                                                         ResolvedContext context,
-                                                         string token,
-                                                         ApiClient client,
-                                                         CliServices services,
-                                                         CancellationToken cancellationToken)
+                                                                                GlobalValues globals,
+                                                                                ResolvedContext context,
+                                                                                string token,
+                                                                                ApiClient client,
+                                                                                CliServices services,
+                                                                                CancellationToken cancellationToken)
         {
             using var request = new HttpRequestMessage(HttpMethod.Get, uri);
             var answer = await client.SendAsync(request, token, globals.Verbose, cancellationToken);
@@ -166,7 +172,14 @@ namespace Vion.Cli.Http
         {
             var error = handle["error"]?.DeepClone();
             var status = error is JsonObject body && Enum.TryParse<HttpStatusCode>(body["statusCode"]?.ToString(), out var code) && (int)code >= 400 ? (int)code : 500;
-            return new ApiResponse(status, error, error == null ? "the long-running operation failed without an error body." : null, true, false, null, null, null);
+            return new ApiResponse(status,
+                                   error,
+                                   error == null ? "the long-running operation failed without an error body." : null,
+                                   true,
+                                   false,
+                                   null,
+                                   null,
+                                   null);
         }
 
         private static string Describe(TimeSpan timeout)

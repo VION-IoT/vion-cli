@@ -83,7 +83,14 @@ namespace Vion.Cli.Test.Http
             // Act
             var run = await Tool.RunAdvancingAsync(time,
                                                    () => Tool.RunAsync(handler,
-                                                                       Tool.OnTest("integrator", "long-running-operation", "get", "--integrator", Integrator, "--id", Handle, "--wait"),
+                                                                       Tool.OnTest("integrator",
+                                                                                   "long-running-operation",
+                                                                                   "get",
+                                                                                   "--integrator",
+                                                                                   Integrator,
+                                                                                   "--id",
+                                                                                   Handle,
+                                                                                   "--wait"),
                                                                        Tool.Token,
                                                                        time: time));
 
@@ -161,7 +168,16 @@ namespace Vion.Cli.Test.Http
 
             // Act
             var run = await Tool.RunAsync(handler,
-                                          Tool.OnTest("integrator", "edge-gateway", "create", "--integrator", Integrator, "-f", "name=preview", "--dry-run", "--wait", "--json"),
+                                          Tool.OnTest("integrator",
+                                                      "edge-gateway",
+                                                      "create",
+                                                      "--integrator",
+                                                      Integrator,
+                                                      "-f",
+                                                      "name=preview",
+                                                      "--dry-run",
+                                                      "--wait",
+                                                      "--json"),
                                           Tool.Token);
 
             // Assert
@@ -206,7 +222,8 @@ namespace Vion.Cli.Test.Http
             using var handler = new RecordingHandler(request =>
                                                      {
                                                          instants.Add(time.GetUtcNow());
-                                                         return request.Method == HttpMethod.Post ? Answer(202, State("Queued"), Location, 4) : Answer(200, State("Running"), null, 4);
+                                                         return request.Method == HttpMethod.Post ? Answer(202, State("Queued"), Location, 4) :
+                                                                    Answer(200, State("Running"), null, 4);
                                                      });
 
             // Act
@@ -231,7 +248,8 @@ namespace Vion.Cli.Test.Http
             using var handler = new RecordingHandler(request =>
                                                      {
                                                          last = time.GetUtcNow();
-                                                         return request.Method == HttpMethod.Post ? Answer(202, State("Queued"), Location, 60) : Answer(200, State("Running"), null, 60);
+                                                         return request.Method == HttpMethod.Post ? Answer(202, State("Queued"), Location, 60) :
+                                                                    Answer(200, State("Running"), null, 60);
                                                      });
 
             // Act
@@ -302,7 +320,16 @@ namespace Vion.Cli.Test.Http
             using var handler = new RecordingHandler(_ => answers.Dequeue());
 
             // Act
-            var run = await Tool.RunAdvancingAsync(time, () => Tool.RunAsync(handler, Tool.OnTest("api", "POST", StartPath, "--yes", "--wait", "--json"), Tool.Token, time: time));
+            var run = await Tool.RunAdvancingAsync(time,
+                                                   () => Tool.RunAsync(handler,
+                                                                       Tool.OnTest("api",
+                                                                                   "POST",
+                                                                                   StartPath,
+                                                                                   "--yes",
+                                                                                   "--wait",
+                                                                                   "--json"),
+                                                                       Tool.Token,
+                                                                       time: time));
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
@@ -389,7 +416,7 @@ namespace Vion.Cli.Test.Http
         {
             // Arrange
             using var handler = new RecordingHandler(_ => Answer(202, State("Queued"), Location, 2));
-            string[] args = json ? [.. Start, "--json"] : Start;
+            var args = json ? [.. Start, "--json"] : Start;
 
             // Act
             var run = await Tool.RunAsync(handler, Tool.OnTest(args), Tool.Token);

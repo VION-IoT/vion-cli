@@ -123,7 +123,8 @@ namespace Vion.Cli.Http
                                replayedValues.Any(v => string.Equals(v, "true", StringComparison.OrdinalIgnoreCase));
                 var wwwAuthenticate = response.Headers.WwwAuthenticate.Count > 0 ? string.Join(", ", response.Headers.WwwAuthenticate.Select(h => h.ToString())) : null;
                 var etag = response.Headers.ETag?.Tag;
-                var headers = response.Headers.Concat(response.Content.Headers)
+                var headers = response.Headers
+                                      .Concat(response.Content.Headers)
                                       .Select(header => new KeyValuePair<string, string>(header.Key, string.Join(", ", header.Value)))
                                       .ToList();
                 var location = response.Headers.TryGetValues("Operation-Location", out var locations) ? locations.FirstOrDefault() : null;

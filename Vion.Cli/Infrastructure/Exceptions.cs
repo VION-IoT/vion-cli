@@ -35,11 +35,11 @@ namespace Vion.Cli.Infrastructure
     /// <summary>A wait reached `--timeout` with the work unfinished; the last answer goes with it. Exit 3.</summary>
     internal sealed class WaitTimedOut : Exception
     {
+        public System.Text.Json.Nodes.JsonNode? Handle { get; }
+
         public WaitTimedOut(string message, System.Text.Json.Nodes.JsonNode? handle) : base(message)
         {
             Handle = handle;
         }
-
-        public System.Text.Json.Nodes.JsonNode? Handle { get; }
     }
 }
