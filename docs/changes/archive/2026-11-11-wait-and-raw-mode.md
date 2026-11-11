@@ -275,6 +275,10 @@ header for `--verbose`, so this is one more member, not another read.
   (`cloud-api/AC-LRO-003.2` sends it while `Queued` or `Running`). A body's `state` alone never
   decides. Named limit: a non-terminal answer from a host that sends no `Retry-After` is rendered as
   is, exit 0.
+- 2026-11-11: amendment 2's review — the review fix that withheld the `Operation-Location` notice
+  under `--wait` left an answer the wait gave back unfollowed (a body that is no long-running
+  operation's) silent, exit 0. The notice now shows whenever the header reaches the renderer, worded
+  for the unfollowed case under `--wait`; `AC-CLI-008.8` reworded (`MODIFIED`).
 - 2026-11-11: amendment 2, item 3 — a start answering `Idempotency-Replayed: true` under `--wait`
   is named once on standard error when the wait begins, so every ending carries it — succeeded,
   failed, timed out, interrupted (`AC-CLI-002.3`, unchanged).
@@ -317,6 +321,7 @@ header for `--verbose`, so this is one more member, not another read.
 - ADDED AC-CLI-008.9 -> docs/specs/cli.md : WHERE `--wait` is given on an operation published `Response` that is not a `GET` answering a long-running operation THE SYSTEM SHALL send and render as without `--wait`.
 - MODIFIED AC-CLI-008.6 -> docs/specs/cli.md : WHERE `--wait` is given and an answer carries `Operation-Location`, or a `GET`'s answer carries `Retry-After`, THE SYSTEM SHALL wait as for a long-running operation whatever the committed document publishes of the operation, reading `Operation-Location`, else the path just read.
 - MODIFIED AC-CLI-008.9 -> docs/specs/cli.md : WHERE `--wait` is given on an operation published `Response` that is not a `GET` answering a long-running operation, and the answer carries neither `Operation-Location` nor, on a `GET`, `Retry-After`, THE SYSTEM SHALL send and render as without `--wait`.
+- MODIFIED AC-CLI-008.8 -> docs/specs/cli.md : WHEN an answer carries `Operation-Location` and is rendered without being followed THE SYSTEM SHALL name it as a notice, with `--wait` where `--wait` is absent and with `vion api GET <Operation-Location> --wait` where the wait found no long-running operation in the answer.
 - ADDED AC-CLI-008.7 -> docs/specs/cli.md : IF `Operation-Location` names an origin other than the environment's API THEN THE SYSTEM SHALL refuse to follow it before sending the token and exit 1.
 - ADDED AC-CLI-008.8 -> docs/specs/cli.md : WHEN an answer carries `Operation-Location` and `--wait` is absent THE SYSTEM SHALL name it and `--wait` as a notice.
 

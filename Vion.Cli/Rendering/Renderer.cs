@@ -29,9 +29,13 @@ namespace Vion.Cli.Rendering
                 services.Error.WriteLine(ReplayedNotice);
             }
 
-            if (response.OperationLocation is { } location && !globals.Wait)
+            // An answer that still names Operation-Location here was not followed: without --wait the caller learns the
+            // flag, with it the wait found no long-running operation in the body — either way the work is named.
+            if (response.OperationLocation is { } location)
             {
-                services.Error.WriteLine($"long-running operation at {location}: pass --wait to wait for its outcome, or run `vion api GET {location} --wait`.");
+                services.Error.WriteLine(globals.Wait ?
+                                             $"long-running operation at {location} was not followed: its answer is not a long-running operation's. Pick it up with `vion api GET {location} --wait`." :
+                                             $"long-running operation at {location}: pass --wait to wait for its outcome, or run `vion api GET {location} --wait`.");
             }
 
             if (response.IsSuccess)

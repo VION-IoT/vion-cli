@@ -373,16 +373,20 @@ namespace Vion.Cli.Test.Http
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-008.8")]
-        public async Task NameNoOperationLocationWhenWaitGiven()
+        [DataRow("""{ "accepted": true }""")]
+        [DataRow("[]")]
+        public async Task NameUnfollowedOperationLocationWhenWaitGiven(string body)
         {
             // Arrange
-            using var handler = new RecordingHandler(_ => Answer(202, """{ "accepted": true }""", "/elsewhere/operations/1", null));
+            using var handler = new RecordingHandler(_ => Answer(202, body, "/elsewhere/operations/1", null));
 
             // Act
             var run = await Tool.RunAsync(handler, Tool.OnTest("api", "POST", "/elsewhere/things", "--wait"), Tool.Token);
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
+            StringAssert.Contains(run.Error,
+                                  "long-running operation at /elsewhere/operations/1 was not followed: its answer is not a long-running operation's. Pick it up with `vion api GET /elsewhere/operations/1 --wait`.");
             Assert.DoesNotContain("pass --wait", run.Error);
         }
 

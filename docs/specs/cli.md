@@ -77,7 +77,7 @@ are the contract being followed.
 - `AC-CLI-008.5` (Unwanted): IF a wait is interrupted, or a poll answers an error, THEN THE SYSTEM SHALL report that the work may still be running with its `Operation-Location` and the same pick-up command, and exit 1.
 - `AC-CLI-008.6` (Optional): WHERE `--wait` is given and an answer carries `Operation-Location`, or a `GET`'s answer carries `Retry-After`, THE SYSTEM SHALL wait as for a long-running operation whatever the committed document publishes of the operation, reading `Operation-Location`, else the path just read.
 - `AC-CLI-008.7` (Unwanted): IF `Operation-Location` names an origin other than the environment's API THEN THE SYSTEM SHALL refuse to follow it before sending the token and exit 1.
-- `AC-CLI-008.8` (Event-driven): WHEN an answer carries `Operation-Location` and `--wait` is absent THE SYSTEM SHALL name it and `--wait` as a notice.
+- `AC-CLI-008.8` (Event-driven): WHEN an answer carries `Operation-Location` and is rendered without being followed THE SYSTEM SHALL name it as a notice, with `--wait` where `--wait` is absent and with `vion api GET <Operation-Location> --wait` where the wait found no long-running operation in the answer.
 - `AC-CLI-008.9` (Optional): WHERE `--wait` is given on an operation published `Response` that is not a `GET` answering a long-running operation, and the answer carries neither `Operation-Location` nor, on a `GET`, `Retry-After`, THE SYSTEM SHALL send and render as without `--wait`.
 
 ## Sign-in
