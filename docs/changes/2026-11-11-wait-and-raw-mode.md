@@ -1,6 +1,6 @@
 ---
 slug: wait-and-raw-mode
-status: proposed           # proposed | in-flight | parked | archived
+status: in-flight          # proposed | in-flight | parked | archived
 blocked-on: none           # for parked docs: what's blocking + ref
 areas: CLI                 # area codes from docs/specs/_corpus.yml's `owns:`
 author: the wait-and-raw session, for Jonas Bertsch
@@ -53,12 +53,16 @@ the operation answers a long-running operation. No other page; no invariant.
 - `D3` — The start's answer is the first poll (constraint 3, `cloud-api/AC-LRO-002.3`): its `state`
   decides; `Queued`/`Running` follows `Operation-Location`, else, on the handle's own read, the path
   just read; each answer's `Retry-After` (seconds) is the next delay, two seconds without one.
-- `D4` — The timeout is `--wait-timeout <duration>`: `90s`, `15m`, `1h`, or bare seconds; default
+- `D4` — The timeout is `--timeout <duration>`: `90s`, `15m`, `1h`, or bare seconds; default
   **15 minutes** — cloud-api's run timeout fails a `Running` operation after 10 minutes
   (`LongRunningOperations:RunTimeout`, the archived spec § The runner), and queue time comes on top,
   so a default below it would time out work the server has not given up on. Exit **3** for
   "timed out, still running": 1 is a failed call or a `Failed` operation, 2 a usage error, and a
-  script that wants to keep waiting must tell timeout from failure. (point 2, decide-and-document)
+  script that wants to keep waiting must tell timeout from failure. The name is kubectl's, helm's and
+  `az`'s for the same thing (`kubectl wait --timeout`, `helm upgrade --wait --timeout`); kubectl names
+  its per-request bound `--request-timeout`, so if `vion` ever exposes its fixed 100-second HTTP
+  timeout, that is the name it takes. `--timeout` without `--wait` is a usage error, exit 2: it would
+  otherwise read as bounding the call, which it does not. (point 2; name per amendment 1)
 - `D5` — A waited command prints `result`, plain and under `--json`, `--fields` projecting it; the
   handle's id is a notice on standard error. `Failed` renders `error` exactly as an API error
   (`AC-CLI-003.4`): table lines on standard error, `{ "error": … }` under `--json`, exit 1. This is
@@ -99,17 +103,22 @@ the operation answers a long-running operation. No other page; no invariant.
 
 ### Reviewer's questions
 
-1. **(c) propose-and-wait — the four names.** `--wait` is the archived spec's (ratified). The rest
+1. **[resolved] the names** — Jonas, 2026-11-11, amendment 1: as recommended, except the timeout,
+   which is `--timeout` (kubectl, helm, `az`); `--no-write-safety` and `--include`/`-i` stand. Was:
+   **(c) propose-and-wait — the four names.** `--wait` is the archived spec's (ratified). The rest
    are mine, and `CLAUDE.md` § STOPs routes a naming question to you:
-   - the timeout: **`--wait-timeout <duration>`** (rec.) · `--timeout` (reads as the HTTP timeout,
-     which is a fixed 100 s today) · `--wait <duration>` (an optional value — `--wait` alone then
+   - the timeout: a `--wait`-prefixed name (proposed) · **`--timeout`** (chosen; I had objected that
+     it reads as the HTTP timeout, which kubectl answers with `--request-timeout`) · `--wait <duration>` (an optional value — `--wait` alone then
      needs a default anyway, and System.CommandLine's optional-arity values swallow the next token);
    - the raw mode: **`--no-write-safety`** (rec.: names exactly what goes, and cloud-api's page is
      `write-safety.md`) · `--raw` (the brief's word, but `api` already has `--raw-field`/`-f`, and
      "raw" says nothing about what is dropped) · `--as-given`;
    - the headers: **`--include`, short `-i`** (rec., curl and `gh api`) · `--show-headers` ·
      folded into the raw mode (rejected in D10: the two callers want different halves).
-2. **(c) propose-and-wait — `ops` and `ops --live` see `completion`?** Once `completion` is in the
+2. **[resolved] yes, in this pull request** — Jonas, 2026-11-11, amendment 1: `ops` lists
+   `completion` as a column beside `effect`, and `ops --live` compares it (`AC-CLI-006.1` modified;
+   `AC-CLI-006.2` already names `x-vion-capability` whole and is now true of it). Was:
+   **(c) propose-and-wait — `ops` and `ops --live` see `completion`?** Once `completion` is in the
    derived table, `ops` could list it as a flag (`lro`) and `ops --live` could compare it. The second
    is an existing defect: `AC-CLI-006.2` names `x-vion-capability` whole, but the comparison reads
    only `effect`, `idempotent`, `versioned` and `dryRun`, so v0.3.0's refresh reported none of the
@@ -117,14 +126,15 @@ the operation answers a long-running operation. No other page; no invariant.
    Recommendation: fold both in — two lines each once the member is in the table, and the smoke
    suite reads `ops --json`. Alternative: a lane-1 fix after this lands. Not in the delta until you
    choose.
-3. **(b) the default timeout and exit 3** — D4. The number rests on cloud-api's 10-minute run
+3. **[accepted] (b) the default timeout and exit 3** — D4; amendment 1. The run timeout goes to
+   cloud-api as a draft item (publish it). The number rests on cloud-api's 10-minute run
    timeout, which is host configuration and not published; if it moves, nothing tells `vion`.
-4. **(b) `--wait` inert on `Response`** — D1. The alternative, offering it only on the three
+4. **[accepted] (b) `--wait` inert on `Response`** — D1; amendment 1. The alternative, offering it only on the three
    `LongRunningOperation` commands, puts it in their help alone but fails a script with exit 2 the
    day an operation moves back, and cannot serve `api`, whose operation may be unknown.
 
-None of points 1–7 of the brief's STOP 1 is left open except the names (question 1) and the
-adjacent scope item (question 2).
+None of points 1–7 of the brief's STOP 1 is left open; questions 1 and 2 were answered by
+amendment 1 (`architecture/.claude/briefs/brief-wait-and-raw-vion-cli-amendment-1.md`).
 
 ---
 
@@ -175,7 +185,7 @@ sequenceDiagram
   participant A as cloud-api
   V->>A: POST start (Idempotency-Key)
   A-->>V: 202 {state, id} Operation-Location, Retry-After
-  loop while state is Queued or Running, until --wait-timeout
+  loop while state is Queued or Running, until --timeout
     V->>V: sleep Retry-After (else 2 s), bounded by the time left
     V->>A: GET Operation-Location (fresh token)
     A-->>V: 200 {state, ...} [Retry-After]
@@ -227,8 +237,8 @@ header for `--verbose`, so this is one more member, not another read.
 |---|---|
 | 0 | `Succeeded` (a dry run included), or no wait applied and the call succeeded |
 | 1 | `Failed`; a poll answered an error; the start's call failed; interrupted; a non-terminal answer with nothing to follow; `Operation-Location` on another origin |
-| 2 | usage: a malformed `--wait-timeout`; `--wait-timeout` without `--wait` |
-| 3 | still `Queued`/`Running` at `--wait-timeout` |
+| 2 | usage: a malformed `--timeout`; `--timeout` without `--wait` |
+| 3 | still `Queued`/`Running` at `--timeout` |
 
 ---
 
@@ -260,13 +270,14 @@ header for `--verbose`, so this is one more member, not another read.
 
 - MODIFIED AC-CLI-003.1 -> docs/specs/cli.md : WHERE `--json` is given THE SYSTEM SHALL write exactly one JSON document to standard output, the response body, an object with an `error` member, or under `api --include` an object with `status`, `headers` and `body`, and every notice to standard error.
 - MODIFIED AC-CLI-003.5 -> docs/specs/cli.md : THE SYSTEM SHALL exit 0 on success, 1 on a failed call or sign-in, 2 on a usage error, and 3 when a wait ends at its timeout with the work still running.
+- MODIFIED AC-CLI-006.1 -> docs/specs/cli.md : WHEN `ops` runs THE SYSTEM SHALL list, from the committed document and without a request, every tree command with its operationId, method, path, effect, completion and flags, and with `--all` the `system` operations too.
 - MODIFIED AC-CLI-006.5 -> docs/specs/cli.md : WHEN `api <METHOD> <path>` runs THE SYSTEM SHALL send that request to the environment's API with the resolved token, the `-f` and `-F` pairs as the query on `GET` and as the JSON body otherwise, the write-safety headers and refusals of the operation whose template the path matches, and render the answer as any command's.
 - ADDED AC-CLI-006.6 -> docs/specs/cli.md : WHERE `api` is given `--no-write-safety` THE SYSTEM SHALL send the method, path, query and body as given, with `Idempotency-Key` and `If-Match` only from `--idempotency-key` and `--if-match`, reading nothing before the request and refusing no `--dry-run`.
 - ADDED AC-CLI-006.7 -> docs/specs/cli.md : WHERE `api` is given `--include` THE SYSTEM SHALL write the answer's status and headers to standard output before the body in table mode, and under `--json` one object with `status`, `headers` and `body` whatever the status.
 - ADDED AC-CLI-008.1 -> docs/specs/cli.md : WHERE `--wait` is given and the operation is published `LongRunningOperation`, or is a `GET` answering a long-running operation, THE SYSTEM SHALL read the state from the answer and, while it is `Queued` or `Running`, read `Operation-Location`, else the path just read, again after each answer's `Retry-After` or two seconds, with a token resolved as for a new call, until it is `Succeeded` or `Failed`.
 - ADDED AC-CLI-008.2 -> docs/specs/cli.md : WHEN a waited long-running operation ends `Succeeded` THE SYSTEM SHALL render its `result` as the command's answer, name its id as a notice, and exit 0.
 - ADDED AC-CLI-008.3 -> docs/specs/cli.md : WHEN a waited long-running operation ends `Failed` THE SYSTEM SHALL report its `error` as an error answer of the API and exit 1.
-- ADDED AC-CLI-008.4 -> docs/specs/cli.md : IF a wait reaches `--wait-timeout`, fifteen minutes unless given, with the work `Queued` or `Running` THEN THE SYSTEM SHALL report that it is still running with its `Operation-Location` and `vion api GET <Operation-Location> --wait`, carry the last answer as `longRunningOperation` in the error object under `--json`, and exit 3.
+- ADDED AC-CLI-008.4 -> docs/specs/cli.md : IF a wait reaches `--timeout`, fifteen minutes unless given, with the work `Queued` or `Running` THEN THE SYSTEM SHALL report that it is still running with its `Operation-Location` and `vion api GET <Operation-Location> --wait`, carry the last answer as `longRunningOperation` in the error object under `--json`, and exit 3.
 - ADDED AC-CLI-008.5 -> docs/specs/cli.md : IF a wait is interrupted, or a poll answers an error, THEN THE SYSTEM SHALL report that the work may still be running with its `Operation-Location` and the same pick-up command, and exit 1.
 - ADDED AC-CLI-008.6 -> docs/specs/cli.md : WHERE `--wait` is given to `api` on a path no long-running operation's template matches THE SYSTEM SHALL wait as for one when the answer carries `Operation-Location`, and otherwise render the answer as without `--wait`.
 - ADDED AC-CLI-008.7 -> docs/specs/cli.md : IF `Operation-Location` names an origin other than the environment's API THEN THE SYSTEM SHALL refuse to follow it before sending the token and exit 1.
@@ -282,6 +293,7 @@ header for `--verbose`, so this is one more member, not another read.
 - `T-001` (`AC-CLI-008.1`): derive `Completion` and `AnswersLongRunningOperation` into the table; regenerate `Operations.g.cs`.
 - `T-002` (`AC-CLI-006.7`, `AC-CLI-003.1`): `ApiResponse` carries status reason and headers; `api --include` in both modes.
 - `T-003` (`AC-CLI-006.6`, `AC-CLI-006.5`): `api --no-write-safety`.
-- `T-004` (`AC-CLI-008.1`–`.8`, `AC-CLI-003.5`): `--wait`, `--wait-timeout`, the shared wait, exit 3, the notice; derived and `api`.
+- `T-004` (`AC-CLI-008.1`–`.8`, `AC-CLI-003.5`): `--wait`, `--timeout`, the shared wait, exit 3, the notice; derived and `api`.
+- `T-007` (`AC-CLI-006.1`, `AC-CLI-006.2`): `ops` lists `completion`; `ops --live` compares it — a test red before the change.
 - `T-005`: help snapshot via `scripts/derive.ps1`; distill the delta into `cli.md`; archive this doc.
 - `T-006`: live check on test per `architecture/runbooks/test-environment-checks.md` — `integrator.edgeGatewaySimulation.update --wait` on a simulated gateway, and `api --no-write-safety` provoking a 428 — or "not run, routes to a human".
