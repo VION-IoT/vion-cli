@@ -143,6 +143,23 @@ namespace Vion.Cli.Test.Commands
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-006.2")]
+        public async Task ReadMissingCompletionAsResponse()
+        {
+            // Arrange
+            var live = JsonNode.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "v1.json")))!;
+            live["paths"]!["/tenant/{tenantId}/edgeGateways"]!["get"]!["x-vion-capability"]!.AsObject().Remove("completion");
+            using var handler = RecordingHandler.Json(200, live.ToJsonString());
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--live", "--env", "test"]);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            StringAssert.Contains(run.Error, "no differences");
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.2")]
         public async Task ExitZeroWhenLiveDocumentMatchesCommittedOne()
         {
             // Arrange

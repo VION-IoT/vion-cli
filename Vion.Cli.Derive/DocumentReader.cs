@@ -96,6 +96,12 @@ namespace Vion.Cli.Derive
             // No default: an effect decides whether a call is confirmed, and a missing one would read as a harmless Read.
             var effect = (capability.ValueKind == JsonValueKind.Object ? TryString(capability, "effect") : null) ??
                          throw new DeriveException($"{id} carries no x-vion-capability.effect.");
+            var completion = (capability.ValueKind == JsonValueKind.Object ? TryString(capability, "completion") : null) ?? "Response";
+            if (completion is not ("Response" or "LongRunningOperation"))
+            {
+                throw new DeriveException($"{id} carries x-vion-capability.completion '{completion}', neither Response nor LongRunningOperation.");
+            }
+
             var authorizationElement = operation.TryGetProperty("x-vion-authorization", out var auth) ? auth : default;
             var authorization = authorizationElement.ValueKind == JsonValueKind.Object ?
                                     new DerivedAuthorization(TryString(authorizationElement, "mode") ?? "",
@@ -122,7 +128,7 @@ namespace Vion.Cli.Derive
                                         TryBool(capability, "versioned"),
                                         TryBool(capability, "dryRun"),
                                         TryBool(operation, "deprecated"),
-                                        (capability.ValueKind == JsonValueKind.Object ? TryString(capability, "completion") : null) ?? "Response",
+                                        completion,
                                         AnswersLongRunningOperation(operation),
                                         authorization,
                                         entry?.Hide ?? false,

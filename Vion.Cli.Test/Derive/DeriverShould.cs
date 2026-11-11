@@ -8,8 +8,9 @@ namespace Vion.Cli.Test.Derive
 {
     /// <summary>
     ///     The derive step over the real snapshot and over the synthetic document: which operations become commands, how a
-    ///     parameter becomes an option, and what cli.json may name. One premise test cites no id by design: the refusal of
-    ///     an operation without an effect guards the derivation itself, which no user observes.
+    ///     parameter becomes an option, and what cli.json may name. Two premise tests cite no id by design: the refusals of
+    ///     an operation without an effect and of a completion outside its two values guard the derivation itself, which
+    ///     no user observes.
     /// </summary>
     [TestClass]
     public class DeriverShould
@@ -210,6 +211,17 @@ namespace Vion.Cli.Test.Derive
             // Act / Assert
             var exception = Assert.ThrowsExactly<DeriveException>(() => Deriver.Derive(synthetic, "{}"));
             StringAssert.Contains(exception.Message, "x-vion-capability.effect");
+        }
+
+        [TestMethod]
+        public void RefuseCompletionOutsideItsTwoValues()
+        {
+            // Arrange
+            var synthetic = Fixture("synthetic.json").Replace("\"effect\": \"Read\",", "\"effect\": \"Read\", \"completion\": \"Eventually\",", StringComparison.Ordinal);
+
+            // Act / Assert
+            var exception = Assert.ThrowsExactly<DeriveException>(() => Deriver.Derive(synthetic, "{}"));
+            StringAssert.Contains(exception.Message, "x-vion-capability.completion 'Eventually'");
         }
 
         private static string Fixture(string name)

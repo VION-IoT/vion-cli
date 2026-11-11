@@ -269,7 +269,7 @@ namespace Vion.Cli.Commands
 
             return served["effect"]?.ToString() == committed.Effect.ToString() && Flag(served, "idempotent") == committed.Idempotent &&
                    Flag(served, "versioned") == committed.Versioned && Flag(served, "dryRun") == committed.DryRun &&
-                   served["completion"]?.ToString() == committed.Completion.ToString();
+                   (served["completion"]?.ToString() ?? "Response") == committed.Completion.ToString();
         }
 
         private static bool Flag(JsonObject node, string member)
