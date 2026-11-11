@@ -122,9 +122,37 @@ namespace Vion.Cli.Derive
                                         TryBool(capability, "versioned"),
                                         TryBool(capability, "dryRun"),
                                         TryBool(operation, "deprecated"),
+                                        (capability.ValueKind == JsonValueKind.Object ? TryString(capability, "completion") : null) ?? "Response",
+                                        AnswersLongRunningOperation(operation),
                                         authorization,
                                         entry?.Hide ?? false,
                                         entry?.Alias);
+        }
+
+        /// <summary>
+        ///     A 2xx answer whose JSON schema is <c>LongRunningOperationOutput</c>: a start, which answers its 202 with it,
+        ///     or the long-running operation's own read, which is the poll.
+        /// </summary>
+        private static bool AnswersLongRunningOperation(JsonElement operation)
+        {
+            if (!operation.TryGetProperty("responses", out var responses))
+            {
+                return false;
+            }
+
+            foreach (var response in responses.EnumerateObject())
+            {
+                if (response.Name.StartsWith('2') &&
+                    response.Value.TryGetProperty("content", out var content) &&
+                    content.TryGetProperty("application/json", out var json) &&
+                    json.TryGetProperty("schema", out var schema) &&
+                    TryString(schema, "$ref") == "#/components/schemas/LongRunningOperationOutput")
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static DerivedBody? ReadBody(JsonElement requestBody)

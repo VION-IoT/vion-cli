@@ -133,6 +133,40 @@ namespace Vion.Cli.Test.Derive
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-008.1")]
+        public void CarryCompletionAndLongRunningAnswerOfEveryOperation()
+        {
+            // Arrange
+            var snapshot = Fixture("v1.json");
+            using var json = System.Text.Json.JsonDocument.Parse(snapshot);
+            var published = json.RootElement.GetProperty("paths")
+                                .EnumerateObject()
+                                .SelectMany(path => path.Value.EnumerateObject())
+                                .Where(method => method.Value.TryGetProperty("operationId", out _))
+                                .ToDictionary(method => method.Value.GetProperty("operationId").GetString()!,
+                                              method => method.Value.GetProperty("x-vion-capability").GetProperty("completion").GetString());
+
+            // Act
+            var document = Deriver.Derive(snapshot, "{}");
+
+            // Assert
+            foreach (var operation in document.Operations)
+            {
+                Assert.AreEqual(published[operation.Id], operation.Completion, operation.Id);
+            }
+
+            CollectionAssert.AreEquivalent(new[]
+                                           {
+                                               "me.onboarding.provision",
+                                               "integrator.edgeGateway.create",
+                                               "integrator.edgeGatewaySimulation.update",
+                                               "me.longRunningOperation.get",
+                                               "integrator.longRunningOperation.get",
+                                           },
+                                           document.Operations.Where(o => o.AnswersLongRunningOperation).Select(o => o.Id).ToList());
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-002.7")]
         public void ReadMultipartBodyParts()
         {
