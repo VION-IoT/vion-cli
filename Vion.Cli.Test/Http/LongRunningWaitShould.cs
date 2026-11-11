@@ -358,6 +358,21 @@ namespace Vion.Cli.Test.Http
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-008.8")]
+        public async Task NameNoOperationLocationWhenWaitGiven()
+        {
+            // Arrange
+            using var handler = new RecordingHandler(_ => Answer(202, """{ "accepted": true }""", "/elsewhere/operations/1", null));
+
+            // Act
+            var run = await Tool.RunAsync(handler, Tool.OnTest("api", "POST", "/elsewhere/things", "--wait"), Tool.Token);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.DoesNotContain("pass --wait", run.Error);
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-008.6")]
         public async Task RenderAnswerOfUnknownPathWithoutOperationLocationAsIs()
         {

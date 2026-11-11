@@ -27,7 +27,7 @@ namespace Vion.Cli.Rendering
                 services.Error.WriteLine("replayed: the first answer under this idempotency key.");
             }
 
-            if (response.OperationLocation is { } location)
+            if (response.OperationLocation is { } location && !globals.Wait)
             {
                 services.Error.WriteLine($"long-running operation at {location}: pass --wait to wait for its outcome, or run `vion api GET {location} --wait`.");
             }
