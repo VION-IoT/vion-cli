@@ -403,21 +403,116 @@ namespace Vion.Cli.Test.Http
         }
 
         [TestMethod]
-        [TestProperty("spec", "AC-CLI-008.9")]
-        public async Task IgnoreWaitOnOperationAnsweringOutcome()
+        [TestProperty("spec", "AC-CLI-008.6")]
+        public async Task FollowOperationLocationOfOperationTablePublishesResponse()
         {
             // Arrange
-            // A body and a header a long-running operation would carry, so that a wait which did not ignore the flag would poll.
+            // The table publishes tenant.dashboard.create as Response; a host that moved it to a long-running operation says so by the header.
             var time = new FakeTimeProvider();
-            using var handler = new RecordingHandler(_ => Answer(200, State("Queued"), Location, null));
+            var answers = new Queue<HttpResponseMessage>([
+                Answer(202, State("Queued"), Location, null),
+                Answer(200, State("Succeeded", """{ "id": "dashboard-row" }"""), null, null),
+            ]);
+            using var handler = new RecordingHandler(_ => answers.Dequeue());
 
             // Act
-            var run = await Tool.RunAdvancingAsync(time, () => Tool.RunAsync(handler, Tool.OnTest("me", "identity", "get", "--wait", "--json"), Tool.Token, time: time));
+            var run = await Tool.RunAdvancingAsync(time,
+                                                   () => Tool.RunAsync(handler,
+                                                                       Tool.OnTest("tenant",
+                                                                                   "dashboard",
+                                                                                   "create",
+                                                                                   "--tenant",
+                                                                                   Tool.Tenant,
+                                                                                   "-f",
+                                                                                   "name=x",
+                                                                                   "--wait",
+                                                                                   "--json"),
+                                                                       Tool.Token,
+                                                                       time: time));
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.AreEqual($"https://api.test.vion.swiss{Location}", handler.Requests[1].Uri.ToString());
+            Assert.IsTrue(JsonNode.DeepEquals(JsonNode.Parse("""{ "id": "dashboard-row" }"""), JsonNode.Parse(run.Out)), run.Out);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-008.6")]
+        public async Task FollowOperationLocationOfApiPathTablePublishesResponse()
+        {
+            // Arrange
+            var time = new FakeTimeProvider();
+            var answers = new Queue<HttpResponseMessage>([
+                Answer(202, State("Queued"), Location, null),
+                Answer(200, State("Succeeded", """{ "id": "dashboard-row" }"""), null, null),
+            ]);
+            using var handler = new RecordingHandler(_ => answers.Dequeue());
+
+            // Act
+            var run = await Tool.RunAdvancingAsync(time,
+                                                   () => Tool.RunAsync(handler,
+                                                                       Tool.OnTest("api",
+                                                                                   "POST",
+                                                                                   $"/tenant/{Tool.Tenant}/dashboards",
+                                                                                   "-f",
+                                                                                   "name=x",
+                                                                                   "--wait",
+                                                                                   "--json"),
+                                                                       Tool.Token,
+                                                                       time: time));
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.AreEqual($"https://api.test.vion.swiss{Location}", handler.Requests[1].Uri.ToString());
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-008.6")]
+        public async Task RereadPathTableDoesNotKnowWhileAnswerCarriesRetryAfter()
+        {
+            // Arrange
+            var time = new FakeTimeProvider();
+            var answers = new Queue<HttpResponseMessage>([
+                Answer(200, State("Running"), null, 2),
+                Answer(200, State("Succeeded", """{ "done": true }"""), null, null),
+            ]);
+            using var handler = new RecordingHandler(_ => answers.Dequeue());
+
+            // Act
+            var run = await Tool.RunAdvancingAsync(time,
+                                                   () => Tool.RunAsync(handler, Tool.OnTest("api", "GET", "/elsewhere/operations/1", "--wait", "--json"), Tool.Token, time: time));
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            CollectionAssert.AreEqual(new[] { "https://api.test.vion.swiss/elsewhere/operations/1", "https://api.test.vion.swiss/elsewhere/operations/1" },
+                                      handler.Requests.Select(r => r.Uri.ToString()).ToList());
+            Assert.IsTrue(JsonNode.DeepEquals(JsonNode.Parse("""{ "done": true }"""), JsonNode.Parse(run.Out)), run.Out);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-008.9")]
+        [DataRow("tenant",
+                 "dashboard",
+                 "create",
+                 "--tenant",
+                 Tool.Tenant,
+                 "-f",
+                 "name=x")]
+        [DataRow("api", "GET", "/elsewhere/things/1")]
+        public async Task IgnoreWaitWhenAnswerNamesNothingToFollow(params string[] command)
+        {
+            // Arrange
+            // A body a long-running operation would carry, with neither header: its shape alone says nothing.
+            var time = new FakeTimeProvider();
+            using var handler = new RecordingHandler(_ => Answer(200, State("Running"), null, null));
+
+            // Act
+            var run = await Tool.RunAdvancingAsync(time, () => Tool.RunAsync(handler, Tool.OnTest([.. command, "--wait", "--json"]), Tool.Token, time: time));
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
             Assert.HasCount(1, handler.Requests);
-            Assert.AreEqual("Queued", JsonNode.Parse(run.Out)!["state"]!.GetValue<string>());
+            Assert.AreEqual("Running", JsonNode.Parse(run.Out)!["state"]!.GetValue<string>());
         }
 
         [TestMethod]

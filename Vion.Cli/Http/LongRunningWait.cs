@@ -21,12 +21,15 @@ namespace Vion.Cli.Http
         private static readonly TimeSpan DefaultDelay = TimeSpan.FromSeconds(2);
 
         /// <summary>
-        ///     Whether `--wait` follows an operation's answer: a start published `LongRunningOperation`, or the long-running
-        ///     operation's own read, which is the poll. Derived from the table; no operation is named.
+        ///     Whether `--wait` follows an answer. The table says so of a start published `LongRunningOperation` and of
+        ///     the long-running operation's own read; the host says so of any answer, whatever a table built from an older
+        ///     document thinks — `Operation-Location` names something to follow, and `Retry-After` on a read says to read
+        ///     it again. A body's shape alone never decides: another resource's row may carry a `state`.
         /// </summary>
-        public static bool Follows(Derived.Operation? operation)
+        public static bool Follows(Derived.Operation? operation, string method, ApiResponse answer)
         {
-            return operation is { Completion: Derived.Completion.LongRunningOperation } or { Method: "GET", AnswersLongRunningOperation: true };
+            return operation is { Completion: Derived.Completion.LongRunningOperation } || answer.OperationLocation != null ||
+                   (method == "GET" && (operation is { AnswersLongRunningOperation: true } || answer.RetryAfter != null));
         }
 
         /// <summary>

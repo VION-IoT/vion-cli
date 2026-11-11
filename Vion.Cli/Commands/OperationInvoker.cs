@@ -145,7 +145,7 @@ namespace Vion.Cli.Commands
                                                      content,
                                                      headers);
             var response = await client.SendAsync(request, token, globals.Verbose, cancellationToken);
-            if (globals.Wait && LongRunningWait.Follows(operation))
+            if (globals.Wait && LongRunningWait.Follows(operation, operation.Method, response))
             {
                 response = await LongRunningWait.FollowAsync(response,
                                                              operation.Method == "GET" ? request.RequestUri : null,

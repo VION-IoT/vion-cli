@@ -66,8 +66,8 @@ goes to standard error. Notices — a replayed answer, a next cursor — go to s
 An operation published `completion: LongRunningOperation` answers `202` with a long-running
 operation, not its result. With `--wait` the tool follows it to its end and exits by it, so a job
 reads one exit code; the start's answer is the first read, so a start already `Succeeded` — a dry
-run always is — needs none. What is followed is read off the committed document, never named per
-operation. cloud-api's `cloud-api/AC-LRO-002.1`, `cloud-api/AC-LRO-002.4` and `cloud-api/AC-LRO-003.1`
+run always is — needs none. What is followed is read off the committed document and off the
+answer's own headers, never named per operation. cloud-api's `cloud-api/AC-LRO-002.1`, `cloud-api/AC-LRO-002.4` and `cloud-api/AC-LRO-003.1`
 are the contract being followed.
 
 - `AC-CLI-008.1` (Optional): WHERE `--wait` is given and the operation is published `LongRunningOperation`, or is a `GET` answering a long-running operation, THE SYSTEM SHALL read the state from the answer and, while it is `Queued` or `Running`, read `Operation-Location`, else the path just read, again after each answer's `Retry-After` or two seconds, resolving the token again once when a read answers 401, until it is `Succeeded` or `Failed`.
@@ -75,10 +75,10 @@ are the contract being followed.
 - `AC-CLI-008.3` (Event-driven): WHEN a waited long-running operation ends `Failed` THE SYSTEM SHALL report its `error` as an error answer of the API and exit 1.
 - `AC-CLI-008.4` (Unwanted): IF a wait reaches `--timeout`, fifteen minutes unless given, with the work `Queued` or `Running` THEN THE SYSTEM SHALL report that it is still running with its `Operation-Location` and `vion api GET <Operation-Location> --wait`, carry the last answer as `longRunningOperation` in the error object under `--json`, and exit 3.
 - `AC-CLI-008.5` (Unwanted): IF a wait is interrupted, or a poll answers an error, THEN THE SYSTEM SHALL report that the work may still be running with its `Operation-Location` and the same pick-up command, and exit 1.
-- `AC-CLI-008.6` (Optional): WHERE `--wait` is given to `api` on a path no long-running operation's template matches THE SYSTEM SHALL wait as for one when the answer carries `Operation-Location`, and otherwise render the answer as without `--wait`.
+- `AC-CLI-008.6` (Optional): WHERE `--wait` is given and an answer carries `Operation-Location`, or a `GET`'s answer carries `Retry-After`, THE SYSTEM SHALL wait as for a long-running operation whatever the committed document publishes of the operation, reading `Operation-Location`, else the path just read.
 - `AC-CLI-008.7` (Unwanted): IF `Operation-Location` names an origin other than the environment's API THEN THE SYSTEM SHALL refuse to follow it before sending the token and exit 1.
 - `AC-CLI-008.8` (Event-driven): WHEN an answer carries `Operation-Location` and `--wait` is absent THE SYSTEM SHALL name it and `--wait` as a notice.
-- `AC-CLI-008.9` (Optional): WHERE `--wait` is given on an operation published `Response` that is not a `GET` answering a long-running operation THE SYSTEM SHALL send and render as without `--wait`.
+- `AC-CLI-008.9` (Optional): WHERE `--wait` is given on an operation published `Response` that is not a `GET` answering a long-running operation, and the answer carries neither `Operation-Location` nor, on a `GET`, `Retry-After`, THE SYSTEM SHALL send and render as without `--wait`.
 
 ## Sign-in
 

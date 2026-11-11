@@ -143,11 +143,10 @@ namespace Vion.Cli.Commands
                 return Renderer.RenderIncluded(response, globals, services, operation);
             }
 
-            // A path the table does not know is followed by its answer alone: the header says there is something to read.
-            if (globals.Wait && (LongRunningWait.Follows(operation) || (operation == null && response.OperationLocation != null)))
+            if (globals.Wait && LongRunningWait.Follows(operation, upper, response))
             {
                 response = await LongRunningWait.FollowAsync(response,
-                                                             upper == "GET" && operation is { AnswersLongRunningOperation: true } ? request.RequestUri : null,
+                                                             upper == "GET" ? request.RequestUri : null,
                                                              globals,
                                                              context,
                                                              token,

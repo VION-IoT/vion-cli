@@ -264,6 +264,20 @@ header for `--verbose`, so this is one more member, not another read.
 - 2026-11-11: two wait tests that could poll ran on a clock nothing advanced, so the mutation that
   should have failed them hung instead; both now run through `Tool.RunAdvancingAsync`. Sibling sweep:
   every other test that can reach a delay already does.
+- 2026-11-11: amendment 2 (`architecture/.claude/briefs/brief-wait-and-raw-vion-cli-amendment-2.md`),
+  after a second reader of pull request 11: D1's "ignoring it hides nothing" fails when the committed
+  table is behind the host — a released `vion` waiting on an operation that moved to `202` since its
+  snapshot printed the handle and exited 0. `--wait` now follows any answer carrying
+  `Operation-Location`, whatever the table says; `AC-CLI-008.6` and `.9` reworded (`MODIFIED`).
+- 2026-11-11: amendment 2, item 2 — `vion api GET <Operation-Location> --wait` on a path the table
+  does not know carries no `Operation-Location`. Decided: a `GET` whose answer carries `Retry-After`
+  is read again at its path — the host's own word that the answer will change
+  (`cloud-api/AC-LRO-003.2` sends it while `Queued` or `Running`). A body's `state` alone never
+  decides. Named limit: a non-terminal answer from a host that sends no `Retry-After` is rendered as
+  is, exit 0.
+- 2026-11-11: amendment 2, item 3 — a start answering `Idempotency-Replayed: true` under `--wait`
+  is named once on standard error when the wait begins, so every ending carries it — succeeded,
+  failed, timed out, interrupted (`AC-CLI-002.3`, unchanged).
 - 2026-11-11: T-006, live on test with this branch's build: `ops --live` reports no difference,
   `completion` compared; `api GET /me/longRunningOperations --include --json` answers
   `{ status, headers, body }`; `api GET <a finished operation's path> --wait` and
@@ -301,6 +315,8 @@ header for `--verbose`, so this is one more member, not another read.
 - ADDED AC-CLI-008.5 -> docs/specs/cli.md : IF a wait is interrupted, or a poll answers an error, THEN THE SYSTEM SHALL report that the work may still be running with its `Operation-Location` and the same pick-up command, and exit 1.
 - ADDED AC-CLI-008.6 -> docs/specs/cli.md : WHERE `--wait` is given to `api` on a path no long-running operation's template matches THE SYSTEM SHALL wait as for one when the answer carries `Operation-Location`, and otherwise render the answer as without `--wait`.
 - ADDED AC-CLI-008.9 -> docs/specs/cli.md : WHERE `--wait` is given on an operation published `Response` that is not a `GET` answering a long-running operation THE SYSTEM SHALL send and render as without `--wait`.
+- MODIFIED AC-CLI-008.6 -> docs/specs/cli.md : WHERE `--wait` is given and an answer carries `Operation-Location`, or a `GET`'s answer carries `Retry-After`, THE SYSTEM SHALL wait as for a long-running operation whatever the committed document publishes of the operation, reading `Operation-Location`, else the path just read.
+- MODIFIED AC-CLI-008.9 -> docs/specs/cli.md : WHERE `--wait` is given on an operation published `Response` that is not a `GET` answering a long-running operation, and the answer carries neither `Operation-Location` nor, on a `GET`, `Retry-After`, THE SYSTEM SHALL send and render as without `--wait`.
 - ADDED AC-CLI-008.7 -> docs/specs/cli.md : IF `Operation-Location` names an origin other than the environment's API THEN THE SYSTEM SHALL refuse to follow it before sending the token and exit 1.
 - ADDED AC-CLI-008.8 -> docs/specs/cli.md : WHEN an answer carries `Operation-Location` and `--wait` is absent THE SYSTEM SHALL name it and `--wait` as a notice.
 
