@@ -11,6 +11,9 @@ namespace Vion.Cli.Infrastructure
 
         /// <summary>The invocation was wrong: a parse error, a missing value, a refused flag.</summary>
         public const int Usage = 2;
+
+        /// <summary>A wait reached its timeout with the work still queued or running.</summary>
+        public const int StillRunning = 3;
     }
 
     /// <summary>The invocation cannot be sent as written; the message names what to pass. Exit 2.</summary>
@@ -27,5 +30,16 @@ namespace Vion.Cli.Infrastructure
         public CliFailure(string message) : base(message)
         {
         }
+    }
+
+    /// <summary>A wait reached `--timeout` with the work unfinished; the last answer goes with it. Exit 3.</summary>
+    internal sealed class WaitTimedOut : Exception
+    {
+        public WaitTimedOut(string message, System.Text.Json.Nodes.JsonNode? handle) : base(message)
+        {
+            Handle = handle;
+        }
+
+        public System.Text.Json.Nodes.JsonNode? Handle { get; }
     }
 }

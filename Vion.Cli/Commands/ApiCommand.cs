@@ -35,8 +35,16 @@ namespace Vion.Cli.Commands
                                   });
             var path = new Argument<string>("path") { Description = "The path under the environment's API, with its query if any: /tenant/<id>/edgeGateways" };
             var command = new Command("api", "Send a raw request to the environment's API with the resolved token, and render the answer as any command's.");
+            var include = new Option<bool>("--include", "-i") { Description = "Show the answer's status and headers: before the body, or with it in one --json document." };
+            var noWriteSafety = new Option<bool>("--no-write-safety")
+                                {
+                                    Description =
+                                        "Send the request as given: no minted Idempotency-Key, no If-Match read or taken from the body, no dry-run refusal; --idempotency-key and --if-match still send theirs.",
+                                };
             command.Arguments.Add(method);
             command.Arguments.Add(path);
+            command.Options.Add(include);
+            command.Options.Add(noWriteSafety);
             foreach (var option in tree.Body.ForJson)
             {
                 command.Options.Add(option);
@@ -50,6 +58,7 @@ namespace Vion.Cli.Commands
                                                         () => RunAsync(result.GetValue(method)!,
                                                                        result.GetValue(path)!,
                                                                        tree.Body.Read(result),
+                                                                       new RawMode(result.GetValue(include), result.GetValue(noWriteSafety)),
                                                                        globals,
                                                                        services,
                                                                        cancellationToken));
@@ -60,21 +69,28 @@ namespace Vion.Cli.Commands
         private static async Task<int> RunAsync(string method,
                                                 string path,
                                                 BodyValues body,
+                                                RawMode mode,
                                                 GlobalValues globals,
                                                 CliServices services,
                                                 CancellationToken cancellationToken)
         {
             var context = ContextResolver.Resolve(globals, services);
             var upper = method.ToUpperInvariant();
+            if (mode.Include && globals.Wait)
+            {
+                throw new UsageException("--include shows one answer's headers, and --wait renders the outcome of several reads; pass one of them.");
+            }
 
             // The raw call is still a call on a known operation when its path matches a template: the dry-run and the
             // irreversible rules hold for it as for the derived command. A path the table does not know is treated by
-            // its method — a DELETE is irreversible — and offers no dry run.
+            // its method — a DELETE is irreversible — and offers no dry run. --no-write-safety keeps the confirmation, which
+            // changes nothing on the wire, and drops what the tool would add to the request: the key, If-Match, the refusal.
             var operation = OperationMatcher.Find(upper, path);
+            var safety = mode.NoWriteSafety ? null : operation;
             var query = new List<KeyValuePair<string, string>>();
             if (globals.DryRun)
             {
-                if (operation is not { DryRun: true })
+                if (!mode.NoWriteSafety && operation is not { DryRun: true })
                 {
                     var offering = string.Join(", ", Operations.All.Where(o => o.DryRun).Select(o => $"{o.Method} {o.Template}"));
                     throw new UsageException($"--dry-run: {upper} {path} offers no dry run. The operations that do: {offering}.");
@@ -102,9 +118,9 @@ namespace Vion.Cli.Commands
 
             using var client = new ApiClient(services);
             var headers = new List<KeyValuePair<string, string>>();
-            WriteSafety.AddIdempotencyKey(operation, globals, headers);
+            WriteSafety.AddIdempotencyKey(safety, globals, headers);
             var at = path.IndexOf('?', StringComparison.Ordinal);
-            await WriteSafety.AddIfMatchAsync(operation,
+            await WriteSafety.AddIfMatchAsync(safety,
                                               globals,
                                               document,
                                               at >= 0 ? path[..at] : path,
@@ -122,7 +138,28 @@ namespace Vion.Cli.Commands
                                                      document != null ? BodyInput.JsonContent(document) : null,
                                                      headers);
             var response = await client.SendAsync(request, token, globals.Verbose, cancellationToken);
+            if (mode.Include)
+            {
+                return Renderer.RenderIncluded(response, globals, services, operation);
+            }
+
+            // A path the table does not know is followed by its answer alone: the header says there is something to read.
+            if (globals.Wait && (LongRunningWait.Follows(operation) || (operation == null && response.OperationLocation != null)))
+            {
+                response = await LongRunningWait.FollowAsync(response,
+                                                             upper == "GET" && operation is { AnswersLongRunningOperation: true } ? request.RequestUri : null,
+                                                             globals,
+                                                             context,
+                                                             token,
+                                                             client,
+                                                             services,
+                                                             cancellationToken);
+            }
+
             return Renderer.Render(response, globals, services, operation);
         }
+
+        /// <summary>`--include` and `--no-write-safety`, the two options only the raw call takes.</summary>
+        private sealed record RawMode(bool Include, bool NoWriteSafety);
     }
 }

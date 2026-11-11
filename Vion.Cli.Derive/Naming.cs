@@ -20,7 +20,7 @@ namespace Vion.Cli.Derive
             "env", "integrator", "tenant", "project", "platform",
             "json", "fields", "yes", "dry-run", "idempotency-key", "if-match",
             "input", "raw-field", "field", "file",
-            "token", "client-id", "client-secret", "verbose", "help", "version",
+            "token", "client-id", "client-secret", "verbose", "wait", "timeout", "help", "version",
         ];
 
         /// <summary>

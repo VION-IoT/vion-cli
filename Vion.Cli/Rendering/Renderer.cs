@@ -27,6 +27,11 @@ namespace Vion.Cli.Rendering
                 services.Error.WriteLine("replayed: the first answer under this idempotency key.");
             }
 
+            if (response.OperationLocation is { } location)
+            {
+                services.Error.WriteLine($"long-running operation at {location}: pass --wait to wait for its outcome, or run `vion api GET {location} --wait`.");
+            }
+
             if (response.IsSuccess)
             {
                 if (response.Json is JsonObject envelope && envelope["nextCursor"] is JsonValue cursor && cursor.TryGetValue<string>(out var next) && !string.IsNullOrEmpty(next))
@@ -65,6 +70,42 @@ namespace Vion.Cli.Rendering
             }
 
             return ExitCodes.Failure;
+        }
+
+        /// <summary>
+        ///     The answer with its status and headers, for `api --include`. Table mode puts the status line and the headers
+        ///     on standard output before the answer rendered as always; JSON mode writes one document holding all three,
+        ///     for a failure too, so that a script reads a refusal's headers as it reads a success's. The exit code follows
+        ///     the status either way.
+        /// </summary>
+        public static int RenderIncluded(ApiResponse response, GlobalValues globals, CliServices services, Operation? operation)
+        {
+            if (!globals.Json)
+            {
+                services.Out.WriteLine($"HTTP {response.Status} {response.Reason}".TrimEnd());
+                foreach (var (name, value) in response.Headers)
+                {
+                    services.Out.WriteLine($"{name}: {value}");
+                }
+
+                services.Out.WriteLine();
+                return Render(response, globals, services, operation);
+            }
+
+            if (response.Replayed)
+            {
+                services.Error.WriteLine("replayed: the first answer under this idempotency key.");
+            }
+
+            var headers = new JsonObject();
+            foreach (var (name, value) in response.Headers)
+            {
+                headers[name] = value;
+            }
+
+            var body = response.Json != null ? Fields.Project(response.Json, globals.Fields) : response.Text != null ? JsonValue.Create(response.Text) : null;
+            WriteJson(new JsonObject { ["status"] = response.Status, ["headers"] = headers, ["body"] = body }, services);
+            return response.IsSuccess ? ExitCodes.Ok : ExitCodes.Failure;
         }
 
         public static void WriteJson(JsonNode? node, CliServices services)

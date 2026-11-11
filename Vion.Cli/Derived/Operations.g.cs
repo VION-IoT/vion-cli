@@ -13,7 +13,7 @@ internal static partial class Operations
 
     public const string ApiVersion = "v1";
 
-    public static readonly IReadOnlyList<string> GlobalOptionNames = new[] { "env", "integrator", "tenant", "project", "platform", "json", "fields", "yes", "dry-run", "idempotency-key", "if-match", "input", "raw-field", "field", "file", "token", "client-id", "client-secret", "verbose", "help", "version" };
+    public static readonly IReadOnlyList<string> GlobalOptionNames = new[] { "env", "integrator", "tenant", "project", "platform", "json", "fields", "yes", "dry-run", "idempotency-key", "if-match", "input", "raw-field", "field", "file", "token", "client-id", "client-secret", "verbose", "wait", "timeout", "help", "version" };
 
     public static readonly IReadOnlyList<Operation> All = new Operation[]
     {
