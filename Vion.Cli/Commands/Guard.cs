@@ -23,10 +23,10 @@ namespace Vion.Cli.Commands
                 Report(globals, services, exception.Message, ExitCodes.Usage);
                 return ExitCodes.Usage;
             }
-            catch (WaitTimedOut exception)
+            catch (WaitLeftRunning exception)
             {
-                Report(globals, services, exception.Message, ExitCodes.StillRunning, exception.Handle);
-                return ExitCodes.StillRunning;
+                Report(globals, services, exception.Message, exception.ExitCode, exception.Handle);
+                return exception.ExitCode;
             }
             catch (CliFailure exception)
             {

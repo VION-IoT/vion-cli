@@ -32,14 +32,20 @@ namespace Vion.Cli.Infrastructure
         }
     }
 
-    /// <summary>A wait reached `--timeout` with the work unfinished; the last answer goes with it. Exit 3.</summary>
-    internal sealed class WaitTimedOut : Exception
+    /// <summary>
+    ///     A wait ended with the work unfinished — at `--timeout`, exit 3, or interrupted, exit 1; the last answer goes with
+    ///     it, so a script can pick the work up.
+    /// </summary>
+    internal sealed class WaitLeftRunning : Exception
     {
         public System.Text.Json.Nodes.JsonNode? Handle { get; }
 
-        public WaitTimedOut(string message, System.Text.Json.Nodes.JsonNode? handle) : base(message)
+        public int ExitCode { get; }
+
+        public WaitLeftRunning(string message, System.Text.Json.Nodes.JsonNode? handle, int exitCode) : base(message)
         {
             Handle = handle;
+            ExitCode = exitCode;
         }
     }
 }

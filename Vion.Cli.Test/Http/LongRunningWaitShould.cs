@@ -308,6 +308,28 @@ namespace Vion.Cli.Test.Http
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-008.5")]
+        public async Task CarryLastAnswerInErrorObjectWhenInterrupted()
+        {
+            // Arrange
+            using var interrupt = new CancellationTokenSource();
+            using var handler = new RecordingHandler(_ => Answer(202, State("Queued"), Location, null));
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest([.. Start, "--wait", "--json"]),
+                                          Tool.Token,
+                                          time: new InterruptingClock(interrupt),
+                                          cancellationToken: interrupt.Token);
+
+            // Assert
+            Assert.AreEqual(1, run.ExitCode);
+            var error = JsonNode.Parse(run.Out)!["error"]!;
+            Assert.AreEqual("Queued", error["longRunningOperation"]!["state"]!.GetValue<string>());
+            StringAssert.Contains(error["message"]!.GetValue<string>(), $"`vion api GET {Location} --wait`");
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-008.1")]
         public async Task FollowOperationLocationOfStartSentThroughApi()
         {

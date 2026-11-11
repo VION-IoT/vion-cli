@@ -82,7 +82,7 @@ namespace Vion.Cli.Http
                 var left = deadline - services.Time.GetUtcNow();
                 if (left <= TimeSpan.Zero)
                 {
-                    throw new WaitTimedOut($"still {state} after {Describe(timeout)}: the work goes on. {PickUp(location!)}", handle.DeepClone());
+                    throw new WaitLeftRunning($"still {state} after {Describe(timeout)}: the work goes on. {PickUp(location!)}", handle.DeepClone(), ExitCodes.StillRunning);
                 }
 
                 var delay = current.RetryAfter is { } asked && asked > TimeSpan.Zero ? asked : DefaultDelay;
@@ -99,8 +99,7 @@ namespace Vion.Cli.Http
                 }
                 catch (OperationCanceledException)
                 {
-                    services.Error.WriteLine($"stopped waiting; the work goes on. {PickUp(location!)}");
-                    throw;
+                    throw new WaitLeftRunning($"stopped waiting; the work goes on. {PickUp(location!)}", handle.DeepClone(), ExitCodes.Failure);
                 }
 
                 if (!current.IsSuccess)
