@@ -291,15 +291,7 @@ namespace Vion.Cli.Test.Http
             using var handler = new RecordingHandler(_ => Answer(202, State("Queued"), Location, null));
 
             // Act
-            var running = Tool.RunAsync(handler, Tool.OnTest([.. Start, "--wait"]), Tool.Token, time: new FakeTimeProvider(), cancellationToken: interrupt.Token);
-            while (handler.Requests.Count == 0)
-            {
-                await Task.Delay(1);
-            }
-
-            await Task.Delay(50);
-            await interrupt.CancelAsync();
-            var run = await running;
+            var run = await Tool.RunAsync(handler, Tool.OnTest([.. Start, "--wait"]), Tool.Token, time: new InterruptingClock(interrupt), cancellationToken: interrupt.Token);
 
             // Assert
             Assert.AreEqual(1, run.ExitCode);
@@ -520,6 +512,26 @@ namespace Vion.Cli.Test.Http
             }
 
             return response;
+        }
+
+        /// <summary>
+        ///     A fake clock that interrupts the run the moment the wait asks it for a delay — Ctrl+C while waiting,
+        ///     reached without a real-time race.
+        /// </summary>
+        private sealed class InterruptingClock : FakeTimeProvider
+        {
+            private readonly CancellationTokenSource _interrupt;
+
+            public InterruptingClock(CancellationTokenSource interrupt)
+            {
+                _interrupt = interrupt;
+            }
+
+            public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
+            {
+                _interrupt.Cancel();
+                return base.CreateTimer(callback, state, dueTime, period);
+            }
         }
     }
 }
