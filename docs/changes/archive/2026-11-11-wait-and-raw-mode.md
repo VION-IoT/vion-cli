@@ -1,6 +1,6 @@
 ---
 slug: wait-and-raw-mode
-status: in-flight          # proposed | in-flight | parked | archived
+status: archived
 blocked-on: none           # for parked docs: what's blocking + ref
 areas: CLI                 # area codes from docs/specs/_corpus.yml's `owns:`
 author: the wait-and-raw session, for Jonas Bertsch
