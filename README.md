@@ -15,7 +15,7 @@ winget install vion
 **Linux** (x64 or arm64; a static binary with TLS built in — any distribution, no OpenSSL to install)
 
 ```bash
-v=0.3.0; a=x64   # or arm64
+v=0.4.0; a=x64   # or arm64
 curl -fsSLO "https://github.com/VION-IoT/vion-cli/releases/download/v$v/vion-$v-linux-musl-$a.tar.gz"{,.sha256}
 sha256sum -c "vion-$v-linux-musl-$a.tar.gz.sha256"
 tar -xzf "vion-$v-linux-musl-$a.tar.gz" && sudo install -m 0755 vion /usr/local/bin/vion
