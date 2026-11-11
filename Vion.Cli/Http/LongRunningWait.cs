@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Vion.Cli.Commands;
 using Vion.Cli.Context;
 using Vion.Cli.Infrastructure;
+using Vion.Cli.Rendering;
 
 namespace Vion.Cli.Http
 {
@@ -50,6 +51,13 @@ namespace Vion.Cli.Http
                 return first;
             }
 
+            // Said once, here, whichever way the wait ends: a replayed start ran no new work, and the outcome that
+            // follows is the first run's.
+            if (first.Replayed)
+            {
+                services.Error.WriteLine(Renderer.ReplayedNotice);
+            }
+
             var pollUri = first.OperationLocation != null ? Resolve(first.OperationLocation, context) : readUri;
             var location = first.OperationLocation ?? readUri?.PathAndQuery;
             var timeout = globals.Timeout ?? GlobalValues.DefaultTimeout;
@@ -74,7 +82,7 @@ namespace Vion.Cli.Http
                         break;
                     default:
                         // Not a long-running operation's body: there is nothing to wait for.
-                        return current;
+                        return current with { Replayed = false };
                 }
 
                 if (pollUri == null)

@@ -516,6 +516,54 @@ namespace Vion.Cli.Test.Http
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.3")]
+        public async Task ReportReplayedStartWhenWaitedToFailed()
+        {
+            // Arrange
+            var time = new FakeTimeProvider();
+            var failed = """{ "id": "h", "state": "Failed", "error": { "statusCode": "Conflict", "message": "busy", "exceptionId": "x-1" } }""";
+            var start = Answer(202, State("Queued"), Location, null);
+            start.Headers.Add("Idempotency-Replayed", "true");
+            var answers = new Queue<HttpResponseMessage>([start, RecordingHandler.Response(200, failed)]);
+            using var handler = new RecordingHandler(_ => answers.Dequeue());
+
+            // Act
+            var run = await Tool.RunAdvancingAsync(time, () => Tool.RunAsync(handler, Tool.OnTest([.. Start, "--wait"]), Tool.Token, time: time));
+
+            // Assert
+            Assert.AreEqual(1, run.ExitCode);
+            Assert.HasCount(1, run.Error.Split('\n').Where(line => line.TrimEnd('\r') == "replayed: the first answer under this idempotency key.").ToList(), run.Error);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.3")]
+        public async Task ReportReplayedStartWhenWaitTimesOut()
+        {
+            // Arrange
+            var time = new FakeTimeProvider();
+            using var handler = new RecordingHandler(request =>
+                                                     {
+                                                         var answer = Answer(request.Method == HttpMethod.Post ? 202 : 200,
+                                                                             State("Running"),
+                                                                             request.Method == HttpMethod.Post ? Location : null,
+                                                                             2);
+                                                         if (request.Method == HttpMethod.Post)
+                                                         {
+                                                             answer.Headers.Add("Idempotency-Replayed", "true");
+                                                         }
+
+                                                         return answer;
+                                                     });
+
+            // Act
+            var run = await Tool.RunAdvancingAsync(time, () => Tool.RunAsync(handler, Tool.OnTest([.. Start, "--wait", "--timeout", "5s"]), Tool.Token, time: time));
+
+            // Assert
+            Assert.AreEqual(3, run.ExitCode, run.Error);
+            StringAssert.Contains(run.Error, "replayed: the first answer under this idempotency key.");
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-008.7")]
         public async Task RefuseOperationLocationOnOtherOrigin()
         {

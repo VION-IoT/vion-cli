@@ -18,13 +18,15 @@ namespace Vion.Cli.Rendering
     /// </summary>
     internal static class Renderer
     {
+        public const string ReplayedNotice = "replayed: the first answer under this idempotency key.";
+
         private static readonly JsonSerializerOptions Indented = new() { WriteIndented = true };
 
         public static int Render(ApiResponse response, GlobalValues globals, CliServices services, Operation? operation)
         {
             if (response.Replayed)
             {
-                services.Error.WriteLine("replayed: the first answer under this idempotency key.");
+                services.Error.WriteLine(ReplayedNotice);
             }
 
             if (response.OperationLocation is { } location && !globals.Wait)
@@ -94,7 +96,7 @@ namespace Vion.Cli.Rendering
 
             if (response.Replayed)
             {
-                services.Error.WriteLine("replayed: the first answer under this idempotency key.");
+                services.Error.WriteLine(ReplayedNotice);
             }
 
             var headers = new JsonObject();
