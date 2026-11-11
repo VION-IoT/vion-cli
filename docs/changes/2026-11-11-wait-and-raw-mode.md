@@ -261,6 +261,15 @@ header for `--verbose`, so this is one more member, not another read.
   Ctrl+C, so a test interrupts a wait as a person does (`AC-CLI-008.5`). Production passes none.
 - 2026-11-11: `Retry-After` in its date form is read as the time until that date; cloud-api sends
   seconds (`LongRunningOperationHeaders.cs`).
+- 2026-11-11: two wait tests that could poll ran on a clock nothing advanced, so the mutation that
+  should have failed them hung instead; both now run through `Tool.RunAdvancingAsync`. Sibling sweep:
+  every other test that can reach a delay already does.
+- 2026-11-11: T-006, live on test with this branch's build: `ops --live` reports no difference,
+  `completion` compared; `api GET /me/longRunningOperations --include --json` answers
+  `{ status, headers, body }`; `api GET <a finished operation's path> --wait` and
+  `me long-running-operation get --id … --wait` print its `result` and exit 0. Not run, routes to
+  a human: a start followed `Queued → Running → Succeeded`, and `--no-write-safety` provoking a 428 —
+  both write on test.
 
 ---
 
