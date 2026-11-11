@@ -37,7 +37,7 @@ Commands:
   can-i <operationId>  Decide from the environment's catalog and your own permissions whether you may call an 
                        operation; --project decides a project-scoped one at that project.
   ops                  List the operations of the committed document: the command, the operationId, the 
-                       method and path, the effect and the write-safety flags.
+                       method and path, the effect, the completion and the write-safety flags.
   api <method> <path>  Send a raw request to the environment's API with the resolved token, and render the 
                        answer as any command's.
 
@@ -12476,7 +12476,7 @@ Options:
 ## vion ops
 Description:
   List the operations of the committed document: the command, the operationId, the method and path, the 
-  effect and the write-safety flags.
+  effect, the completion and the write-safety flags.
 
 Usage:
   vion ops [options]

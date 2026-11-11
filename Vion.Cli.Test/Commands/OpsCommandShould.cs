@@ -33,6 +33,9 @@ namespace Vion.Cli.Test.Commands
             Assert.AreEqual("GET", listing["method"]!.GetValue<string>());
             Assert.AreEqual("/tenant/{tenantId}/edgeGateways", listing["path"]!.GetValue<string>());
             Assert.AreEqual("Read", listing["effect"]!.GetValue<string>());
+            Assert.AreEqual("Response", listing["completion"]!.GetValue<string>());
+            Assert.AreEqual("LongRunningOperation",
+                            items.Single(i => i!["operationId"]!.GetValue<string>() == "integrator.edgeGateway.create")!["completion"]!.GetValue<string>());
             var activation = items.Single(i => i!["operationId"]!.GetValue<string>() == "tenant.logicConfiguration.activate")!;
             Assert.IsTrue(activation["dryRun"]!.GetValue<bool>());
             Assert.IsTrue(activation["idempotent"]!.GetValue<bool>());
@@ -117,6 +120,26 @@ namespace Vion.Cli.Test.Commands
             CollectionAssert.Contains(items, ("changed", "tenant.dashboard.update", (string?)"x-vion-capability"));
             CollectionAssert.Contains(items, ("changed", "tenant.widgetDefinition.update", (string?)"x-vion-authorization"));
             Assert.HasCount(4, items);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.2")]
+        public async Task ReportOperationWhoseCompletionAloneMoved()
+        {
+            // Arrange
+            var live = JsonNode.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "v1.json")))!;
+            live["paths"]!["/integrator/{integratorId}/edgeGateways"]!["post"]!["x-vion-capability"]!["completion"] = "Response";
+            using var handler = RecordingHandler.Json(200, live.ToJsonString());
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--live", "--env", "test", "--json"]);
+
+            // Assert
+            Assert.AreEqual(1, run.ExitCode, run.Error);
+            var items = JsonNode.Parse(run.Out)!["items"]!.AsArray()
+                                .Select(i => (i!["change"]!.GetValue<string>(), i["operationId"]!.GetValue<string>(), i["detail"]?.GetValue<string>()))
+                                .ToList();
+            CollectionAssert.AreEqual(new[] { ("changed", "integrator.edgeGateway.create", (string?)"x-vion-capability") }, items);
         }
 
         [TestMethod]
