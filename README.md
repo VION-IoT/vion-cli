@@ -45,10 +45,14 @@ vion tenant logic-configuration activate --id <id> --dry-run
 vion can-i tenant.edgeGateway.delete
 vion ops                                                             # every command, its operation, effect and flags
 vion api GET /tenant/<id>/edgeGateways                               # the raw call
+vion tenant sync-status watch --edge-gateway-id <id> --json          # each message of the bus as one JSON line
+vion tenant system-health watch --edge-gateway-id <id> --timeout 30s # … for half a minute, then exit 0
 ```
 
 `--help` on any command shows its options; `--json` makes the output the API's response; `--yes`
 confirms an irreversible operation; an operation that honours an idempotency key gets one per call.
+A `watch` prints what the bus publishes after it says `watching`, until `--timeout` or Ctrl+C; pipe
+its `--json` lines to `jq` to wait for one in particular.
 
 ## Source-available
 
@@ -57,4 +61,6 @@ accepted from outside the `VION-IoT` organization. See [CONTRIBUTING.md](CONTRIB
 [SUPPORT.md](SUPPORT.md), and [SECURITY.md](SECURITY.md).
 
 Maintainers: the release process lives in [docs/releasing.md](docs/releasing.md); how the tree is
-derived from the API's document, in [CLAUDE.md](CLAUDE.md) § The three layers.
+derived from the API's two documents — `openapi/v1.json` for the operations, `asyncapi/v1.json`
+for the channels a `watch` subscribes to, each pulled by its own script under `scripts/` — in
+[CLAUDE.md](CLAUDE.md) § The three layers.
