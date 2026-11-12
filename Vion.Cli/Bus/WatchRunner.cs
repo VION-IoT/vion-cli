@@ -38,20 +38,40 @@ namespace Vion.Cli.Bus
 
         /// <summary>
         ///     Watches until the plan's timeout or <paramref name="interrupt" />, and returns then. A refusal by the broker,
-        ///     or a broker that cannot be reached before the watch stood once, is a <see cref="CliFailure" />. Once it
-        ///     stood, a lost connection and a call that gets no answer are both tried again.
+        ///     a broker that cannot be reached before the watch stood once, and a timeout or an interrupt before it stood
+        ///     once are each a <see cref="CliFailure" />. Once it stood, a lost connection and a call that gets no answer
+        ///     are both tried again.
         /// </summary>
         public static async Task RunAsync(WatchPlan plan, Action<BusMessage> sink, CliServices services, CancellationToken interrupt)
         {
-            var token = await plan.Token(interrupt);
-            var session = await plan.Subscriber(token, interrupt);
-
             using var timeout = plan.Timeout is { } bound ? new CancellationTokenSource(bound, services.Time) : new CancellationTokenSource();
             using var ending = CancellationTokenSource.CreateLinkedTokenSource(interrupt, timeout.Token);
             var stoodOnce = false;
             var backoff = FirstBackoff;
-            while (!ending.IsCancellationRequested)
+            string token;
+            BrokerSession session;
+            try
             {
+                token = await plan.Token(ending.Token);
+                session = await plan.Subscriber(token, ending.Token);
+            }
+            catch (OperationCanceledException) when (ending.IsCancellationRequested)
+            {
+                throw NothingWatched(plan, interrupt);
+            }
+
+            while (true)
+            {
+                if (ending.IsCancellationRequested)
+                {
+                    if (!stoodOnce)
+                    {
+                        throw NothingWatched(plan, interrupt);
+                    }
+
+                    return;
+                }
+
                 IBrokerConnection? connection = null;
                 try
                 {
@@ -85,6 +105,13 @@ namespace Vion.Cli.Bus
                 }
                 catch (OperationCanceledException) when (ending.IsCancellationRequested)
                 {
+                    // Ending as asked is ending a watch that stood. One that never did has delivered nothing and
+                    // could have delivered nothing, which a caller must be able to tell from a quiet channel.
+                    if (!stoodOnce)
+                    {
+                        throw NothingWatched(plan, interrupt);
+                    }
+
                     return;
                 }
                 catch (BrokerRefusedException refused)
@@ -119,6 +146,12 @@ namespace Vion.Cli.Bus
                     }
                 }
             }
+        }
+
+        private static CliFailure NothingWatched(WatchPlan plan, CancellationToken interrupt)
+        {
+            return new CliFailure(interrupt.IsCancellationRequested ? $"interrupted before the watch of {plan.Channel.Id} stood; nothing was watched." :
+                                      $"--timeout ended before the watch of {plan.Channel.Id} stood; nothing was watched.");
         }
 
         /// <summary>

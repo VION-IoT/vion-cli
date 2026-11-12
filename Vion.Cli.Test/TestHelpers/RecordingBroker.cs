@@ -35,16 +35,20 @@ namespace Vion.Cli.Test.TestHelpers
             get => _messages.Reader;
         }
 
-        public Task SubscribeAsync(string topic, CancellationToken cancellationToken)
+        public async Task SubscribeAsync(string topic, CancellationToken cancellationToken)
         {
             if (_broker.RefuseSubscription != null)
             {
                 throw new BrokerRefusedException(_broker.RefuseSubscription);
             }
 
+            if (_broker.HoldsSubscription)
+            {
+                await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+            }
+
             Subscriptions.Add(topic);
             _broker.Log.Add($"SUBSCRIBE {topic}");
-            return Task.CompletedTask;
         }
 
         public Task EndAsync(CancellationToken cancellationToken)
@@ -97,6 +101,9 @@ namespace Vion.Cli.Test.TestHelpers
 
         /// <summary>The reason to refuse every subscription with, or null to acknowledge.</summary>
         public string? RefuseSubscription { get; set; }
+
+        /// <summary>Never acknowledges a subscription, so that the watch never stands: what ends it then ends it before.</summary>
+        public bool HoldsSubscription { get; set; }
 
         /// <summary>What the broker does each time a connection is accepted; the index is the connection's, from zero.</summary>
         public Action<RecordedConnection, int>? OnConnected { get; set; }
