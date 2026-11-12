@@ -22,7 +22,8 @@ camel-cased members, strings for enumerations and indentation. The stream rule i
 
 ## The tree is derived
 
-A command exists exactly when an operation does. The `system` domain — device and bridge protocols,
+A command exists exactly when an operation does; the one verb beside them, `watch`, exists
+exactly when a channel is handed out, and is [`watch.md`](watch.md)'s. The `system` domain — device and bridge protocols,
 and the catalog read the tool calls itself — stays out of the tree, reachable through `api`. The
 four context values and the dry-run flag are globals, never derived options, so that one value has
 one spelling on every command.
@@ -45,17 +46,17 @@ decide which flags apply. A refusal happens before anything is sent.
 - `AC-CLI-002.3` (Optional): WHERE the operation is `idempotent` THE SYSTEM SHALL send an `Idempotency-Key` header carrying `--idempotency-key`'s value or a fresh one, and SHALL report an answer carrying `Idempotency-Replayed: true` as a notice on standard error.
 - `AC-CLI-002.4` (Optional): WHERE the operation is `versioned` THE SYSTEM SHALL send `If-Match` from `--if-match`, else from the `--input` document's `meta.version`, else from the aggregate's `get` on the same path where one exists, and SHALL otherwise refuse before sending with exit 2.
 - `AC-CLI-002.5` (Optional): WHERE the operation's effect is `Irreversible` THE SYSTEM SHALL ask for confirmation on a terminal unless `--yes` is given, and SHALL refuse with exit 2 when standard input is not a terminal and `--yes` is absent.
-- `AC-CLI-002.6` (Event-driven): WHEN `--dry-run` is given THE SYSTEM SHALL send `dryRun=true` on an operation flagged `dryRun` and refuse with exit 2 on any other operation.
+- `AC-CLI-002.6` (Event-driven): WHEN `--dry-run` is given THE SYSTEM SHALL send `dryRun=true` on an operation flagged `dryRun` and refuse with exit 2 on any other operation and on a watch.
 - `AC-CLI-002.7` (Optional): WHERE the operation takes `multipart/form-data` THE SYSTEM SHALL send `--file` as the schema's file part and each `-f` pair as a text part.
 - `AC-CLI-002.8` (Unwanted): IF the environment answers a derived command with a 404 carrying no error body THEN THE SYSTEM SHALL say the operation is not in that environment's document and name `ops --live`.
 
 ## What comes back
 
 Two modes. In JSON mode standard output is the API's answer, verbatim, or one error object — nothing
-a script has to strip. In table mode a list is rows, anything else is key–value pairs, and a failure
+a script has to strip; a watch's is one such document per line. In table mode a list is rows, anything else is key–value pairs, and a failure
 goes to standard error. Notices — a replayed answer, a next cursor — go to standard error in both.
 
-- `AC-CLI-003.1` (Optional): WHERE `--json` is given THE SYSTEM SHALL write exactly one JSON document to standard output, the response body, an object with an `error` member, or under `api --include` an object with `status`, `headers` and `body`, and every notice to standard error.
+- `AC-CLI-003.1` (Optional): WHERE `--json` is given THE SYSTEM SHALL write exactly one JSON document to standard output, the response body, an object with an `error` member, or under `api --include` an object with `status`, `headers` and `body`, or, on a watch, one JSON document per line, and every notice to standard error.
 - `AC-CLI-003.2` (Optional): WHERE `--fields` names members THE SYSTEM SHALL project each row of a list and any other object to those members, by dotted path, in table and JSON mode alike.
 - `AC-CLI-003.3` (Ubiquitous): THE SYSTEM SHALL render a list answer as a row table of its items' scalar members and any other object as a key–value table in table mode, and SHALL report a paged answer's `nextCursor` as a notice.
 - `AC-CLI-003.4` (Event-driven): WHEN the API answers an error THE SYSTEM SHALL report its status and message and, where present, each `problems` entry, `requiredPermissions`, `currentVersion` and `exceptionId`, and exit 1.
