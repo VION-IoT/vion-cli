@@ -85,11 +85,11 @@ namespace Vion.Cli.Http
             }
             catch (HttpRequestException exception)
             {
-                throw new CliFailure($"{request.Method} {request.RequestUri}: {exception.Message}");
+                throw new NoAnswer($"{request.Method} {request.RequestUri}: {exception.Message}");
             }
             catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
-                throw new CliFailure($"{request.Method} {request.RequestUri}: no answer within {_client.Timeout.TotalSeconds:0} seconds.");
+                throw new NoAnswer($"{request.Method} {request.RequestUri}: no answer within {_client.Timeout.TotalSeconds:0} seconds.");
             }
 
             using (response)

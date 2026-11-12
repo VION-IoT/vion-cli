@@ -31,11 +31,17 @@ namespace Vion.Cli.Commands
             var name = new Argument<string?>("name") { Description = "The context's name; the environment's name when left out.", Arity = ArgumentArity.ZeroOrOne };
             var apiUrl = new Option<string>("--api-url") { Description = "Define the environment named by --env: its API URL.", HelpName = "url" };
             var authUrl = new Option<string>("--auth-url") { Description = "Define the environment named by --env: its realm URL.", HelpName = "realm url" };
+            var brokerUrl = new Option<string>("--broker-url")
+                            {
+                                Description = "Define the environment named by --env: its broker's wss:// URL, which a watch needs.",
+                                HelpName = "url",
+                            };
             var command = new Command("use",
                                       "Select a context by name, or create or update one with the environment and ids given and select it. The ids are GUIDs; `whoami` lists them.");
             command.Arguments.Add(name);
             command.Options.Add(apiUrl);
             command.Options.Add(authUrl);
+            command.Options.Add(brokerUrl);
             command.SetAction(result =>
                               {
                                   var globals = tree.Globals.Read(result);
@@ -44,31 +50,38 @@ namespace Vion.Cli.Commands
                                                         () => Task.FromResult(UseContext(result.GetValue(name),
                                                                                          result.GetValue(apiUrl),
                                                                                          result.GetValue(authUrl),
+                                                                                         result.GetValue(brokerUrl),
                                                                                          globals,
                                                                                          services)));
                               });
             return command;
         }
 
-        private static int UseContext(string? name, string? apiUrl, string? authUrl, GlobalValues globals, CliServices services)
+        private static int UseContext(string? name,
+                                      string? apiUrl,
+                                      string? authUrl,
+                                      string? brokerUrl,
+                                      GlobalValues globals,
+                                      CliServices services)
         {
             var config = ConfigStore.Load(services.HomeDirectory);
             var environments = new Dictionary<string, ApiEnvironment>(config.Environments, StringComparer.OrdinalIgnoreCase);
             var contexts = new Dictionary<string, ContextEntry>(config.Contexts, StringComparer.Ordinal);
 
-            if (apiUrl != null || authUrl != null)
+            if (apiUrl != null || authUrl != null || brokerUrl != null)
             {
                 if (apiUrl == null || authUrl == null || globals.Env == null)
                 {
-                    throw new UsageException("an environment is defined by --env <name> --api-url <url> --auth-url <realm url>, all three together.");
+                    throw new
+                        UsageException("an environment is defined by --env <name> --api-url <url> --auth-url <realm url>, all three together, and --broker-url <url> beside them for its broker.");
                 }
 
                 if (ApiEnvironment.BuiltIn.ContainsKey(globals.Env))
                 {
-                    throw new UsageException($"{globals.Env} is built in and keeps its URLs; VION_API_URL and VION_AUTH_URL override them for one call.");
+                    throw new UsageException($"{globals.Env} is built in and keeps its URLs; VION_API_URL, VION_AUTH_URL and VION_BROKER_URL override them for one call.");
                 }
 
-                environments[globals.Env] = new ApiEnvironment(globals.Env, apiUrl.TrimEnd('/'), authUrl.TrimEnd('/'), ApiEnvironment.DefaultClientId);
+                environments[globals.Env] = new ApiEnvironment(globals.Env, apiUrl.TrimEnd('/'), authUrl.TrimEnd('/'), ApiEnvironment.DefaultClientId) { BrokerUrl = brokerUrl };
             }
 
             foreach (var (key, value) in Roots(globals))
@@ -202,6 +215,7 @@ namespace Vion.Cli.Commands
                                                                                ["env"] = resolved.Environment.Name,
                                                                                ["apiUrl"] = resolved.Environment.ApiUrl,
                                                                                ["authUrl"] = resolved.Environment.AuthUrl,
+                                                                               ["brokerUrl"] = resolved.Environment.BrokerUrl,
                                                                                ["clientId"] = resolved.Environment.ClientId,
                                                                            };
                                                             foreach (var key in ContextResolver.RootKeys)

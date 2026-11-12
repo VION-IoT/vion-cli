@@ -25,9 +25,20 @@ namespace Vion.Cli.Infrastructure
     }
 
     /// <summary>A call or a sign-in failed; the message is the whole story in table mode. Exit 1.</summary>
-    internal sealed class CliFailure : Exception
+    internal class CliFailure : Exception
     {
         public CliFailure(string message) : base(message)
+        {
+        }
+    }
+
+    /// <summary>
+    ///     A host gave no answer at all: it could not be reached, or it did not answer in time. A failure like any other
+    ///     to a command that makes one call, and the one kind a watch that already stood tries again after.
+    /// </summary>
+    internal sealed class NoAnswer : CliFailure
+    {
+        public NoAnswer(string message) : base(message)
         {
         }
     }

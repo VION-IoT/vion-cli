@@ -35,6 +35,66 @@ namespace Vion.Cli.Derive
             return sb.ToString();
         }
 
+        internal static string StringArray(IReadOnlyList<string> values)
+        {
+            return values.Count == 0 ? "new string[0]" : "new[] { " + string.Join(", ", values.Select(Literal)) + " }";
+        }
+
+        internal static string Bool(bool value)
+        {
+            return value ? "true" : "false";
+        }
+
+        /// <summary>
+        ///     A C# string literal, or <c>null</c>; every character outside the printable ASCII range is escaped so the file
+        ///     is ASCII whatever the document carries.
+        /// </summary>
+        internal static string Literal(string? value)
+        {
+            if (value == null)
+            {
+                return "null";
+            }
+
+            var sb = new StringBuilder(value.Length + 2);
+            sb.Append('"');
+            foreach (var c in value)
+            {
+                switch (c)
+                {
+                    case '"':
+                        sb.Append("\\\"");
+                        break;
+                    case '\\':
+                        sb.Append("\\\\");
+                        break;
+                    case '\n':
+                        sb.Append("\\n");
+                        break;
+                    case '\r':
+                        sb.Append("\\r");
+                        break;
+                    case '\t':
+                        sb.Append("\\t");
+                        break;
+                    default:
+                        if (c < 0x20 || c > 0x7e)
+                        {
+                            sb.Append("\\u").Append(((int)c).ToString("x4", System.Globalization.CultureInfo.InvariantCulture));
+                        }
+                        else
+                        {
+                            sb.Append(c);
+                        }
+
+                        break;
+                }
+            }
+
+            sb.Append('"');
+            return sb.ToString();
+        }
+
         private static void EmitOperation(StringBuilder sb, DerivedOperation o)
         {
             sb.Append("        new Operation(\n");
@@ -120,66 +180,6 @@ namespace Vion.Cli.Derive
               .Append(Literal(o.Authorization.ScopeFrom))
               .Append("),\n");
             sb.Append("            ").Append(Bool(o.Hidden)).Append(", ").Append(Literal(o.Alias)).Append("),\n");
-        }
-
-        private static string StringArray(IReadOnlyList<string> values)
-        {
-            return values.Count == 0 ? "new string[0]" : "new[] { " + string.Join(", ", values.Select(Literal)) + " }";
-        }
-
-        private static string Bool(bool value)
-        {
-            return value ? "true" : "false";
-        }
-
-        /// <summary>
-        ///     A C# string literal, or <c>null</c>; every character outside the printable ASCII range is escaped so the file
-        ///     is ASCII whatever the document carries.
-        /// </summary>
-        private static string Literal(string? value)
-        {
-            if (value == null)
-            {
-                return "null";
-            }
-
-            var sb = new StringBuilder(value.Length + 2);
-            sb.Append('"');
-            foreach (var c in value)
-            {
-                switch (c)
-                {
-                    case '"':
-                        sb.Append("\\\"");
-                        break;
-                    case '\\':
-                        sb.Append("\\\\");
-                        break;
-                    case '\n':
-                        sb.Append("\\n");
-                        break;
-                    case '\r':
-                        sb.Append("\\r");
-                        break;
-                    case '\t':
-                        sb.Append("\\t");
-                        break;
-                    default:
-                        if (c < 0x20 || c > 0x7e)
-                        {
-                            sb.Append("\\u").Append(((int)c).ToString("x4", System.Globalization.CultureInfo.InvariantCulture));
-                        }
-                        else
-                        {
-                            sb.Append(c);
-                        }
-
-                        break;
-                }
-            }
-
-            sb.Append('"');
-            return sb.ToString();
         }
     }
 }

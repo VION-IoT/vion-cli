@@ -400,7 +400,8 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Retrieves the latest system health for all edge gateways in a tenant.
+  list   Retrieves the latest system health for all edge gateways in a tenant.
+  watch  The health of a gateway and its components, published each time the gateway reports it.
 
 ---
 ## vion tenant system-health list
@@ -436,6 +437,37 @@ Options:
                             then exits 3.
 
 ---
+## vion tenant system-health watch
+Description:
+  The health of a gateway and its components, published each time the gateway reports it.
+
+Usage:
+  vion tenant system-health watch [options]
+
+Options:
+  --edge-gateway-id <value> (REQUIRED)  The edge gateway's id.
+  -?, -h, --help                        Show help and usage information
+  --env <name>                          The environment: production, test, or one defined with `context use`.
+  --integrator <id>                     The integrator id, filling {integratorId} for this call.
+  --tenant <id>                         The tenant id, filling {tenantId} for this call.
+  --project <id>                        The project id, filling projectId for this call.
+  --platform <id>                       The platform id, filling {platformId} for this call.
+  --json                                Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>                      Keep only these members, comma-separated, dotted for a nested one.
+  --yes                                 Confirm an irreversible operation without asking.
+  --dry-run                             Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>               The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>                  The version to send as If-Match on a versioned update.
+  --token <->                           Read the bearer token from standard input: `--token -`.
+  --client-id <id>                      A service account's client id, with --client-secret.
+  --client-secret <secret>              A service account's client secret, with --client-id.
+  --verbose                             Show the request and the response headers on standard error.
+  --wait                                Wait for a long-running operation to end and exit by its outcome; a 
+                                        command whose answer is already the outcome ignores it.
+  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
+                                        Still running then exits 3.
+
+---
 ## vion tenant system-event
 Description:
   The system event operations.
@@ -466,8 +498,9 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Lists the system events of a tenant the caller reads, newest first. An event is in the project its 
-        gateway was in when it occurred, and on that gateway. The list ends where `nextCursor` is null.
+  list   Lists the system events of a tenant the caller reads, newest first. An event is in the project its 
+         gateway was in when it occurred, and on that gateway. The list ends where `nextCursor` is null.
+  watch  A system event of the gateway, published as the gateway reports it.
 
 ---
 ## vion tenant system-event list
@@ -514,6 +547,37 @@ Options:
                             then exits 3.
 
 ---
+## vion tenant system-event watch
+Description:
+  A system event of the gateway, published as the gateway reports it.
+
+Usage:
+  vion tenant system-event watch [options]
+
+Options:
+  --edge-gateway-id <value> (REQUIRED)  The edge gateway's id.
+  -?, -h, --help                        Show help and usage information
+  --env <name>                          The environment: production, test, or one defined with `context use`.
+  --integrator <id>                     The integrator id, filling {integratorId} for this call.
+  --tenant <id>                         The tenant id, filling {tenantId} for this call.
+  --project <id>                        The project id, filling projectId for this call.
+  --platform <id>                       The platform id, filling {platformId} for this call.
+  --json                                Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>                      Keep only these members, comma-separated, dotted for a nested one.
+  --yes                                 Confirm an irreversible operation without asking.
+  --dry-run                             Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>               The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>                  The version to send as If-Match on a versioned update.
+  --token <->                           Read the bearer token from standard input: `--token -`.
+  --client-id <id>                      A service account's client id, with --client-secret.
+  --client-secret <secret>              A service account's client secret, with --client-id.
+  --verbose                             Show the request and the response headers on standard error.
+  --wait                                Wait for a long-running operation to end and exit by its outcome; a 
+                                        command whose answer is already the outcome ignores it.
+  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
+                                        Still running then exits 3.
+
+---
 ## vion tenant support-grant
 Description:
   The support grant operations.
@@ -555,6 +619,7 @@ Commands:
   deny     Deny a pending request. Nothing was admitted under it, so the refusal is the whole effect.
   revoke   Withdraw consent. New sessions of that kind stop immediately and the reaper terminates the ones 
            already riding this grant.
+  watch    A support access grant of the gateway, published each time its status changes.
 
 ---
 ## vion tenant support-grant list
@@ -723,6 +788,37 @@ Options:
                             then exits 3.
 
 ---
+## vion tenant support-grant watch
+Description:
+  A support access grant of the gateway, published each time its status changes.
+
+Usage:
+  vion tenant support-grant watch [options]
+
+Options:
+  --edge-gateway-id <value> (REQUIRED)  The edge gateway's id.
+  -?, -h, --help                        Show help and usage information
+  --env <name>                          The environment: production, test, or one defined with `context use`.
+  --integrator <id>                     The integrator id, filling {integratorId} for this call.
+  --tenant <id>                         The tenant id, filling {tenantId} for this call.
+  --project <id>                        The project id, filling projectId for this call.
+  --platform <id>                       The platform id, filling {platformId} for this call.
+  --json                                Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>                      Keep only these members, comma-separated, dotted for a nested one.
+  --yes                                 Confirm an irreversible operation without asking.
+  --dry-run                             Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>               The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>                  The version to send as If-Match on a versioned update.
+  --token <->                           Read the bearer token from standard input: `--token -`.
+  --client-id <id>                      A service account's client id, with --client-secret.
+  --client-secret <secret>              A service account's client secret, with --client-id.
+  --verbose                             Show the request and the response headers on standard error.
+  --wait                                Wait for a long-running operation to end and exit by its outcome; a 
+                                        command whose answer is already the outcome ignores it.
+  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
+                                        Still running then exits 3.
+
+---
 ## vion tenant support-session
 Description:
   The support session operations.
@@ -753,9 +849,10 @@ Options:
                             then exits 3.
 
 Commands:
-  list  What support is doing now, or did: the sessions a tenant user did not open, on gateways the caller 
-        reads. Each one rides a grant this tenant gave — none of them is waiting for an answer here. A caller 
-        sees the sessions whose anchor gateway they read.
+  list   What support is doing now, or did: the sessions a tenant user did not open, on gateways the caller 
+         reads. Each one rides a grant this tenant gave — none of them is waiting for an answer here. A 
+         caller sees the sessions whose anchor gateway they read.
+  watch  A support session on the gateway, published each time its status changes.
 
 ---
 ## vion tenant support-session list
@@ -791,6 +888,37 @@ Options:
                             answer is already the outcome ignores it.
   --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                             then exits 3.
+
+---
+## vion tenant support-session watch
+Description:
+  A support session on the gateway, published each time its status changes.
+
+Usage:
+  vion tenant support-session watch [options]
+
+Options:
+  --edge-gateway-id <value> (REQUIRED)  The edge gateway's id.
+  -?, -h, --help                        Show help and usage information
+  --env <name>                          The environment: production, test, or one defined with `context use`.
+  --integrator <id>                     The integrator id, filling {integratorId} for this call.
+  --tenant <id>                         The tenant id, filling {tenantId} for this call.
+  --project <id>                        The project id, filling projectId for this call.
+  --platform <id>                       The platform id, filling {platformId} for this call.
+  --json                                Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>                      Keep only these members, comma-separated, dotted for a nested one.
+  --yes                                 Confirm an irreversible operation without asking.
+  --dry-run                             Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>               The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>                  The version to send as If-Match on a versioned update.
+  --token <->                           Read the bearer token from standard input: `--token -`.
+  --client-id <id>                      A service account's client id, with --client-secret.
+  --client-secret <secret>              A service account's client secret, with --client-id.
+  --verbose                             Show the request and the response headers on standard error.
+  --wait                                Wait for a long-running operation to end and exit by its outcome; a 
+                                        command whose answer is already the outcome ignores it.
+  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
+                                        Still running then exits 3.
 
 ---
 ## vion tenant logic-block-instance
@@ -1010,6 +1138,8 @@ Commands:
              subscription down when that last will fires. Worked examples: 
              https://docs.vion.swiss/cloud-api/minimal-client
   set        Set the value of a service property.
+  watch      The values of a service's properties, published by the gateway to the subscribers registered for 
+             them: the current values on registration, then each change.
 
 ---
 ## vion tenant service-property subscribe
@@ -1093,6 +1223,51 @@ Options:
                                          command whose answer is already the outcome ignores it.
   --timeout <duration>                   How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
                                          Still running then exits 3.
+
+---
+## vion tenant service-property watch
+Description:
+  The values of a service's properties, published by the gateway to the subscribers registered for them: the 
+  current values on registration, then each change.
+
+Usage:
+  vion tenant service-property watch [options]
+
+Options:
+  --edge-gateway-id <value> (REQUIRED)              The edge gateway's id.
+  --service-provider-identifier <value> (REQUIRED)  The identifier of the service provider that declares the 
+                                                    service.
+  --service-identifier <value> (REQUIRED)           The service's identifier, unique within its service 
+                                                    provider.
+  --property-identifier <value>                     Register this property identifier only; repeatable. Every 
+                                                    one the row carries when absent.
+  -?, -h, --help                                    Show help and usage information
+  --env <name>                                      The environment: production, test, or one defined with 
+                                                    `context use`.
+  --integrator <id>                                 The integrator id, filling {integratorId} for this call.
+  --tenant <id>                                     The tenant id, filling {tenantId} for this call.
+  --project <id>                                    The project id, filling projectId for this call.
+  --platform <id>                                   The platform id, filling {platformId} for this call.
+  --json                                            Write the response as JSON, and nothing else, to standard 
+                                                    output.
+  --fields <a,b.c>                                  Keep only these members, comma-separated, dotted for a 
+                                                    nested one.
+  --yes                                             Confirm an irreversible operation without asking.
+  --dry-run                                         Check the request without applying it, on an operation 
+                                                    that offers it.
+  --idempotency-key <key>                           The Idempotency-Key to send on a write; a fresh one when 
+                                                    absent.
+  --if-match <version>                              The version to send as If-Match on a versioned update.
+  --token <->                                       Read the bearer token from standard input: `--token -`.
+  --client-id <id>                                  A service account's client id, with --client-secret.
+  --client-secret <secret>                          A service account's client secret, with --client-id.
+  --verbose                                         Show the request and the response headers on standard 
+                                                    error.
+  --wait                                            Wait for a long-running operation to end and exit by its 
+                                                    outcome; a command whose answer is already the outcome 
+                                                    ignores it.
+  --timeout <duration>                              How long --wait waits: 90s, 15m, 1h or seconds; 15m when 
+                                                    absent. Still running then exits 3.
 
 ---
 ## vion tenant service-provider
@@ -1707,6 +1882,7 @@ Options:
 
 Commands:
   request  Request a new VPN session on a gateway; provisioning proceeds asynchronously.
+  watch    A VPN remote access session on the gateway, published each time its status changes.
 
 ---
 ## vion tenant vpn-session request
@@ -1743,6 +1919,37 @@ Options:
                                then exits 3.
 
 ---
+## vion tenant vpn-session watch
+Description:
+  A VPN remote access session on the gateway, published each time its status changes.
+
+Usage:
+  vion tenant vpn-session watch [options]
+
+Options:
+  --edge-gateway-id <value> (REQUIRED)  The edge gateway's id.
+  -?, -h, --help                        Show help and usage information
+  --env <name>                          The environment: production, test, or one defined with `context use`.
+  --integrator <id>                     The integrator id, filling {integratorId} for this call.
+  --tenant <id>                         The tenant id, filling {tenantId} for this call.
+  --project <id>                        The project id, filling projectId for this call.
+  --platform <id>                       The platform id, filling {platformId} for this call.
+  --json                                Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>                      Keep only these members, comma-separated, dotted for a nested one.
+  --yes                                 Confirm an irreversible operation without asking.
+  --dry-run                             Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>               The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>                  The version to send as If-Match on a versioned update.
+  --token <->                           Read the bearer token from standard input: `--token -`.
+  --client-id <id>                      A service account's client id, with --client-secret.
+  --client-secret <secret>              A service account's client secret, with --client-id.
+  --verbose                             Show the request and the response headers on standard error.
+  --wait                                Wait for a long-running operation to end and exit by its outcome; a 
+                                        command whose answer is already the outcome ignores it.
+  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
+                                        Still running then exits 3.
+
+---
 ## vion tenant console-session
 Description:
   The console session operations.
@@ -1774,6 +1981,7 @@ Options:
 
 Commands:
   request  Request a new console session on a gateway; provisioning proceeds asynchronously.
+  watch    A console remote access session on the gateway, published each time its status changes.
 
 ---
 ## vion tenant console-session request
@@ -1808,6 +2016,37 @@ Options:
                                whose answer is already the outcome ignores it.
   --timeout <duration>         How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                                then exits 3.
+
+---
+## vion tenant console-session watch
+Description:
+  A console remote access session on the gateway, published each time its status changes.
+
+Usage:
+  vion tenant console-session watch [options]
+
+Options:
+  --edge-gateway-id <value> (REQUIRED)  The edge gateway's id.
+  -?, -h, --help                        Show help and usage information
+  --env <name>                          The environment: production, test, or one defined with `context use`.
+  --integrator <id>                     The integrator id, filling {integratorId} for this call.
+  --tenant <id>                         The tenant id, filling {tenantId} for this call.
+  --project <id>                        The project id, filling projectId for this call.
+  --platform <id>                       The platform id, filling {platformId} for this call.
+  --json                                Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>                      Keep only these members, comma-separated, dotted for a nested one.
+  --yes                                 Confirm an irreversible operation without asking.
+  --dry-run                             Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>               The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>                  The version to send as If-Match on a versioned update.
+  --token <->                           Read the bearer token from standard input: `--token -`.
+  --client-id <id>                      A service account's client id, with --client-secret.
+  --client-secret <secret>              A service account's client secret, with --client-id.
+  --verbose                             Show the request and the response headers on standard error.
+  --wait                                Wait for a long-running operation to end and exit by its outcome; a 
+                                        command whose answer is already the outcome ignores it.
+  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
+                                        Still running then exits 3.
 
 ---
 ## vion tenant vpn-connection
@@ -2808,10 +3047,12 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Returns the latest log level per component for every edge gateway in the tenant the caller is 
-        authorized to read. Gateways with no reported state yet are returned with an empty `Components` list.
-  set   Set the log level for a specific component (`"mesh"` or a service provider identifier) on an edge 
-        gateway.
+  list   Returns the latest log level per component for every edge gateway in the tenant the caller is 
+         authorized to read. Gateways with no reported state yet are returned with an empty `Components` 
+         list.
+  set    Set the log level for a specific component (`"mesh"` or a service provider identifier) on an edge 
+         gateway.
+  watch  The log level of a component of the gateway, published each time the gateway reports it.
 
 ---
 ## vion tenant log-level list
@@ -2882,6 +3123,37 @@ Options:
                                whose answer is already the outcome ignores it.
   --timeout <duration>         How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                                then exits 3.
+
+---
+## vion tenant log-level watch
+Description:
+  The log level of a component of the gateway, published each time the gateway reports it.
+
+Usage:
+  vion tenant log-level watch [options]
+
+Options:
+  --edge-gateway-id <value> (REQUIRED)  The edge gateway's id.
+  -?, -h, --help                        Show help and usage information
+  --env <name>                          The environment: production, test, or one defined with `context use`.
+  --integrator <id>                     The integrator id, filling {integratorId} for this call.
+  --tenant <id>                         The tenant id, filling {tenantId} for this call.
+  --project <id>                        The project id, filling projectId for this call.
+  --platform <id>                       The platform id, filling {platformId} for this call.
+  --json                                Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>                      Keep only these members, comma-separated, dotted for a nested one.
+  --yes                                 Confirm an irreversible operation without asking.
+  --dry-run                             Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>               The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>                  The version to send as If-Match on a versioned update.
+  --token <->                           Read the bearer token from standard input: `--token -`.
+  --client-id <id>                      A service account's client id, with --client-secret.
+  --client-secret <secret>              A service account's client secret, with --client-id.
+  --verbose                             Show the request and the response headers on standard error.
+  --wait                                Wait for a long-running operation to end and exit by its outcome; a 
+                                        command whose answer is already the outcome ignores it.
+  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
+                                        Still running then exits 3.
 
 ---
 ## vion tenant logic-configuration-template
@@ -5629,8 +5901,9 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Lists the alerts of a tenant the caller reads, newest raised first. An alert is in the project its 
-        gateway was in when it was raised, and on that gateway. The list ends where `nextCursor` is null.
+  list   Lists the alerts of a tenant the caller reads, newest raised first. An alert is in the project its 
+         gateway was in when it was raised, and on that gateway. The list ends where `nextCursor` is null.
+  watch  An alert of an alert rule, published when it is raised and when it is resolved.
 
 ---
 ## vion tenant alert list
@@ -5674,6 +5947,37 @@ Options:
                             answer is already the outcome ignores it.
   --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                             then exits 3.
+
+---
+## vion tenant alert watch
+Description:
+  An alert of an alert rule, published when it is raised and when it is resolved.
+
+Usage:
+  vion tenant alert watch [options]
+
+Options:
+  --edge-gateway-id <value> (REQUIRED)  The edge gateway's id.
+  -?, -h, --help                        Show help and usage information
+  --env <name>                          The environment: production, test, or one defined with `context use`.
+  --integrator <id>                     The integrator id, filling {integratorId} for this call.
+  --tenant <id>                         The tenant id, filling {tenantId} for this call.
+  --project <id>                        The project id, filling projectId for this call.
+  --platform <id>                       The platform id, filling {platformId} for this call.
+  --json                                Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>                      Keep only these members, comma-separated, dotted for a nested one.
+  --yes                                 Confirm an irreversible operation without asking.
+  --dry-run                             Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>               The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>                  The version to send as If-Match on a versioned update.
+  --token <->                           Read the bearer token from standard input: `--token -`.
+  --client-id <id>                      A service account's client id, with --client-secret.
+  --client-secret <secret>              A service account's client secret, with --client-id.
+  --verbose                             Show the request and the response headers on standard error.
+  --wait                                Wait for a long-running operation to end and exit by its outcome; a 
+                                        command whose answer is already the outcome ignores it.
+  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
+                                        Still running then exits 3.
 
 ---
 ## vion tenant chart
@@ -5773,7 +6077,8 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Lists the current synchronization status of every edge gateway the caller reads.
+  list   Lists the current synchronization status of every edge gateway the caller reads.
+  watch  How far the gateway has applied what was sent to it, published each time a sync status changes.
 
 ---
 ## vion tenant sync-status list
@@ -5807,6 +6112,37 @@ Options:
                             answer is already the outcome ignores it.
   --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                             then exits 3.
+
+---
+## vion tenant sync-status watch
+Description:
+  How far the gateway has applied what was sent to it, published each time a sync status changes.
+
+Usage:
+  vion tenant sync-status watch [options]
+
+Options:
+  --edge-gateway-id <value> (REQUIRED)  The edge gateway's id.
+  -?, -h, --help                        Show help and usage information
+  --env <name>                          The environment: production, test, or one defined with `context use`.
+  --integrator <id>                     The integrator id, filling {integratorId} for this call.
+  --tenant <id>                         The tenant id, filling {tenantId} for this call.
+  --project <id>                        The project id, filling projectId for this call.
+  --platform <id>                       The platform id, filling {platformId} for this call.
+  --json                                Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>                      Keep only these members, comma-separated, dotted for a nested one.
+  --yes                                 Confirm an irreversible operation without asking.
+  --dry-run                             Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>               The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>                  The version to send as If-Match on a versioned update.
+  --token <->                           Read the bearer token from standard input: `--token -`.
+  --client-id <id>                      A service account's client id, with --client-secret.
+  --client-secret <secret>              A service account's client secret, with --client-id.
+  --verbose                             Show the request and the response headers on standard error.
+  --wait                                Wait for a long-running operation to end and exit by its outcome; a 
+                                        command whose answer is already the outcome ignores it.
+  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
+                                        Still running then exits 3.
 
 ---
 ## vion integrator
@@ -5882,6 +6218,8 @@ Commands:
   service-account-secret             The service account secret operations.
   user                               The user operations.
   user-invitation                    The user invitation operations.
+  certificate                        The certificate operations.
+  commissioning                      The commissioning operations.
 
 ---
 ## vion integrator widget-definition
@@ -7211,9 +7549,10 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Retrieves the latest system health for every edge gateway under an integrator, spanning all its 
-        tenants. Mirrors the tenant `GET /tenant/{tenantId}/systemHealth`; a gateway with no snapshot is 
-        absent from the list (→ frontend Unknown badge).
+  list   Retrieves the latest system health for every edge gateway under an integrator, spanning all its 
+         tenants. Mirrors the tenant `GET /tenant/{tenantId}/systemHealth`; a gateway with no snapshot is 
+         absent from the list (→ frontend Unknown badge).
+  watch  The health of a gateway and its components, published each time the gateway reports it.
 
 ---
 ## vion integrator system-health list
@@ -7246,6 +7585,37 @@ Options:
                             answer is already the outcome ignores it.
   --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                             then exits 3.
+
+---
+## vion integrator system-health watch
+Description:
+  The health of a gateway and its components, published each time the gateway reports it.
+
+Usage:
+  vion integrator system-health watch [options]
+
+Options:
+  --edge-gateway-id <value>  The edge gateway's id.
+  -?, -h, --help             Show help and usage information
+  --env <name>               The environment: production, test, or one defined with `context use`.
+  --integrator <id>          The integrator id, filling {integratorId} for this call.
+  --tenant <id>              The tenant id, filling {tenantId} for this call.
+  --project <id>             The project id, filling projectId for this call.
+  --platform <id>            The platform id, filling {platformId} for this call.
+  --json                     Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>           Keep only these members, comma-separated, dotted for a nested one.
+  --yes                      Confirm an irreversible operation without asking.
+  --dry-run                  Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>    The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>       The version to send as If-Match on a versioned update.
+  --token <->                Read the bearer token from standard input: `--token -`.
+  --client-id <id>           A service account's client id, with --client-secret.
+  --client-secret <secret>   A service account's client secret, with --client-id.
+  --verbose                  Show the request and the response headers on standard error.
+  --wait                     Wait for a long-running operation to end and exit by its outcome; a command 
+                             whose answer is already the outcome ignores it.
+  --timeout <duration>       How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                             then exits 3.
 
 ---
 ## vion integrator support-grant
@@ -7283,6 +7653,7 @@ Commands:
   request  Ask one of the integrator's own tenants for standing consent over a scope of theirs. It lands in 
            that tenant's consent inbox and admits nothing until a `ManageSupportAccess` holder at its scope 
            answers it.
+  watch    A support access grant the integrator requested, published each time its status changes.
 
 ---
 ## vion integrator support-grant list
@@ -7349,6 +7720,37 @@ Options:
                                whose answer is already the outcome ignores it.
   --timeout <duration>         How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                                then exits 3.
+
+---
+## vion integrator support-grant watch
+Description:
+  A support access grant the integrator requested, published each time its status changes.
+
+Usage:
+  vion integrator support-grant watch [options]
+
+Options:
+  --edge-gateway-id <value>  The edge gateway's id.
+  -?, -h, --help             Show help and usage information
+  --env <name>               The environment: production, test, or one defined with `context use`.
+  --integrator <id>          The integrator id, filling {integratorId} for this call.
+  --tenant <id>              The tenant id, filling {tenantId} for this call.
+  --project <id>             The project id, filling projectId for this call.
+  --platform <id>            The platform id, filling {platformId} for this call.
+  --json                     Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>           Keep only these members, comma-separated, dotted for a nested one.
+  --yes                      Confirm an irreversible operation without asking.
+  --dry-run                  Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>    The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>       The version to send as If-Match on a versioned update.
+  --token <->                Read the bearer token from standard input: `--token -`.
+  --client-id <id>           A service account's client id, with --client-secret.
+  --client-secret <secret>   A service account's client secret, with --client-id.
+  --verbose                  Show the request and the response headers on standard error.
+  --wait                     Wait for a long-running operation to end and exit by its outcome; a command 
+                             whose answer is already the outcome ignores it.
+  --timeout <duration>       How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                             then exits 3.
 
 ---
 ## vion integrator support-tenant-scope
@@ -7455,6 +7857,7 @@ Commands:
              Without one the session is refused and the caller asks for consent at the sibling 
              `SupportAccess` controller.
   terminate  End one's own support session early.
+  watch      A support session of the integrator, published each time its status changes.
 
 ---
 ## vion integrator support-session list
@@ -7551,6 +7954,37 @@ Options:
                             answer is already the outcome ignores it.
   --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                             then exits 3.
+
+---
+## vion integrator support-session watch
+Description:
+  A support session of the integrator, published each time its status changes.
+
+Usage:
+  vion integrator support-session watch [options]
+
+Options:
+  --edge-gateway-id <value>  The edge gateway's id.
+  -?, -h, --help             Show help and usage information
+  --env <name>               The environment: production, test, or one defined with `context use`.
+  --integrator <id>          The integrator id, filling {integratorId} for this call.
+  --tenant <id>              The tenant id, filling {tenantId} for this call.
+  --project <id>             The project id, filling projectId for this call.
+  --platform <id>            The platform id, filling {platformId} for this call.
+  --json                     Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>           Keep only these members, comma-separated, dotted for a nested one.
+  --yes                      Confirm an irreversible operation without asking.
+  --dry-run                  Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>    The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>       The version to send as If-Match on a versioned update.
+  --token <->                Read the bearer token from standard input: `--token -`.
+  --client-id <id>           A service account's client id, with --client-secret.
+  --client-secret <secret>   A service account's client secret, with --client-id.
+  --verbose                  Show the request and the response headers on standard error.
+  --wait                     Wait for a long-running operation to end and exit by its outcome; a command 
+                             whose answer is already the outcome ignores it.
+  --timeout <duration>       How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                             then exits 3.
 
 ---
 ## vion integrator console-connection
@@ -7881,8 +8315,9 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Get all deployments for an integrator, grouped by software release. This will return the latest 
-        deployment for each software release and the edge gateways it is deployed to.
+  list   Get all deployments for an integrator, grouped by software release. This will return the latest 
+         deployment for each software release and the edge gateways it is deployed to.
+  watch  A software deployment to a gateway, published each time its status changes.
 
 ---
 ## vion integrator software-deployment list
@@ -7914,6 +8349,37 @@ Options:
                             answer is already the outcome ignores it.
   --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                             then exits 3.
+
+---
+## vion integrator software-deployment watch
+Description:
+  A software deployment to a gateway, published each time its status changes.
+
+Usage:
+  vion integrator software-deployment watch [options]
+
+Options:
+  --edge-gateway-id <value>  The edge gateway's id.
+  -?, -h, --help             Show help and usage information
+  --env <name>               The environment: production, test, or one defined with `context use`.
+  --integrator <id>          The integrator id, filling {integratorId} for this call.
+  --tenant <id>              The tenant id, filling {tenantId} for this call.
+  --project <id>             The project id, filling projectId for this call.
+  --platform <id>            The platform id, filling {platformId} for this call.
+  --json                     Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>           Keep only these members, comma-separated, dotted for a nested one.
+  --yes                      Confirm an irreversible operation without asking.
+  --dry-run                  Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>    The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>       The version to send as If-Match on a versioned update.
+  --token <->                Read the bearer token from standard input: `--token -`.
+  --client-id <id>           A service account's client id, with --client-secret.
+  --client-secret <secret>   A service account's client secret, with --client-id.
+  --verbose                  Show the request and the response headers on standard error.
+  --wait                     Wait for a long-running operation to end and exit by its outcome; a command 
+                             whose answer is already the outcome ignores it.
+  --timeout <duration>       How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                             then exits 3.
 
 ---
 ## vion integrator software-profile
@@ -9385,6 +9851,7 @@ Options:
 
 Commands:
   update  Updates the status of a pending certificate request
+  watch   A gateway's certificate renewal request, published each time its status changes.
 
 ---
 ## vion integrator certificate-request update
@@ -9420,6 +9887,37 @@ Options:
                                whose answer is already the outcome ignores it.
   --timeout <duration>         How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                                then exits 3.
+
+---
+## vion integrator certificate-request watch
+Description:
+  A gateway's certificate renewal request, published each time its status changes.
+
+Usage:
+  vion integrator certificate-request watch [options]
+
+Options:
+  --edge-gateway-id <value>  The edge gateway's id.
+  -?, -h, --help             Show help and usage information
+  --env <name>               The environment: production, test, or one defined with `context use`.
+  --integrator <id>          The integrator id, filling {integratorId} for this call.
+  --tenant <id>              The tenant id, filling {tenantId} for this call.
+  --project <id>             The project id, filling projectId for this call.
+  --platform <id>            The platform id, filling {platformId} for this call.
+  --json                     Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>           Keep only these members, comma-separated, dotted for a nested one.
+  --yes                      Confirm an irreversible operation without asking.
+  --dry-run                  Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>    The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>       The version to send as If-Match on a versioned update.
+  --token <->                Read the bearer token from standard input: `--token -`.
+  --client-id <id>           A service account's client id, with --client-secret.
+  --client-secret <secret>   A service account's client secret, with --client-id.
+  --verbose                  Show the request and the response headers on standard error.
+  --wait                     Wait for a long-running operation to end and exit by its outcome; a command 
+                             whose answer is already the outcome ignores it.
+  --timeout <duration>       How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                             then exits 3.
 
 ---
 ## vion integrator edge-gateway-simulation
@@ -10504,6 +11002,134 @@ Options:
                             answer is already the outcome ignores it.
   --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                             then exits 3.
+
+---
+## vion integrator certificate
+Description:
+  The certificate operations.
+
+Usage:
+  vion integrator certificate [command] [options]
+
+Options:
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+  --wait                    Wait for a long-running operation to end and exit by its outcome; a command whose 
+                            answer is already the outcome ignores it.
+  --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                            then exits 3.
+
+Commands:
+  watch  The validity of a gateway's certificate, published each time the gateway reports it.
+
+---
+## vion integrator certificate watch
+Description:
+  The validity of a gateway's certificate, published each time the gateway reports it.
+
+Usage:
+  vion integrator certificate watch [options]
+
+Options:
+  --edge-gateway-id <value>  The edge gateway's id.
+  -?, -h, --help             Show help and usage information
+  --env <name>               The environment: production, test, or one defined with `context use`.
+  --integrator <id>          The integrator id, filling {integratorId} for this call.
+  --tenant <id>              The tenant id, filling {tenantId} for this call.
+  --project <id>             The project id, filling projectId for this call.
+  --platform <id>            The platform id, filling {platformId} for this call.
+  --json                     Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>           Keep only these members, comma-separated, dotted for a nested one.
+  --yes                      Confirm an irreversible operation without asking.
+  --dry-run                  Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>    The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>       The version to send as If-Match on a versioned update.
+  --token <->                Read the bearer token from standard input: `--token -`.
+  --client-id <id>           A service account's client id, with --client-secret.
+  --client-secret <secret>   A service account's client secret, with --client-id.
+  --verbose                  Show the request and the response headers on standard error.
+  --wait                     Wait for a long-running operation to end and exit by its outcome; a command 
+                             whose answer is already the outcome ignores it.
+  --timeout <duration>       How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                             then exits 3.
+
+---
+## vion integrator commissioning
+Description:
+  The commissioning operations.
+
+Usage:
+  vion integrator commissioning [command] [options]
+
+Options:
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+  --wait                    Wait for a long-running operation to end and exit by its outcome; a command whose 
+                            answer is already the outcome ignores it.
+  --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                            then exits 3.
+
+Commands:
+  watch  The commissioning of a gateway, published each time its status changes.
+
+---
+## vion integrator commissioning watch
+Description:
+  The commissioning of a gateway, published each time its status changes.
+
+Usage:
+  vion integrator commissioning watch [options]
+
+Options:
+  --edge-gateway-id <value>  The edge gateway's id.
+  -?, -h, --help             Show help and usage information
+  --env <name>               The environment: production, test, or one defined with `context use`.
+  --integrator <id>          The integrator id, filling {integratorId} for this call.
+  --tenant <id>              The tenant id, filling {tenantId} for this call.
+  --project <id>             The project id, filling projectId for this call.
+  --platform <id>            The platform id, filling {platformId} for this call.
+  --json                     Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>           Keep only these members, comma-separated, dotted for a nested one.
+  --yes                      Confirm an irreversible operation without asking.
+  --dry-run                  Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>    The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>       The version to send as If-Match on a versioned update.
+  --token <->                Read the bearer token from standard input: `--token -`.
+  --client-id <id>           A service account's client id, with --client-secret.
+  --client-secret <secret>   A service account's client secret, with --client-id.
+  --verbose                  Show the request and the response headers on standard error.
+  --wait                     Wait for a long-running operation to end and exit by its outcome; a command 
+                             whose answer is already the outcome ignores it.
+  --timeout <duration>       How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                             then exits 3.
 
 ---
 ## vion platform
@@ -13314,6 +13940,8 @@ Commands:
   mark-read  Marks the caller's notifications read: the ones named, or every one, optionally of one context 
              only. Repeatable: a notification already read keeps its time, and an id that is not the caller's 
              changes nothing.
+  watch      A nudge that the person's notifications changed, published once a notification for them is 
+             stored; it carries no notification.
 
 ---
 ## vion me notification list
@@ -13425,6 +14053,37 @@ Options:
                                whose answer is already the outcome ignores it.
   --timeout <duration>         How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                                then exits 3.
+
+---
+## vion me notification watch
+Description:
+  A nudge that the person's notifications changed, published once a notification for them is stored; it 
+  carries no notification.
+
+Usage:
+  vion me notification watch [options]
+
+Options:
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+  --wait                    Wait for a long-running operation to end and exit by its outcome; a command whose 
+                            answer is already the outcome ignores it.
+  --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                            then exits 3.
 
 ---
 ## vion me long-running-operation
@@ -13984,6 +14643,8 @@ Arguments:
 Options:
   --api-url <url>           Define the environment named by --env: its API URL.
   --auth-url <realm url>    Define the environment named by --env: its realm URL.
+  --broker-url <url>        Define the environment named by --env: its broker's wss:// URL, which a watch 
+                            needs.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.

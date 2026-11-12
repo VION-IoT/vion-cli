@@ -22,6 +22,7 @@
     <ItemGroup>
         <!-- The real snapshot and the synthetic documents the derive tests read, beside the binaries. -->
         <None Include="..\openapi\v1.json" Link="Fixtures\v1.json" CopyToOutputDirectory="PreserveNewest"/>
+        <None Include="..\asyncapi\v1.json" Link="Fixtures\asyncapi-v1.json" CopyToOutputDirectory="PreserveNewest"/>
         <None Include="Fixtures\*.json" CopyToOutputDirectory="PreserveNewest"/>
     </ItemGroup>
 

@@ -73,9 +73,11 @@ jobs:
         with:
           base: ${{ github.base_ref || 'main' }}
 
-  # The committed Vion.Cli/Derived/Operations.g.cs and docs/snapshots/help.txt are what openapi/v1.json
-  # and cli.json derive to. The script regenerates both and fails on any diff, so a hand edit, a stale
-  # table after a snapshot pull, or a cli.json entry the document lacks reddens the pull request.
+  # The committed Vion.Cli/Derived/Operations.g.cs, Vion.Cli/Derived/Channels.g.cs and
+  # docs/snapshots/help.txt are what openapi/v1.json, asyncapi/v1.json (the event document, pulled by
+  # scripts/asyncapi-pull.ps1) and cli.json derive to. The script regenerates all three and fails on
+  # any diff, so a hand edit, a stale table after a pull of either document, a cli.json entry the
+  # OpenAPI document lacks, or a channel naming an operation it lacks reddens the pull request.
   derive:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest

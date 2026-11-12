@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Time.Testing;
+using Vion.Cli.Bus;
 using Vion.Cli.Derived;
 using Vion.Cli.Infrastructure;
 
@@ -55,7 +56,9 @@ namespace Vion.Cli.Test.TestHelpers
                                                   Func<Uri, bool>? openBrowser = null,
                                                   bool errorTerminal = false,
                                                   string version = "0.0.0-test",
-                                                  System.Threading.CancellationToken cancellationToken = default)
+                                                  System.Threading.CancellationToken cancellationToken = default,
+                                                  IBroker? broker = null,
+                                                  IReadOnlyList<Channel>? channels = null)
         {
             var output = new StringWriter();
             var error = new StringWriter();
@@ -68,8 +71,9 @@ namespace Vion.Cli.Test.TestHelpers
                                            time ?? new FakeTimeProvider(),
                                            new FakeConsoleShape(inputTerminal, errorTerminal),
                                            openBrowser ?? (_ => true),
-                                           version);
-            var exitCode = await VionCli.RunAsync(args, services, operations, cancellationToken);
+                                           version,
+                                           broker ?? new RecordingBroker());
+            var exitCode = await VionCli.RunAsync(args, services, operations, channels, cancellationToken);
             return new CliRun(exitCode, output.ToString(), error.ToString());
         }
 

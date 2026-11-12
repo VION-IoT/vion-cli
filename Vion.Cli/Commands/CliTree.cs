@@ -30,8 +30,20 @@ namespace Vion.Cli.Commands
 
         public VersionOption Version { get; }
 
-        private CliTree(Command root, GlobalOptions globals, BodyOptions body, HelpOption help, VersionOption version)
+        /// <summary>The operations the tree was built from: what a command that calls another operation looks it up in.</summary>
+        public IReadOnlyList<Operation> Operations { get; }
+
+        /// <summary>The watch commands, which take `--timeout` on its own where every other command takes it beside `--wait`.</summary>
+        public HashSet<Command> Watches { get; } = [];
+
+        private CliTree(Command root,
+                        GlobalOptions globals,
+                        BodyOptions body,
+                        HelpOption help,
+                        VersionOption version,
+                        IReadOnlyList<Operation> operations)
         {
+            Operations = operations;
             Root = root;
             Globals = globals;
             Body = body;
@@ -39,7 +51,7 @@ namespace Vion.Cli.Commands
             Version = version;
         }
 
-        public static CliTree Build(CliServices services, IReadOnlyList<Operation>? operations = null)
+        public static CliTree Build(CliServices services, IReadOnlyList<Operation>? operations = null, IReadOnlyList<Channel>? channels = null)
         {
             var globals = new GlobalOptions();
             var body = new BodyOptions();
@@ -56,8 +68,14 @@ namespace Vion.Cli.Commands
                 root.Options.Add(option);
             }
 
-            var tree = new CliTree(root, globals, body, help, version);
-            DerivedCommands.AddTo(tree, services, operations ?? Operations.All);
+            var tree = new CliTree(root,
+                                   globals,
+                                   body,
+                                   help,
+                                   version,
+                                   operations ?? Derived.Operations.All);
+            DerivedCommands.AddTo(tree, services, tree.Operations);
+            WatchCommands.AddTo(tree, services, channels ?? Channels.All);
             root.Subcommands.Add(AuthCommands.Create(tree, services));
             root.Subcommands.Add(ContextCommands.Create(tree, services));
             root.Subcommands.Add(WhoamiCommand.Create(tree, services));

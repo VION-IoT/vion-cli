@@ -151,6 +151,30 @@ namespace Vion.Cli.Test.Commands
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-005.1")]
+        public async Task KeepBrokerUrlOfCustomEnvironment()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(200);
+            using var home = new TemporaryHome();
+            string[] args =
+            [
+                "context", "use", "--env", "acme", "--api-url", "https://api.example.test", "--auth-url", "https://auth.example.test/realms/vion", "--broker-url",
+                "wss://broker.example.test/ws",
+            ];
+
+            // Act
+            var defined = await Tool.RunAsync(handler, args, home: home.Root);
+            var shown = await Tool.RunAsync(handler, ["context", "show", "--json"], home: home.Root);
+
+            // Assert
+            Assert.AreEqual(0, defined.ExitCode, defined.Error);
+            Assert.AreEqual("wss://broker.example.test/ws",
+                            JsonNode.Parse(File.ReadAllText(Path.Combine(home.Root, "config.json")))!["environments"]!["acme"]!["brokerUrl"]!.GetValue<string>());
+            Assert.AreEqual("wss://broker.example.test/ws", JsonNode.Parse(shown.Out)!["brokerUrl"]!.GetValue<string>());
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-005.1")]
         [DataRow("context",
                  "use",
                  "--env",
