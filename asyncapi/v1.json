@@ -1,0 +1,2317 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "title": "Cloud API message bus",
+    "version": "v1",
+    "description": "Every channel a client of the platform subscribes to or registers on the broker. A row of the REST document hands out the topic of a channel in its meta.topics, keyed by the channel's id."
+  },
+  "defaultContentType": "application/json",
+  "servers": {
+    "test": {
+      "host": "ws.test.vion.swiss",
+      "pathname": "/ws",
+      "protocol": "mqtt",
+      "protocolVersion": "5",
+      "description": "MQTT 5 over secure WebSockets at wss://ws.test.vion.swiss/ws.",
+      "security": [
+        {
+          "$ref": "#/components/securitySchemes/brokerToken"
+        }
+      ]
+    }
+  },
+  "channels": {
+    "integrator.certificate.state": {
+      "address": "v1/test/integrator/{integratorId}/{edgeGatewayId}/certificate/state",
+      "description": "The validity of a gateway's certificate, published each time the gateway reports it.",
+      "parameters": {
+        "integratorId": {
+          "description": "The integrator's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "CertificateStateUpdate": {
+          "$ref": "#/components/messages/CertificateStateUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "IntegratorEdgeGatewayOutput",
+          "key": "integrator.certificate.state",
+          "operation": "integrator.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "integratorId",
+              "operationParameter": "integratorId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        },
+        {
+          "schema": "MeIntegratorMembershipOutput",
+          "key": "integrator.certificate.state",
+          "operation": "me.identity.get",
+          "row": "integratorMemberships[]",
+          "join": [
+            {
+              "channelParameter": "integratorId",
+              "member": "integratorMemberships[].integratorId"
+            }
+          ],
+          "wildcards": [
+            "edgeGatewayId"
+          ]
+        }
+      ]
+    },
+    "integrator.certificateRequest.state": {
+      "address": "v1/test/integrator/{integratorId}/{edgeGatewayId}/certificateRenewal/state",
+      "description": "A gateway's certificate renewal request, published each time its status changes.",
+      "parameters": {
+        "integratorId": {
+          "description": "The integrator's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "CertificateRenewalStatusUpdate": {
+          "$ref": "#/components/messages/CertificateRenewalStatusUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "IntegratorEdgeGatewayOutput",
+          "key": "integrator.certificateRequest.state",
+          "operation": "integrator.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "integratorId",
+              "operationParameter": "integratorId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        },
+        {
+          "schema": "MeIntegratorMembershipOutput",
+          "key": "integrator.certificateRequest.state",
+          "operation": "me.identity.get",
+          "row": "integratorMemberships[]",
+          "join": [
+            {
+              "channelParameter": "integratorId",
+              "member": "integratorMemberships[].integratorId"
+            }
+          ],
+          "wildcards": [
+            "edgeGatewayId"
+          ]
+        }
+      ]
+    },
+    "integrator.commissioning.state": {
+      "address": "v1/test/integrator/{integratorId}/{edgeGatewayId}/commissioning/state",
+      "description": "The commissioning of a gateway, published each time its status changes.",
+      "parameters": {
+        "integratorId": {
+          "description": "The integrator's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "CommissioningStatusUpdate": {
+          "$ref": "#/components/messages/CommissioningStatusUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "IntegratorEdgeGatewayOutput",
+          "key": "integrator.commissioning.state",
+          "operation": "integrator.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "integratorId",
+              "operationParameter": "integratorId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        },
+        {
+          "schema": "MeIntegratorMembershipOutput",
+          "key": "integrator.commissioning.state",
+          "operation": "me.identity.get",
+          "row": "integratorMemberships[]",
+          "join": [
+            {
+              "channelParameter": "integratorId",
+              "member": "integratorMemberships[].integratorId"
+            }
+          ],
+          "wildcards": [
+            "edgeGatewayId"
+          ]
+        }
+      ]
+    },
+    "integrator.softwareDeployment.state": {
+      "address": "v1/test/integrator/{integratorId}/{edgeGatewayId}/deployment/state",
+      "description": "A software deployment to a gateway, published each time its status changes.",
+      "parameters": {
+        "integratorId": {
+          "description": "The integrator's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "DeploymentStatusUpdate": {
+          "$ref": "#/components/messages/DeploymentStatusUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "IntegratorEdgeGatewayOutput",
+          "key": "integrator.softwareDeployment.state",
+          "operation": "integrator.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "integratorId",
+              "operationParameter": "integratorId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        },
+        {
+          "schema": "MeIntegratorMembershipOutput",
+          "key": "integrator.softwareDeployment.state",
+          "operation": "me.identity.get",
+          "row": "integratorMemberships[]",
+          "join": [
+            {
+              "channelParameter": "integratorId",
+              "member": "integratorMemberships[].integratorId"
+            }
+          ],
+          "wildcards": [
+            "edgeGatewayId"
+          ]
+        }
+      ]
+    },
+    "integrator.supportGrant.state": {
+      "address": "v1/test/integrator/{integratorId}/{edgeGatewayId}/supportAccess/grant/state",
+      "description": "A support access grant the integrator requested, published each time its status changes.",
+      "parameters": {
+        "integratorId": {
+          "description": "The integrator's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "SupportAccessGrantStatusUpdate": {
+          "$ref": "#/components/messages/SupportAccessGrantStatusUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "IntegratorEdgeGatewayOutput",
+          "key": "integrator.supportGrant.state",
+          "operation": "integrator.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "integratorId",
+              "operationParameter": "integratorId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        },
+        {
+          "schema": "MeIntegratorMembershipOutput",
+          "key": "integrator.supportGrant.state",
+          "operation": "me.identity.get",
+          "row": "integratorMemberships[]",
+          "join": [
+            {
+              "channelParameter": "integratorId",
+              "member": "integratorMemberships[].integratorId"
+            }
+          ],
+          "wildcards": [
+            "edgeGatewayId"
+          ]
+        }
+      ]
+    },
+    "integrator.supportSession.state": {
+      "address": "v1/test/integrator/{integratorId}/{edgeGatewayId}/supportAccess/session/state",
+      "description": "A support session of the integrator, published each time its status changes.",
+      "parameters": {
+        "integratorId": {
+          "description": "The integrator's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "RemoteAccessSessionStatusUpdate": {
+          "$ref": "#/components/messages/RemoteAccessSessionStatusUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "IntegratorEdgeGatewayOutput",
+          "key": "integrator.supportSession.state",
+          "operation": "integrator.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "integratorId",
+              "operationParameter": "integratorId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        },
+        {
+          "schema": "MeIntegratorMembershipOutput",
+          "key": "integrator.supportSession.state",
+          "operation": "me.identity.get",
+          "row": "integratorMemberships[]",
+          "join": [
+            {
+              "channelParameter": "integratorId",
+              "member": "integratorMemberships[].integratorId"
+            }
+          ],
+          "wildcards": [
+            "edgeGatewayId"
+          ]
+        }
+      ]
+    },
+    "integrator.systemHealth.state": {
+      "address": "v1/test/integrator/{integratorId}/{edgeGatewayId}/system/health/state",
+      "description": "The health of a gateway and its components, published each time the gateway reports it.",
+      "parameters": {
+        "integratorId": {
+          "description": "The integrator's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "SystemHealthStatusUpdate": {
+          "$ref": "#/components/messages/SystemHealthStatusUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "IntegratorEdgeGatewayOutput",
+          "key": "integrator.systemHealth.state",
+          "operation": "integrator.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "integratorId",
+              "operationParameter": "integratorId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        },
+        {
+          "schema": "MeIntegratorMembershipOutput",
+          "key": "integrator.systemHealth.state",
+          "operation": "me.identity.get",
+          "row": "integratorMemberships[]",
+          "join": [
+            {
+              "channelParameter": "integratorId",
+              "member": "integratorMemberships[].integratorId"
+            }
+          ],
+          "wildcards": [
+            "edgeGatewayId"
+          ]
+        }
+      ]
+    },
+    "me.lastWill.event": {
+      "address": "cloud/subscriber/lastWill/{identityProviderUserId}/{subscriberId}",
+      "description": "The subscriber's will. A client registers it at CONNECT and publishes it, empty, before a clean disconnect; it ends the subscriber's registrations.",
+      "parameters": {
+        "identityProviderUserId": {
+          "description": "The person's or service account's id in the identity provider, which is also its broker username."
+        },
+        "subscriberId": {
+          "description": "The subscriber id me.subscriber.create answered."
+        }
+      },
+      "messages": {
+        "LastWill": {
+          "$ref": "#/components/messages/LastWill"
+        }
+      }
+    },
+    "me.notification.event": {
+      "address": "v1/test/user/{identityProviderUserId}/notifications",
+      "description": "A nudge that the person's notifications changed, published once a notification for them is stored; it carries no notification.",
+      "parameters": {
+        "identityProviderUserId": {
+          "description": "The person's or service account's id in the identity provider, which is also its broker username."
+        }
+      },
+      "messages": {
+        "NotificationNudge": {
+          "$ref": "#/components/messages/NotificationNudge"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "MeUserOutput",
+          "key": "me.notification.event",
+          "operation": "me.identity.get",
+          "row": "user",
+          "join": [
+            {
+              "channelParameter": "identityProviderUserId",
+              "member": "user.identityProviderUserId"
+            }
+          ]
+        }
+      ]
+    },
+    "tenant.alert.state": {
+      "address": "v1/test/tenant/{tenantId}/{edgeGatewayId}/alerts/{alertRuleId}/state",
+      "description": "An alert of an alert rule, published when it is raised and when it is resolved.",
+      "parameters": {
+        "tenantId": {
+          "description": "The tenant's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        },
+        "alertRuleId": {
+          "description": "The alert rule's id."
+        }
+      },
+      "messages": {
+        "AlertStatusUpdate": {
+          "$ref": "#/components/messages/AlertStatusUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "TenantEdgeGatewayOutput",
+          "key": "tenant.alert.state",
+          "operation": "tenant.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "tenantId",
+              "operationParameter": "tenantId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ],
+          "wildcards": [
+            "alertRuleId"
+          ]
+        },
+        {
+          "schema": "AlertRuleOutput",
+          "key": "tenant.alert.state",
+          "operation": "tenant.alertRule.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "tenantId",
+              "operationParameter": "tenantId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].edgeGatewayId"
+            }
+          ],
+          "wildcards": [
+            "alertRuleId"
+          ]
+        }
+      ]
+    },
+    "tenant.consoleSession.state": {
+      "address": "v1/test/tenant/{tenantId}/{edgeGatewayId}/remoteAccess/console/session/state",
+      "description": "A console remote access session on the gateway, published each time its status changes.",
+      "parameters": {
+        "tenantId": {
+          "description": "The tenant's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "RemoteAccessSessionStatusUpdate": {
+          "$ref": "#/components/messages/RemoteAccessSessionStatusUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "TenantEdgeGatewayOutput",
+          "key": "tenant.consoleSession.state",
+          "operation": "tenant.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "tenantId",
+              "operationParameter": "tenantId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        }
+      ]
+    },
+    "tenant.logLevel.state": {
+      "address": "v1/test/tenant/{tenantId}/{edgeGatewayId}/system/logLevel/state",
+      "description": "The log level of a component of the gateway, published each time the gateway reports it.",
+      "parameters": {
+        "tenantId": {
+          "description": "The tenant's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "LogLevelStateUpdate": {
+          "$ref": "#/components/messages/LogLevelStateUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "TenantEdgeGatewayOutput",
+          "key": "tenant.logLevel.state",
+          "operation": "tenant.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "tenantId",
+              "operationParameter": "tenantId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        }
+      ]
+    },
+    "tenant.serviceProperty.state": {
+      "address": "v1/test/{tenantId}/{edgeGatewayId}/{serviceProviderIdentifier}/{serviceIdentifier}/cloud/sw/properties/state",
+      "description": "The values of a service's properties, published by the gateway to the subscribers registered for them: the current values on registration, then each change.",
+      "parameters": {
+        "tenantId": {
+          "description": "The tenant's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        },
+        "serviceProviderIdentifier": {
+          "description": "The identifier of the service provider that declares the service."
+        },
+        "serviceIdentifier": {
+          "description": "The service's identifier, unique within its service provider."
+        }
+      },
+      "messages": {
+        "PropertiesStatePayload": {
+          "$ref": "#/components/messages/PropertiesStatePayload"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "ServiceOutput",
+          "key": "tenant.serviceProperty.state",
+          "operation": "tenant.service.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "tenantId",
+              "operationParameter": "tenantId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].edgeGatewayId"
+            },
+            {
+              "channelParameter": "serviceProviderIdentifier",
+              "member": "items[].serviceProviderIdentifier"
+            },
+            {
+              "channelParameter": "serviceIdentifier",
+              "member": "items[].identifier"
+            }
+          ]
+        }
+      ],
+      "x-vion-registeredBy": {
+        "operation": "tenant.serviceProperty.subscribe",
+        "subscriberId": "subscriberId",
+        "fill": [
+          {
+            "channelParameter": "tenantId",
+            "operationParameter": "tenantId"
+          },
+          {
+            "channelParameter": "edgeGatewayId",
+            "bodyMember": "properties[].edgeGatewayId"
+          },
+          {
+            "channelParameter": "serviceProviderIdentifier",
+            "bodyMember": "properties[].serviceProviderIdentifier"
+          },
+          {
+            "channelParameter": "serviceIdentifier",
+            "bodyMember": "properties[].serviceIdentifier"
+          },
+          {
+            "rowMember": "items[].properties[].identifier",
+            "bodyMember": "properties[].propertyIdentifier"
+          }
+        ]
+      }
+    },
+    "tenant.supportGrant.state": {
+      "address": "v1/test/tenant/{tenantId}/{edgeGatewayId}/supportAccess/grant/state",
+      "description": "A support access grant of the gateway, published each time its status changes.",
+      "parameters": {
+        "tenantId": {
+          "description": "The tenant's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "SupportAccessGrantStatusUpdate": {
+          "$ref": "#/components/messages/SupportAccessGrantStatusUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "TenantEdgeGatewayOutput",
+          "key": "tenant.supportGrant.state",
+          "operation": "tenant.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "tenantId",
+              "operationParameter": "tenantId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        }
+      ]
+    },
+    "tenant.supportSession.state": {
+      "address": "v1/test/tenant/{tenantId}/{edgeGatewayId}/supportAccess/session/state",
+      "description": "A support session on the gateway, published each time its status changes.",
+      "parameters": {
+        "tenantId": {
+          "description": "The tenant's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "RemoteAccessSessionStatusUpdate": {
+          "$ref": "#/components/messages/RemoteAccessSessionStatusUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "TenantEdgeGatewayOutput",
+          "key": "tenant.supportSession.state",
+          "operation": "tenant.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "tenantId",
+              "operationParameter": "tenantId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        }
+      ]
+    },
+    "tenant.syncStatus.state": {
+      "address": "v1/test/tenant/{tenantId}/{edgeGatewayId}/syncStatus/state",
+      "description": "How far the gateway has applied what was sent to it, published each time a sync status changes.",
+      "parameters": {
+        "tenantId": {
+          "description": "The tenant's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "SyncStatusUpdate": {
+          "$ref": "#/components/messages/SyncStatusUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "TenantEdgeGatewayOutput",
+          "key": "tenant.syncStatus.state",
+          "operation": "tenant.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "tenantId",
+              "operationParameter": "tenantId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        }
+      ]
+    },
+    "tenant.systemEvent.event": {
+      "address": "v1/test/tenant/{tenantId}/{edgeGatewayId}/system/event",
+      "description": "A system event of the gateway, published as the gateway reports it.",
+      "parameters": {
+        "tenantId": {
+          "description": "The tenant's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "SystemEventUpdate": {
+          "$ref": "#/components/messages/SystemEventUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "TenantEdgeGatewayOutput",
+          "key": "tenant.systemEvent.event",
+          "operation": "tenant.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "tenantId",
+              "operationParameter": "tenantId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        }
+      ]
+    },
+    "tenant.systemHealth.state": {
+      "address": "v1/test/tenant/{tenantId}/{edgeGatewayId}/system/health/state",
+      "description": "The health of a gateway and its components, published each time the gateway reports it.",
+      "parameters": {
+        "tenantId": {
+          "description": "The tenant's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "SystemHealthStatusUpdate": {
+          "$ref": "#/components/messages/SystemHealthStatusUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "TenantEdgeGatewayOutput",
+          "key": "tenant.systemHealth.state",
+          "operation": "tenant.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "tenantId",
+              "operationParameter": "tenantId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        }
+      ]
+    },
+    "tenant.vpnSession.state": {
+      "address": "v1/test/tenant/{tenantId}/{edgeGatewayId}/remoteAccess/vpn/session/state",
+      "description": "A VPN remote access session on the gateway, published each time its status changes.",
+      "parameters": {
+        "tenantId": {
+          "description": "The tenant's id."
+        },
+        "edgeGatewayId": {
+          "description": "The edge gateway's id."
+        }
+      },
+      "messages": {
+        "RemoteAccessSessionStatusUpdate": {
+          "$ref": "#/components/messages/RemoteAccessSessionStatusUpdate"
+        }
+      },
+      "x-vion-handedOutBy": [
+        {
+          "schema": "TenantEdgeGatewayOutput",
+          "key": "tenant.vpnSession.state",
+          "operation": "tenant.edgeGateway.list",
+          "row": "items[]",
+          "join": [
+            {
+              "channelParameter": "tenantId",
+              "operationParameter": "tenantId"
+            },
+            {
+              "channelParameter": "edgeGatewayId",
+              "member": "items[].id"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "operations": {
+    "integrator.certificate.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/integrator.certificate.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/integrator.certificate.state/messages/CertificateStateUpdate"
+        }
+      ]
+    },
+    "integrator.certificateRequest.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/integrator.certificateRequest.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/integrator.certificateRequest.state/messages/CertificateRenewalStatusUpdate"
+        }
+      ]
+    },
+    "integrator.commissioning.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/integrator.commissioning.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/integrator.commissioning.state/messages/CommissioningStatusUpdate"
+        }
+      ]
+    },
+    "integrator.softwareDeployment.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/integrator.softwareDeployment.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/integrator.softwareDeployment.state/messages/DeploymentStatusUpdate"
+        }
+      ]
+    },
+    "integrator.supportGrant.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/integrator.supportGrant.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/integrator.supportGrant.state/messages/SupportAccessGrantStatusUpdate"
+        }
+      ]
+    },
+    "integrator.supportSession.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/integrator.supportSession.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/integrator.supportSession.state/messages/RemoteAccessSessionStatusUpdate"
+        }
+      ]
+    },
+    "integrator.systemHealth.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/integrator.systemHealth.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/integrator.systemHealth.state/messages/SystemHealthStatusUpdate"
+        }
+      ]
+    },
+    "me.lastWill.event": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/me.lastWill.event"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/me.lastWill.event/messages/LastWill"
+        }
+      ]
+    },
+    "me.notification.event": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/me.notification.event"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/me.notification.event/messages/NotificationNudge"
+        }
+      ]
+    },
+    "tenant.alert.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/tenant.alert.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/tenant.alert.state/messages/AlertStatusUpdate"
+        }
+      ]
+    },
+    "tenant.consoleSession.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/tenant.consoleSession.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/tenant.consoleSession.state/messages/RemoteAccessSessionStatusUpdate"
+        }
+      ]
+    },
+    "tenant.logLevel.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/tenant.logLevel.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/tenant.logLevel.state/messages/LogLevelStateUpdate"
+        }
+      ]
+    },
+    "tenant.serviceProperty.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/tenant.serviceProperty.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/tenant.serviceProperty.state/messages/PropertiesStatePayload"
+        }
+      ]
+    },
+    "tenant.supportGrant.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/tenant.supportGrant.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/tenant.supportGrant.state/messages/SupportAccessGrantStatusUpdate"
+        }
+      ]
+    },
+    "tenant.supportSession.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/tenant.supportSession.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/tenant.supportSession.state/messages/RemoteAccessSessionStatusUpdate"
+        }
+      ]
+    },
+    "tenant.syncStatus.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/tenant.syncStatus.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/tenant.syncStatus.state/messages/SyncStatusUpdate"
+        }
+      ]
+    },
+    "tenant.systemEvent.event": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/tenant.systemEvent.event"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/tenant.systemEvent.event/messages/SystemEventUpdate"
+        }
+      ]
+    },
+    "tenant.systemHealth.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/tenant.systemHealth.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/tenant.systemHealth.state/messages/SystemHealthStatusUpdate"
+        }
+      ]
+    },
+    "tenant.vpnSession.state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/tenant.vpnSession.state"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/tenant.vpnSession.state/messages/RemoteAccessSessionStatusUpdate"
+        }
+      ]
+    }
+  },
+  "components": {
+    "schemas": {
+      "AlertStatusUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "edgeGatewayId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "raisedDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resolvedDateTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "alertRuleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "severity": {
+            "$ref": "#/components/schemas/SeverityLevel"
+          },
+          "expression": {
+            "type": "string"
+          },
+          "expressionParameters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParameterConfigDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "tenantId",
+          "projectId",
+          "edgeGatewayId",
+          "raisedDateTime",
+          "resolvedDateTime",
+          "alertRuleId",
+          "name",
+          "description",
+          "severity",
+          "expression",
+          "expressionParameters"
+        ]
+      },
+      "CertificateRenewalRequestStatus": {
+        "enum": [
+          "Pending",
+          "Approved",
+          "Denied",
+          "Completed"
+        ]
+      },
+      "CertificateRenewalStatusUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "edgeGatewayId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "integratorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CertificateRenewalRequestStatus"
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastPingAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "processedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "processingReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "edgeGatewayId",
+          "integratorId",
+          "status",
+          "requestedAt",
+          "lastPingAt",
+          "processedAt",
+          "processingReason",
+          "occurredAt"
+        ]
+      },
+      "CertificateStateUpdate": {
+        "type": "object",
+        "properties": {
+          "integratorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "edgeGatewayId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "notBefore": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notAfter": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "integratorId",
+          "edgeGatewayId",
+          "notBefore",
+          "notAfter",
+          "occurredAt"
+        ]
+      },
+      "CommissioningStatus": {
+        "enum": [
+          "IdentifierApprovedByIntegrator",
+          "DeviceRequestedCertificateSuccessfully",
+          "AcceptedInMender",
+          "Ready",
+          "TimedOut",
+          "Failed"
+        ]
+      },
+      "CommissioningStatusUpdate": {
+        "type": "object",
+        "properties": {
+          "commissioningRequestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "edgeGatewayId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "integratorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deviceIdentifier": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CommissioningStatus"
+          },
+          "deviceType": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "failureReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "commissioningRequestId",
+          "edgeGatewayId",
+          "integratorId",
+          "deviceIdentifier",
+          "status",
+          "deviceType",
+          "failureReason",
+          "occurredAt"
+        ]
+      },
+      "ConnectionStatus": {
+        "enum": [
+          "Unknown",
+          "Offline",
+          "Online"
+        ]
+      },
+      "DeploymentStatusUpdate": {
+        "type": "object",
+        "properties": {
+          "integratorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "edgeGatewayId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deviceIdentifier": {
+            "type": "string"
+          },
+          "deploymentId": {
+            "type": "string"
+          },
+          "artifactName": {
+            "type": "string"
+          },
+          "deviceStatus": {
+            "type": "string"
+          },
+          "deploymentStatusValue": {
+            "type": "string"
+          },
+          "finished": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "integratorId",
+          "edgeGatewayId",
+          "deviceIdentifier",
+          "deploymentId",
+          "artifactName",
+          "deviceStatus",
+          "deploymentStatusValue",
+          "finished",
+          "occurredAt"
+        ]
+      },
+      "EventsSyncStatus": {
+        "enum": [
+          "Pending",
+          "InProgress",
+          "Completed",
+          "Failed"
+        ]
+      },
+      "HealthStatus": {
+        "enum": [
+          "Unknown",
+          "Unhealthy",
+          "Healthy"
+        ]
+      },
+      "LogLevel": {
+        "enum": [
+          "Trace",
+          "Debug",
+          "Information",
+          "Warning",
+          "Error",
+          "Critical",
+          "None"
+        ]
+      },
+      "LogLevelStateUpdate": {
+        "type": "object",
+        "properties": {
+          "edgeGatewayId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "component": {
+            "type": "string"
+          },
+          "logLevel": {
+            "$ref": "#/components/schemas/LogLevel"
+          },
+          "lastUpdatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "edgeGatewayId",
+          "component",
+          "logLevel",
+          "lastUpdatedAt"
+        ]
+      },
+      "MeshToCloud.PropertiesStatePayload": {
+        "type": "object",
+        "properties": {
+          "propertiesState": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MeshToCloud.PropertyState"
+            }
+          }
+        }
+      },
+      "MeshToCloud.PropertyState": {
+        "type": "object",
+        "properties": {
+          "propertyIdentifier": {
+            "type": "string"
+          },
+          "value": {
+            "x-vion-valueSchema": {
+              "operation": "tenant.service.list",
+              "member": "items[].properties[].schema",
+              "channel": "tenant.serviceProperty.state",
+              "join": [
+                {
+                  "channelParameter": "tenantId",
+                  "operationParameter": "tenantId"
+                },
+                {
+                  "channelParameter": "edgeGatewayId",
+                  "member": "items[].edgeGatewayId"
+                },
+                {
+                  "channelParameter": "serviceProviderIdentifier",
+                  "member": "items[].serviceProviderIdentifier"
+                },
+                {
+                  "channelParameter": "serviceIdentifier",
+                  "member": "items[].identifier"
+                },
+                {
+                  "payloadMember": "propertyIdentifier",
+                  "member": "items[].properties[].identifier"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "NotificationNudge": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "authDomain": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "authDomainRootScopeId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "interrupt": {
+            "type": "boolean"
+          },
+          "invalidates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "authDomain",
+          "authDomainRootScopeId",
+          "type",
+          "category",
+          "interrupt",
+          "invalidates"
+        ]
+      },
+      "ParameterConfigDto": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/ParameterConfigDtoProperty"
+          },
+          {
+            "$ref": "#/components/schemas/ParameterConfigDtoMeasuringPoint"
+          }
+        ]
+      },
+      "ParameterConfigDtoMeasuringPoint": {
+        "properties": {
+          "type": {
+            "const": "MeasuringPoint"
+          },
+          "name": {
+            "type": "string"
+          },
+          "edgeGatewayId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serviceProviderIdentifier": {
+            "type": "string"
+          },
+          "serviceIdentifier": {
+            "type": "string"
+          },
+          "measuringPointIdentifier": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "name",
+          "edgeGatewayId",
+          "serviceProviderIdentifier",
+          "serviceIdentifier",
+          "measuringPointIdentifier"
+        ],
+        "type": "object"
+      },
+      "ParameterConfigDtoProperty": {
+        "properties": {
+          "type": {
+            "const": "Property"
+          },
+          "name": {
+            "type": "string"
+          },
+          "edgeGatewayId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serviceProviderIdentifier": {
+            "type": "string"
+          },
+          "serviceIdentifier": {
+            "type": "string"
+          },
+          "propertyIdentifier": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "name",
+          "edgeGatewayId",
+          "serviceProviderIdentifier",
+          "serviceIdentifier",
+          "propertyIdentifier"
+        ],
+        "type": "object"
+      },
+      "RemoteAccessProfile": {
+        "enum": [
+          "Vpn",
+          "Console",
+          "Twincat"
+        ]
+      },
+      "RemoteAccessRequesterKind": {
+        "enum": [
+          "TenantUser",
+          "VionSupport",
+          "Integrator"
+        ]
+      },
+      "RemoteAccessSessionStatus": {
+        "enum": [
+          "Requested",
+          "ProvisioningNetwork",
+          "AwaitingGateway",
+          "Active",
+          "Expired",
+          "Terminated",
+          "Failed"
+        ]
+      },
+      "RemoteAccessSessionStatusUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "edgeGatewayId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "additionalEdgeGatewayIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "profile": {
+            "$ref": "#/components/schemas/RemoteAccessProfile"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RemoteAccessSessionStatus"
+          },
+          "elevation": {
+            "$ref": "#/components/schemas/SupportAccessElevation"
+          },
+          "requesterKind": {
+            "$ref": "#/components/schemas/RemoteAccessRequesterKind"
+          },
+          "requestedByUserId": {
+            "type": "string"
+          },
+          "grantId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "activatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "endedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "failureReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "tenantId",
+          "edgeGatewayId",
+          "additionalEdgeGatewayIds",
+          "profile",
+          "status",
+          "elevation",
+          "requesterKind",
+          "requestedByUserId",
+          "grantId",
+          "requestedAt",
+          "expiresAtUtc",
+          "activatedAt",
+          "endedAt",
+          "failureReason"
+        ]
+      },
+      "SeverityLevel": {
+        "enum": [
+          "Critical",
+          "High",
+          "Medium",
+          "Low"
+        ]
+      },
+      "SupportAccessElevation": {
+        "enum": [
+          "None",
+          "Root"
+        ]
+      },
+      "SupportAccessGrantStatus": {
+        "enum": [
+          "Requested",
+          "Active",
+          "Denied",
+          "Revoked",
+          "Expired"
+        ]
+      },
+      "SupportAccessGrantStatusUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "granteeKind": {
+            "$ref": "#/components/schemas/SupportAccessGranteeKind"
+          },
+          "scopeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scopeType": {
+            "type": "string"
+          },
+          "profiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RemoteAccessProfile"
+            }
+          },
+          "elevation": {
+            "$ref": "#/components/schemas/SupportAccessElevation"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SupportAccessGrantStatus"
+          },
+          "validUntil": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "approvedBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "approvedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "deniedBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "deniedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "expiredAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "revokedBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "revokedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "tenantId",
+          "granteeKind",
+          "scopeId",
+          "scopeType",
+          "profiles",
+          "elevation",
+          "status",
+          "validUntil",
+          "createdBy",
+          "createdAt",
+          "approvedBy",
+          "approvedAt",
+          "deniedBy",
+          "deniedAt",
+          "expiredAt",
+          "revokedBy",
+          "revokedAt"
+        ]
+      },
+      "SupportAccessGranteeKind": {
+        "enum": [
+          "VionSupport",
+          "Integrator"
+        ]
+      },
+      "SyncStatusUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EventsSyncStatus"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "targetId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "objectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "objectType": {
+            "type": "string"
+          },
+          "action": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "feedback": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "tenantId",
+          "targetId",
+          "createdAt",
+          "updatedAt",
+          "objectId",
+          "objectType",
+          "action",
+          "feedback",
+          "receivedAt"
+        ]
+      },
+      "SystemEventUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "edgeGatewayId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "objectId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "correlationId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "systemEventType": {
+            "type": "string"
+          },
+          "systemEventSource": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string"
+          },
+          "data": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "tenantId",
+          "projectId",
+          "edgeGatewayId",
+          "dateTime",
+          "objectId",
+          "correlationId",
+          "systemEventType",
+          "systemEventSource",
+          "status",
+          "level",
+          "data",
+          "message"
+        ]
+      },
+      "SystemHealthEntityComponent": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "connectionStatus": {
+            "$ref": "#/components/schemas/ConnectionStatus"
+          },
+          "healthStatus": {
+            "$ref": "#/components/schemas/HealthStatus"
+          },
+          "since": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "subComponents": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/SystemHealthEntityComponent"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "connectionStatus",
+          "healthStatus",
+          "since",
+          "reason",
+          "subComponents"
+        ]
+      },
+      "SystemHealthStatusUpdate": {
+        "type": "object",
+        "properties": {
+          "integratorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "edgeGatewayId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SystemHealthEntityComponent"
+            }
+          }
+        },
+        "required": [
+          "integratorId",
+          "tenantId",
+          "projectId",
+          "edgeGatewayId",
+          "components"
+        ]
+      }
+    },
+    "messages": {
+      "AlertStatusUpdate": {
+        "name": "AlertStatusUpdate",
+        "contentType": "application/json",
+        "headers": {
+          "type": "object",
+          "required": [
+            "schema"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string",
+              "const": "AlertStatusUpdate",
+              "description": "The MQTT user property naming the payload's schema."
+            }
+          }
+        },
+        "payload": {
+          "$ref": "#/components/schemas/AlertStatusUpdate"
+        }
+      },
+      "CertificateRenewalStatusUpdate": {
+        "name": "CertificateRenewalStatusUpdate",
+        "contentType": "application/json",
+        "headers": {
+          "type": "object",
+          "required": [
+            "schema"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string",
+              "const": "CertificateRenewalStatusUpdate",
+              "description": "The MQTT user property naming the payload's schema."
+            }
+          }
+        },
+        "payload": {
+          "$ref": "#/components/schemas/CertificateRenewalStatusUpdate"
+        }
+      },
+      "CertificateStateUpdate": {
+        "name": "CertificateStateUpdate",
+        "contentType": "application/json",
+        "headers": {
+          "type": "object",
+          "required": [
+            "schema"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string",
+              "const": "CertificateStateUpdate",
+              "description": "The MQTT user property naming the payload's schema."
+            }
+          }
+        },
+        "payload": {
+          "$ref": "#/components/schemas/CertificateStateUpdate"
+        }
+      },
+      "CommissioningStatusUpdate": {
+        "name": "CommissioningStatusUpdate",
+        "contentType": "application/json",
+        "headers": {
+          "type": "object",
+          "required": [
+            "schema"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string",
+              "const": "CommissioningStatusUpdate",
+              "description": "The MQTT user property naming the payload's schema."
+            }
+          }
+        },
+        "payload": {
+          "$ref": "#/components/schemas/CommissioningStatusUpdate"
+        }
+      },
+      "DeploymentStatusUpdate": {
+        "name": "DeploymentStatusUpdate",
+        "contentType": "application/json",
+        "headers": {
+          "type": "object",
+          "required": [
+            "schema"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string",
+              "const": "DeploymentStatusUpdate",
+              "description": "The MQTT user property naming the payload's schema."
+            }
+          }
+        },
+        "payload": {
+          "$ref": "#/components/schemas/DeploymentStatusUpdate"
+        }
+      },
+      "LastWill": {
+        "name": "LastWill",
+        "summary": "The client's will, which the broker publishes empty when the client's connection ends without a clean disconnect.",
+        "description": "A client registers it as the will of its MQTT CONNECT and publishes it itself, empty, before a clean disconnect, which makes the broker discard the will."
+      },
+      "LogLevelStateUpdate": {
+        "name": "LogLevelStateUpdate",
+        "contentType": "application/json",
+        "headers": {
+          "type": "object",
+          "required": [
+            "schema"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string",
+              "const": "LogLevelStateUpdate",
+              "description": "The MQTT user property naming the payload's schema."
+            }
+          }
+        },
+        "payload": {
+          "$ref": "#/components/schemas/LogLevelStateUpdate"
+        }
+      },
+      "NotificationNudge": {
+        "name": "NotificationNudge",
+        "contentType": "application/json",
+        "headers": {
+          "type": "object",
+          "required": [
+            "schema"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string",
+              "const": "NotificationNudge",
+              "description": "The MQTT user property naming the payload's schema."
+            }
+          }
+        },
+        "payload": {
+          "$ref": "#/components/schemas/NotificationNudge"
+        }
+      },
+      "PropertiesStatePayload": {
+        "name": "PropertiesStatePayload",
+        "contentType": "application/json",
+        "headers": {
+          "type": "object",
+          "required": [
+            "schema"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string",
+              "const": "PropertiesStatePayload",
+              "description": "The MQTT user property naming the payload's schema."
+            }
+          }
+        },
+        "payload": {
+          "$ref": "#/components/schemas/MeshToCloud.PropertiesStatePayload"
+        }
+      },
+      "RemoteAccessSessionStatusUpdate": {
+        "name": "RemoteAccessSessionStatusUpdate",
+        "contentType": "application/json",
+        "headers": {
+          "type": "object",
+          "required": [
+            "schema"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string",
+              "const": "RemoteAccessSessionStatusUpdate",
+              "description": "The MQTT user property naming the payload's schema."
+            }
+          }
+        },
+        "payload": {
+          "$ref": "#/components/schemas/RemoteAccessSessionStatusUpdate"
+        }
+      },
+      "SupportAccessGrantStatusUpdate": {
+        "name": "SupportAccessGrantStatusUpdate",
+        "contentType": "application/json",
+        "headers": {
+          "type": "object",
+          "required": [
+            "schema"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string",
+              "const": "SupportAccessGrantStatusUpdate",
+              "description": "The MQTT user property naming the payload's schema."
+            }
+          }
+        },
+        "payload": {
+          "$ref": "#/components/schemas/SupportAccessGrantStatusUpdate"
+        }
+      },
+      "SyncStatusUpdate": {
+        "name": "SyncStatusUpdate",
+        "contentType": "application/json",
+        "headers": {
+          "type": "object",
+          "required": [
+            "schema"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string",
+              "const": "SyncStatusUpdate",
+              "description": "The MQTT user property naming the payload's schema."
+            }
+          }
+        },
+        "payload": {
+          "$ref": "#/components/schemas/SyncStatusUpdate"
+        }
+      },
+      "SystemEventUpdate": {
+        "name": "SystemEventUpdate",
+        "contentType": "application/json",
+        "headers": {
+          "type": "object",
+          "required": [
+            "schema"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string",
+              "const": "SystemEventUpdate",
+              "description": "The MQTT user property naming the payload's schema."
+            }
+          }
+        },
+        "payload": {
+          "$ref": "#/components/schemas/SystemEventUpdate"
+        }
+      },
+      "SystemHealthStatusUpdate": {
+        "name": "SystemHealthStatusUpdate",
+        "contentType": "application/json",
+        "headers": {
+          "type": "object",
+          "required": [
+            "schema"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string",
+              "const": "SystemHealthStatusUpdate",
+              "description": "The MQTT user property naming the payload's schema."
+            }
+          }
+        },
+        "payload": {
+          "$ref": "#/components/schemas/SystemHealthStatusUpdate"
+        }
+      }
+    },
+    "securitySchemes": {
+      "brokerToken": {
+        "type": "userPassword",
+        "description": "The password is a bearer access token issued by the realm https://auth.test.vion.swiss/realms/vion whose audience includes rabbitmq. The username is ignored: the broker names the connection by the token's oid claim."
+      }
+    }
+  }
+}
