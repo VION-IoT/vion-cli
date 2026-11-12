@@ -18,12 +18,20 @@ namespace Vion.Cli.Bus
     {
         public async Task<IBrokerConnection> ConnectAsync(BrokerSession session, string token, CancellationToken cancellationToken)
         {
+            // The token is the connection's password, so it goes out only under TLS: an address of any other
+            // scheme is refused here, before a client exists to send it. An address carrying credentials of its
+            // own is refused too, and is then not echoed in the refusal.
+            if (session.BrokerUrl.Scheme != "wss" || !string.IsNullOrEmpty(session.BrokerUrl.UserInfo))
+            {
+                throw new BrokerRefusedException($"The broker's address must be a wss:// address without credentials; the one answered names the scheme {session.BrokerUrl.Scheme} and the host {session.BrokerUrl.Host}.");
+            }
+
             var client = new MqttClientFactory().CreateMqttClient();
             var connection = new Connection(client, session);
             try
             {
                 var options = new MqttClientOptionsBuilder().WithWebSocketServer(webSocket => webSocket.WithUri(session.BrokerUrl.ToString()))
-                                                            .WithTlsOptions(tls => tls.UseTls(session.BrokerUrl.Scheme == "wss"))
+                                                            .WithTlsOptions(tls => tls.UseTls())
                                                             .WithProtocolVersion(ProtocolVersionOf(session.ProtocolVersion))
                                                             .WithClientId(session.SubscriberId)
                                                             .WithCredentials(string.Empty, token)
