@@ -24,7 +24,7 @@ namespace Vion.Cli.Test.Commands
         private const string OtherId = "33333333-3333-3333-3333-333333333333";
 
         private const string Subscriber =
-            """{"subscriberId":"sub_abc123_","brokerUrl":"wss://broker.example.test/ws","protocolVersion":5,"subscribeQos":0,"lastWill":{"topic":"will/topic","qos":1}}""";
+            """{"subscriberId":"sub_abc123_","brokerUrl":"wss://ws.test.vion.swiss/ws","protocolVersion":5,"subscribeQos":0,"lastWill":{"topic":"will/topic","qos":1}}""";
 
         private static readonly string[] SyncStatus = ["tenant", "sync-status", "watch", "--tenant", Tool.Tenant, "--edge-gateway-id", Tool.Id];
 
@@ -149,7 +149,7 @@ namespace Vion.Cli.Test.Commands
 
             // Assert
             var connection = broker.Connections.Single();
-            Assert.AreEqual(new Vion.Cli.Bus.BrokerSession(new Uri("wss://broker.example.test/ws"),
+            Assert.AreEqual(new Vion.Cli.Bus.BrokerSession(new Uri("wss://ws.test.vion.swiss/ws"),
                                                            "sub_abc123_",
                                                            5,
                                                            0,
@@ -375,12 +375,19 @@ namespace Vion.Cli.Test.Commands
         public async Task PublishWillAndDisconnectWhenInterruptEndsWatch()
         {
             // Arrange
-            using var interrupt = new CancellationTokenSource();
-            var broker = new RecordingBroker { OnConnected = (_, _) => interrupt.Cancel() };
+            var time = new FakeTimeProvider();
+            using var interrupt = new CancellationTokenSource(TimeSpan.FromSeconds(3), time);
+            var broker = new RecordingBroker();
             using var handler = Api(broker, Gateways);
 
             // Act
-            await Tool.RunAsync(handler, Tool.OnTest(SyncStatus), Tool.Token, broker: broker, cancellationToken: interrupt.Token);
+            await Tool.RunAdvancingAsync(time,
+                                         () => Tool.RunAsync(handler,
+                                                             Tool.OnTest(SyncStatus),
+                                                             Tool.Token,
+                                                             time: time,
+                                                             broker: broker,
+                                                             cancellationToken: interrupt.Token));
 
             // Assert
             CollectionAssert.AreEqual(new[] { "PUBLISH will/topic empty", "DISCONNECT" }, broker.Log.TakeLast(2).ToList());
@@ -476,16 +483,119 @@ namespace Vion.Cli.Test.Commands
         public async Task ExitZeroWhenInterruptedWithoutTimeout()
         {
             // Arrange
-            using var interrupt = new CancellationTokenSource();
-            var broker = new RecordingBroker { OnConnected = (_, _) => interrupt.Cancel() };
+            var time = new FakeTimeProvider();
+            using var interrupt = new CancellationTokenSource(TimeSpan.FromSeconds(3), time);
+            var broker = new RecordingBroker();
             using var handler = Api(broker, Gateways);
 
             // Act
-            var run = await Tool.RunAsync(handler, Tool.OnTest(SyncStatus), Tool.Token, broker: broker, cancellationToken: interrupt.Token);
+            var run = await Tool.RunAdvancingAsync(time,
+                                                   () => Tool.RunAsync(handler,
+                                                                       Tool.OnTest(SyncStatus),
+                                                                       Tool.Token,
+                                                                       time: time,
+                                                                       broker: broker,
+                                                                       cancellationToken: interrupt.Token));
 
             // Assert
             Assert.AreEqual(0, run.ExitCode);
-            Assert.AreEqual("", run.Out);
+            Assert.AreEqual(J("watching tenant.syncStatus.state<nl>"), run.Error);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-WATCH-003.3")]
+        public async Task ExitOneWhenInterruptedBeforeWatchStands()
+        {
+            // Arrange
+            var time = new FakeTimeProvider();
+            using var interrupt = new CancellationTokenSource(TimeSpan.FromSeconds(3), time);
+            var broker = new RecordingBroker { HoldsSubscription = true };
+            using var handler = Api(broker, Gateways);
+
+            // Act
+            var run = await Tool.RunAdvancingAsync(time,
+                                                   () => Tool.RunAsync(handler,
+                                                                       Tool.OnTest(SyncStatus),
+                                                                       Tool.Token,
+                                                                       time: time,
+                                                                       broker: broker,
+                                                                       cancellationToken: interrupt.Token));
+
+            // Assert
+            Assert.AreEqual(1, run.ExitCode);
+            Assert.AreEqual(J("error: interrupted before the watch of tenant.syncStatus.state stood; nothing was watched.<nl>"), run.Error);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-WATCH-003.3")]
+        public async Task ExitOneWhenTimeoutEndsBeforeWatchStands()
+        {
+            // Arrange
+            var time = new FakeTimeProvider();
+            var broker = new RecordingBroker { HoldsSubscription = true };
+            using var handler = Api(broker, Gateways);
+
+            // Act
+            var run = await Tool.RunAdvancingAsync(time, () => Tool.RunAsync(handler, Tool.OnTest([.. SyncStatus, "--timeout", "5s"]), Tool.Token, time: time, broker: broker));
+
+            // Assert
+            Assert.AreEqual(1, run.ExitCode);
+            Assert.AreEqual(J("error: --timeout ended before the watch of tenant.syncStatus.state stood; nothing was watched.<nl>"), run.Error);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-WATCH-002.9")]
+        public async Task RefuseBrokerAtAnotherHostThanEnvironmentsBeforeConnecting()
+        {
+            // Arrange
+            var broker = new RecordingBroker { EndsOnConnect = true };
+            using var handler = Api(broker, Gateways, subscriber: Subscriber.Replace("ws.test.vion.swiss", "elsewhere.example.test", StringComparison.Ordinal));
+
+            // Act
+            var run = await Tool.RunAsync(handler, Tool.OnTest(SyncStatus), Tool.Token, broker: broker);
+
+            // Assert
+            Assert.AreEqual(1, run.ExitCode);
+            Assert.AreEqual(J("error: me.subscriber.create answered a broker at elsewhere.example.test:443, and the environment test's broker is ws.test.vion.swiss:443; the token is not sent there.<nl>"),
+                            run.Error);
+            Assert.IsEmpty(broker.Connections);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-WATCH-002.10")]
+        public async Task RefuseBeforeSendingWhenEnvironmentNamesNoBroker()
+        {
+            // Arrange
+            var broker = new RecordingBroker { EndsOnConnect = true };
+            using var handler = Api(broker, Gateways);
+            var environment = new Dictionary<string, string?> { ["VION_API_URL"] = "https://api.example.test" };
+
+            // Act
+            var run = await Tool.RunAsync(handler, [.. SyncStatus, "--token", "-"], Tool.Token, environment: environment, broker: broker);
+
+            // Assert
+            Assert.AreEqual(2, run.ExitCode);
+            StringAssert.StartsWith(run.Error, "error: the environment custom names no broker");
+            StringAssert.Contains(run.Error, "--broker-url");
+            StringAssert.Contains(run.Error, "VION_BROKER_URL");
+            Assert.IsEmpty(handler.Requests);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-005.3")]
+        public async Task ConnectToBrokerNamedByVariable()
+        {
+            // Arrange
+            var broker = new RecordingBroker { EndsOnConnect = true };
+            using var handler = Api(broker, Gateways, subscriber: Subscriber.Replace("ws.test.vion.swiss", "broker.example.test", StringComparison.Ordinal));
+            var environment = new Dictionary<string, string?> { ["VION_API_URL"] = "https://api.example.test", ["VION_BROKER_URL"] = "wss://broker.example.test/ws" };
+
+            // Act
+            var run = await Tool.RunAsync(handler, [.. SyncStatus, "--token", "-"], Tool.Token, environment: environment, broker: broker);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.AreEqual("broker.example.test", broker.Connections.Single().Session.BrokerUrl.Host);
         }
 
         [TestMethod]
@@ -522,7 +632,7 @@ namespace Vion.Cli.Test.Commands
         ///     token endpoint that mints a different token each time. Every request joins the broker's log, so one list
         ///     holds the order across both.
         /// </summary>
-        private static RecordingHandler Api(RecordingBroker broker, string rows, int registrationStatus = 200, int unreachableTokenRequest = 0)
+        private static RecordingHandler Api(RecordingBroker broker, string rows, int registrationStatus = 200, int unreachableTokenRequest = 0, string? subscriber = null)
         {
             var minted = 0;
             return new RecordingHandler(request =>
@@ -542,7 +652,7 @@ namespace Vion.Cli.Test.Commands
 
                                             if (path == "/me/subscribers")
                                             {
-                                                return RecordingHandler.Response(200, Subscriber);
+                                                return RecordingHandler.Response(200, subscriber ?? Subscriber);
                                             }
 
                                             if (path.EndsWith("/subscribeProperties", StringComparison.Ordinal))

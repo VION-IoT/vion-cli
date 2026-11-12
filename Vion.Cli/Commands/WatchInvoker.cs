@@ -73,6 +73,12 @@ namespace Vion.Cli.Commands
                 throw new UsageException("--dry-run: a watch offers no dry run.");
             }
 
+            if (!Uri.TryCreate(context.Environment.BrokerUrl, UriKind.Absolute, out var pinned))
+            {
+                throw new
+                    UsageException($"the environment {context.Environment.Name} names no broker, so a watch has no host it may send the token to: define it with `vion context use --env <name> --api-url <url> --auth-url <realm url> --broker-url <wss url>`, or set VION_BROKER_URL.");
+            }
+
             var values = new Dictionary<string, string>(StringComparer.Ordinal);
             var given = new HashSet<string>(StringComparer.Ordinal);
             foreach (var parameter in channel.Parameters)
@@ -126,7 +132,8 @@ namespace Vion.Cli.Commands
                                      topic,
                                      globals.Timeout,
                                      tokens.NextAsync,
-                                     async (current, cancel) => await CreateSubscriberAsync(tree.Operations,
+                                     async (current, cancel) => await CreateSubscriberAsync(pinned,
+                                                                                            tree.Operations,
                                                                                             context,
                                                                                             globals,
                                                                                             current,
@@ -262,7 +269,8 @@ namespace Vion.Cli.Commands
                    };
         }
 
-        private static async Task<BrokerSession> CreateSubscriberAsync(IReadOnlyList<Operation> operations,
+        private static async Task<BrokerSession> CreateSubscriberAsync(Uri pinned,
+                                                                       IReadOnlyList<Operation> operations,
                                                                        ResolvedContext context,
                                                                        GlobalValues globals,
                                                                        string token,
@@ -286,6 +294,14 @@ namespace Vion.Cli.Commands
                 int.TryParse(Renderer.Scalar(answer?["subscribeQos"]), NumberStyles.None, CultureInfo.InvariantCulture, out var subscribeQos) &&
                 int.TryParse(Renderer.Scalar(will?["qos"]), NumberStyles.None, CultureInfo.InvariantCulture, out var willQos))
             {
+                // The API names the broker, and the token is that broker's password: an answer naming another host
+                // than the environment's would send the token there, so it is refused before anything connects.
+                if (!string.Equals(broker.Host, pinned.Host, StringComparison.OrdinalIgnoreCase) || broker.Port != pinned.Port)
+                {
+                    throw new
+                        CliFailure($"{SubscriberOperation} answered a broker at {broker.Host}:{broker.Port}, and the environment {context.Environment.Name}'s broker is {pinned.Host}:{pinned.Port}; the token is not sent there.");
+                }
+
                 return new BrokerSession(broker,
                                          subscriberId,
                                          protocolVersion,

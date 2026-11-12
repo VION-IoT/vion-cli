@@ -76,7 +76,8 @@ namespace Vion.Cli.Context
                 {
                     if (value is JsonObject entry && Text(entry, "apiUrl") is { } apiUrl && Text(entry, "authUrl") is { } authUrl)
                     {
-                        environments[name] = new ApiEnvironment(name, apiUrl, authUrl, Text(entry, "clientId") ?? ApiEnvironment.DefaultClientId);
+                        environments[name] = new ApiEnvironment(name, apiUrl, authUrl, Text(entry, "clientId") ?? ApiEnvironment.DefaultClientId)
+                                             { BrokerUrl = Text(entry, "brokerUrl") };
                     }
                 }
             }
@@ -96,7 +97,13 @@ namespace Vion.Cli.Context
             var environments = new JsonObject();
             foreach (var (name, environment) in config.Environments)
             {
-                environments[name] = new JsonObject { ["apiUrl"] = environment.ApiUrl, ["authUrl"] = environment.AuthUrl, ["clientId"] = environment.ClientId };
+                environments[name] = new JsonObject
+                                     {
+                                         ["apiUrl"] = environment.ApiUrl,
+                                         ["authUrl"] = environment.AuthUrl,
+                                         ["clientId"] = environment.ClientId,
+                                         ["brokerUrl"] = environment.BrokerUrl,
+                                     };
             }
 
             var root = new JsonObject { ["current"] = config.Current, ["contexts"] = contexts, ["environments"] = environments };

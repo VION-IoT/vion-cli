@@ -17,11 +17,17 @@ namespace Vion.Cli.Context
                                                                                          ["production"] = new("production",
                                                                                                               "https://api.vion.swiss",
                                                                                                               "https://auth.vion.swiss/realms/vion",
-                                                                                                              DefaultClientId),
+                                                                                                              DefaultClientId) { BrokerUrl = "wss://ws.vion.swiss/ws" },
                                                                                          ["test"] = new("test",
                                                                                                         "https://api.test.vion.swiss",
                                                                                                         "https://auth.test.vion.swiss/realms/vion",
-                                                                                                        DefaultClientId),
+                                                                                                        DefaultClientId) { BrokerUrl = "wss://ws.test.vion.swiss/ws" },
                                                                                      };
+
+        /// <summary>
+        ///     Where the environment's broker is, or null for an environment defined without one. The API answers a broker
+        ///     address to each subscriber; the token goes to it only when it is at this host.
+        /// </summary>
+        public string? BrokerUrl { get; init; }
     }
 }

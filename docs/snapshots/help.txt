@@ -14643,6 +14643,8 @@ Arguments:
 Options:
   --api-url <url>           Define the environment named by --env: its API URL.
   --auth-url <realm url>    Define the environment named by --env: its realm URL.
+  --broker-url <url>        Define the environment named by --env: its broker's wss:// URL, which a watch 
+                            needs.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.

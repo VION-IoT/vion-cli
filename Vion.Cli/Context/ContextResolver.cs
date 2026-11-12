@@ -29,6 +29,7 @@ namespace Vion.Cli.Context
             var envName = globals.Env ?? Variable(services, "VION_ENV") ?? current?.Env;
             var apiUrl = Variable(services, "VION_API_URL");
             var authUrl = Variable(services, "VION_AUTH_URL");
+            var brokerUrl = Variable(services, "VION_BROKER_URL");
 
             ApiEnvironment environment;
             if (envName != null)
@@ -39,11 +40,11 @@ namespace Vion.Cli.Context
                         UsageException($"unknown environment '{envName}': the built-in ones are production and test; another is defined with `vion context use --env {envName} --api-url <url> --auth-url <realm url>`.");
                 }
 
-                environment = known with { ApiUrl = apiUrl ?? known.ApiUrl, AuthUrl = authUrl ?? known.AuthUrl };
+                environment = known with { ApiUrl = apiUrl ?? known.ApiUrl, AuthUrl = authUrl ?? known.AuthUrl, BrokerUrl = brokerUrl ?? known.BrokerUrl };
             }
             else if (apiUrl != null)
             {
-                environment = new ApiEnvironment("custom", apiUrl, authUrl ?? "", ApiEnvironment.DefaultClientId);
+                environment = new ApiEnvironment("custom", apiUrl, authUrl ?? "", ApiEnvironment.DefaultClientId) { BrokerUrl = brokerUrl };
             }
             else
             {
