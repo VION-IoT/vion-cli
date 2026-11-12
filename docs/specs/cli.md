@@ -99,9 +99,9 @@ service account. The token sources are tried in one order on every call.
 Two environments are built in; another is defined by its URLs. A context names an environment and
 the roots a call fills in; the flags and the `VION_*` variables override it per call.
 
-- `AC-CLI-005.1` (Ubiquitous): THE SYSTEM SHALL know the environments `production` and `test` with their API and realm URLs, and take any other environment's URLs from `context use --env <name> --api-url <url> --auth-url <url>`, kept in `config.json` under its home directory.
+- `AC-CLI-005.1` (Ubiquitous): THE SYSTEM SHALL know the environments `production` and `test` with their API, realm and broker URLs, and take any other environment's URLs from `context use --env <name> --api-url <url> --auth-url <url>`, with `--broker-url <url>` for its broker, kept in `config.json` under its home directory.
 - `AC-CLI-005.2` (Event-driven): WHEN `context use` runs THE SYSTEM SHALL store the named context with its environment and whichever of integrator, tenant, project and platform were given, and make it current.
-- `AC-CLI-005.3` (Ubiquitous): THE SYSTEM SHALL resolve the environment and each of integrator, tenant, project and platform from, in order, the command's option, the `VION_ENV`, `VION_API_URL` and `VION_AUTH_URL` variables, then the current context.
+- `AC-CLI-005.3` (Ubiquitous): THE SYSTEM SHALL resolve the environment and each of integrator, tenant, project and platform from, in order, the command's option, the `VION_ENV`, `VION_API_URL`, `VION_AUTH_URL` and `VION_BROKER_URL` variables, then the current context.
 - `AC-CLI-005.4` (Event-driven): WHEN `context list` or `context show` runs THE SYSTEM SHALL print the stored contexts with the current one marked, or the current context with its resolved URLs and values.
 
 ## The written commands

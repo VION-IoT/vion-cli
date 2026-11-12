@@ -37,7 +37,8 @@ connection with its will, the subscription, the registration where the channel n
 notice that the watch stands. The same order holds after a lost connection, and a call on the way
 back that gets no answer is waited out like the loss itself. A refusal happens as
 early as it can: a row that does not hand the channel out, or a registration value the row does not
-carry, ends the command before any connection.
+carry, ends the command before any connection. The token is the broker's password, so it goes to
+the environment's own broker and to no other address the API might name.
 
 - `AC-WATCH-002.1` (Event-driven): WHEN a watch command runs THE SYSTEM SHALL read, with the operation of the first hand-out of the channel that joins exactly the options given, the row those options select, subscribe to the topic that row carries in `meta.topics` under the channel's id, and, where no row matches or the row carries no such topic, refuse before connecting, naming the row and the channel, and exit 1.
 - `AC-WATCH-002.2` (Event-driven): WHEN a watch command connects THE SYSTEM SHALL connect to the broker, with the client id, protocol version and last will, and subscribe at the quality of service, that `me.subscriber.create` answers, presenting an empty username and the token resolved at that connect as the password.
@@ -47,14 +48,18 @@ carry, ends the command before any connection.
 - `AC-WATCH-002.6` (Unwanted): IF the connection is lost after that notice THEN THE SYSTEM SHALL connect again with the token resolved again, subscribe and register again in that order, and write a notice to standard error that messages may have been missed.
 - `AC-WATCH-002.7` (Unwanted): IF the broker refuses the connection or the subscription THEN THE SYSTEM SHALL report the refusal with its reason and exit 1.
 - `AC-WATCH-002.8` (Event-driven): WHEN a watch ends, by its timeout or an interrupt, THE SYSTEM SHALL publish an empty message to the last will's topic and then disconnect from the broker before it exits.
-- `AC-WATCH-002.9` (Unwanted): IF the broker address `me.subscriber.create` answers is not a `wss` address, or carries credentials of its own, THEN THE SYSTEM SHALL refuse it before opening a connection, so that the token is sent to no one.
+- `AC-WATCH-002.9` (Unwanted): IF the broker address `me.subscriber.create` answers is not a `wss` address, carries credentials of its own, or names another host than the environment's broker, THEN THE SYSTEM SHALL refuse it before opening a connection, so that the token is sent to no one.
+- `AC-WATCH-002.10` (Unwanted): IF the environment names no broker THEN THE SYSTEM SHALL refuse before sending anything, naming `context use --broker-url` and `VION_BROKER_URL`, and exit 2.
 
 ## What comes back
 
 A watch prints payloads, as published. Under `--json` each is one line, so the stream is
 line-delimited and a filter is a pipe; in table mode each is the key–value table any object gets.
-Only the channel's own message is printed. A watch that ends as asked has succeeded; an interrupt
-before the watch stands is a cancelled command like any other, exit 1.
+Only the channel's own message is printed. A watch that stood and ends as asked has succeeded. One
+that is ended before it stood — by its timeout as much as by an interrupt — watched nothing, and
+says so with exit 1, so that a caller sampling a channel never reads "never connected" as "no
+messages".
 
 - `AC-WATCH-003.1` (Ubiquitous): THE SYSTEM SHALL write each message whose `schema` user property names the channel's message, and no other message, as its payload on one line of standard output under `--json` and as an object's key–value table otherwise, projected by `--fields` in both.
-- `AC-WATCH-003.2` (Ubiquitous): THE SYSTEM SHALL watch until `--timeout` where one is given, without `--wait` beside it, and until interrupted otherwise, and exit 0 at either.
+- `AC-WATCH-003.2` (Ubiquitous): THE SYSTEM SHALL watch, once the subscription stands, until `--timeout` where one is given, without `--wait` beside it, and until interrupted otherwise, and exit 0 at either.
+- `AC-WATCH-003.3` (Unwanted): IF `--timeout` or an interrupt ends a watch before its subscription has stood THEN THE SYSTEM SHALL report that nothing was watched and exit 1.
