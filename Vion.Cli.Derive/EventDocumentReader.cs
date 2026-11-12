@@ -66,8 +66,9 @@ namespace Vion.Cli.Derive
                     // A parameter is the caller's to supply when it picks the row: joined to a parameter of the reading
                     // operation, or to a member of a row that is one of a list. One joined to a member of the single
                     // row an operation answers picks nothing, and one no hand-out joins is left open by all of them.
-                    var selecting = handOuts.Where(handOut => handOut.Raw.Any(join => join.ChannelParameter == parameter.Name && (join.OperationParameter != null || handOut.Listed)))
-                                            .ToList();
+                    var selecting = handOuts
+                                    .Where(handOut => handOut.Raw.Any(join => join.ChannelParameter == parameter.Name && (join.OperationParameter != null || handOut.Listed)))
+                                    .ToList();
                     if (selecting.Count == 0)
                     {
                         continue;

@@ -73,11 +73,7 @@ namespace Vion.Cli.Test.TestHelpers
                                            openBrowser ?? (_ => true),
                                            version,
                                            broker ?? new RecordingBroker());
-            var exitCode = await VionCli.RunAsync(args,
-                                                  services,
-                                                  operations,
-                                                  channels,
-                                                  cancellationToken);
+            var exitCode = await VionCli.RunAsync(args, services, operations, channels, cancellationToken);
             return new CliRun(exitCode, output.ToString(), error.ToString());
         }
 

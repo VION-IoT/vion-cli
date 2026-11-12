@@ -23,7 +23,8 @@ namespace Vion.Cli.Test.Commands
 
         private const string OtherId = "33333333-3333-3333-3333-333333333333";
 
-        private const string Subscriber = """{"subscriberId":"sub_abc123_","brokerUrl":"wss://broker.example.test/ws","protocolVersion":5,"subscribeQos":0,"lastWill":{"topic":"will/topic","qos":1}}""";
+        private const string Subscriber =
+            """{"subscriberId":"sub_abc123_","brokerUrl":"wss://broker.example.test/ws","protocolVersion":5,"subscribeQos":0,"lastWill":{"topic":"will/topic","qos":1}}""";
 
         private static readonly string[] SyncStatus = ["tenant", "sync-status", "watch", "--tenant", Tool.Tenant, "--edge-gateway-id", Tool.Id];
 
@@ -121,9 +122,8 @@ namespace Vion.Cli.Test.Commands
         {
             // Arrange
             var broker = new RecordingBroker();
-            using var handler =
-                Api(broker,
-                    J("""{"integratorMemberships":[{"integratorId":"<other>","meta":{"topics":{"integrator.systemHealth.state":"topic/other"}}},{"integratorId":"<integrator>","meta":{"topics":{"integrator.systemHealth.state":"topic/every-gateway"}}}]}"""));
+            using var handler = Api(broker,
+                                    J("""{"integratorMemberships":[{"integratorId":"<other>","meta":{"topics":{"integrator.systemHealth.state":"topic/other"}}},{"integratorId":"<integrator>","meta":{"topics":{"integrator.systemHealth.state":"topic/every-gateway"}}}]}"""));
             var time = new FakeTimeProvider();
             string[] args = ["integrator", "system-health", "watch", "--integrator", Integrator, "--timeout", "5s"];
 
@@ -150,11 +150,11 @@ namespace Vion.Cli.Test.Commands
             // Assert
             var connection = broker.Connections.Single();
             Assert.AreEqual(new Vion.Cli.Bus.BrokerSession(new Uri("wss://broker.example.test/ws"),
-                                                  "sub_abc123_",
-                                                  5,
-                                                  0,
-                                                  "will/topic",
-                                                  1),
+                                                           "sub_abc123_",
+                                                           5,
+                                                           0,
+                                                           "will/topic",
+                                                           1),
                             connection.Session);
             Assert.AreEqual(Tool.Token, connection.Token);
         }
@@ -242,7 +242,7 @@ namespace Vion.Cli.Test.Commands
         {
             // Arrange
             var broker = new RecordingBroker { EndsOnConnect = true };
-            using var handler = Api(broker, Services, registrationStatus: 400);
+            using var handler = Api(broker, Services, 400);
 
             // Act
             var run = await Tool.RunAsync(handler, Tool.OnTest(ServiceProperty), Tool.Token, broker: broker);
@@ -413,7 +413,10 @@ namespace Vion.Cli.Test.Commands
             var run = await Tool.RunAdvancingAsync(time, () => Tool.RunAsync(handler, Tool.OnTest([.. SyncStatus, "--timeout", "5s"]), Tool.Token, time: time, broker: broker));
 
             // Assert
-            var rows = run.Out.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(row => string.Join(' ', row.Split(' ', StringSplitOptions.RemoveEmptyEntries))).ToList();
+            var rows = run.Out
+                          .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                          .Select(row => string.Join(' ', row.Split(' ', StringSplitOptions.RemoveEmptyEntries)))
+                          .ToList();
             CollectionAssert.AreEqual(new[] { "status Pending", "objectId o1" }, rows);
         }
 
@@ -469,7 +472,10 @@ namespace Vion.Cli.Test.Commands
             Assert.IsEmpty(handler.Requests);
         }
 
-        /// <summary>A JSON literal with the test's ids put in, so that the literal itself needs no interpolation beside its braces.</summary>
+        /// <summary>
+        ///     A JSON literal with the test's ids put in, so that the literal itself needs no interpolation beside its
+        ///     braces.
+        /// </summary>
         private static string J(string json)
         {
             return json.Replace("<id>", Tool.Id, StringComparison.Ordinal)

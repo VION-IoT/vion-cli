@@ -12,7 +12,8 @@ namespace Vion.Cli.Test.TestHelpers
     internal sealed class RecordedConnection : IBrokerConnection
     {
         private readonly RecordingBroker _broker;
-        private readonly System.Threading.Channels.Channel<BusMessage> _messages = Channel.CreateUnbounded<BusMessage>();
+
+        private readonly Channel<BusMessage> _messages = Channel.CreateUnbounded<BusMessage>();
 
         public BrokerSession Session { get; }
 
@@ -22,16 +23,16 @@ namespace Vion.Cli.Test.TestHelpers
 
         public bool Ended { get; private set; }
 
-        public ChannelReader<BusMessage> Messages
-        {
-            get => _messages.Reader;
-        }
-
         public RecordedConnection(RecordingBroker broker, BrokerSession session, string token)
         {
             _broker = broker;
             Session = session;
             Token = token;
+        }
+
+        public ChannelReader<BusMessage> Messages
+        {
+            get => _messages.Reader;
         }
 
         public Task SubscribeAsync(string topic, CancellationToken cancellationToken)

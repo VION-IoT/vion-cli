@@ -34,7 +34,13 @@ namespace Vion.Cli.Derive
         private static void EmitChannel(StringBuilder sb, DerivedChannel c)
         {
             sb.Append("        new Channel(\n");
-            sb.Append("            ").Append(Emitter.Literal(c.Id)).Append(", ").Append(Emitter.Literal(c.CommandDomain)).Append(", ").Append(Emitter.Literal(c.CommandAggregate)).Append(",\n");
+            sb.Append("            ")
+              .Append(Emitter.Literal(c.Id))
+              .Append(", ")
+              .Append(Emitter.Literal(c.CommandDomain))
+              .Append(", ")
+              .Append(Emitter.Literal(c.CommandAggregate))
+              .Append(",\n");
             sb.Append("            ").Append(Emitter.Literal(c.Description)).Append(",\n");
             sb.Append("            ").Append(Emitter.Literal(c.MessageName)).Append(",\n");
             if (c.Parameters.Count == 0)
@@ -107,10 +113,10 @@ namespace Vion.Cli.Derive
 
         private static string Joins(IReadOnlyList<DerivedJoin> joins)
         {
-            return joins.Count == 0 ? "new Join[0]" :
-                       "new[] { " +
-                       string.Join(", ", joins.Select(j => $"new Join({Emitter.Literal(j.ChannelParameter)}, {Emitter.Literal(j.OperationParameter)}, {Emitter.Literal(j.Member)})")) +
-                       " }";
+            return joins.Count == 0 ? "new Join[0]" : "new[] { " + string.Join(", ",
+                                                                               joins.Select(j =>
+                                                                                                $"new Join({Emitter.Literal(j.ChannelParameter)}, {Emitter.Literal(j.OperationParameter)}, {Emitter.Literal(j.Member)})")) +
+                                                      " }";
         }
     }
 }

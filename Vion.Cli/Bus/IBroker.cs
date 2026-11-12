@@ -8,9 +8,18 @@ namespace Vion.Cli.Bus
     /// <summary>
     ///     How a subscriber connects, as <c>me.subscriber.create</c> answers it: nothing here is the tool's own choice.
     /// </summary>
-    internal sealed record BrokerSession(Uri BrokerUrl, string SubscriberId, int ProtocolVersion, int SubscribeQos, string WillTopic, int WillQos);
+    internal sealed record BrokerSession(
+        Uri BrokerUrl,
+        string SubscriberId,
+        int ProtocolVersion,
+        int SubscribeQos,
+        string WillTopic,
+        int WillQos);
 
-    /// <summary>A message as the broker delivered it; <see cref="Schema" /> is its <c>schema</c> user property, null without one.</summary>
+    /// <summary>
+    ///     A message as the broker delivered it; <see cref="Schema" /> is its <c>schema</c> user property, null without
+    ///     one.
+    /// </summary>
     internal sealed record BusMessage(string Topic, string? Schema, ReadOnlyMemory<byte> Payload);
 
     /// <summary>The broker refused the connection or a subscription; the message carries its reason.</summary>
@@ -53,7 +62,10 @@ namespace Vion.Cli.Bus
         ChannelReader<BusMessage> Messages { get; }
 
         /// <summary>Subscribes at the session's quality of service and returns once the broker has acknowledged it.</summary>
-        /// <exception cref="BrokerRefusedException">The broker refused the subscription, or closed the connection instead of answering.</exception>
+        /// <exception cref="BrokerRefusedException">
+        ///     The broker refused the subscription, or closed the connection instead of
+        ///     answering.
+        /// </exception>
         Task SubscribeAsync(string topic, CancellationToken cancellationToken);
 
         /// <summary>Publishes the will itself, empty, and then disconnects cleanly.</summary>

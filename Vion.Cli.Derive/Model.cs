@@ -93,12 +93,7 @@ namespace Vion.Cli.Derive
     ///     The operation a channel is registered through. <see cref="InputOptionName" /> is the repeatable option for the
     ///     one input the address does not carry, whose values the row supplies at <see cref="InputRowMember" />.
     /// </summary>
-    internal sealed record DerivedRegistration(
-        string Operation,
-        string SubscriberIdMember,
-        IReadOnlyList<DerivedFill> Fills,
-        string? InputOptionName,
-        string? InputRowMember);
+    internal sealed record DerivedRegistration(string Operation, string SubscriberIdMember, IReadOnlyList<DerivedFill> Fills, string? InputOptionName, string? InputRowMember);
 
     internal sealed record DerivedChannel(
         string Id,

@@ -23,7 +23,8 @@ namespace Vion.Cli.Bus
             // own is refused too, and is then not echoed in the refusal.
             if (session.BrokerUrl.Scheme != "wss" || !string.IsNullOrEmpty(session.BrokerUrl.UserInfo))
             {
-                throw new BrokerRefusedException($"The broker's address must be a wss:// address without credentials; the one answered names the scheme {session.BrokerUrl.Scheme} and the host {session.BrokerUrl.Host}.");
+                throw new
+                    BrokerRefusedException($"The broker's address must be a wss:// address without credentials; the one answered names the scheme {session.BrokerUrl.Scheme} and the host {session.BrokerUrl.Host}.");
             }
 
             var client = new MqttClientFactory().CreateMqttClient();
@@ -61,24 +62,22 @@ namespace Vion.Cli.Bus
         private static MqttProtocolVersion ProtocolVersionOf(int version)
         {
             return version switch
-                   {
-                       5 => MqttProtocolVersion.V500,
-                       4 => MqttProtocolVersion.V311,
-                       _ => throw new BrokerRefusedException($"The broker asks for MQTT protocol version {version}, which this tool does not speak."),
-                   };
+            {
+                5 => MqttProtocolVersion.V500,
+                4 => MqttProtocolVersion.V311,
+                _ => throw new BrokerRefusedException($"The broker asks for MQTT protocol version {version}, which this tool does not speak."),
+            };
         }
 
         private sealed class Connection : IBrokerConnection
         {
             private readonly IMqttClient _client;
-            private readonly Channel<BusMessage> _messages = Channel.CreateUnbounded<BusMessage>(new UnboundedChannelOptions { SingleReader = true });
-            private readonly BrokerSession _session;
-            private int _ended;
 
-            public ChannelReader<BusMessage> Messages
-            {
-                get => _messages.Reader;
-            }
+            private readonly Channel<BusMessage> _messages = Channel.CreateUnbounded<BusMessage>(new UnboundedChannelOptions { SingleReader = true });
+
+            private readonly BrokerSession _session;
+
+            private int _ended;
 
             public Connection(IMqttClient client, BrokerSession session)
             {
@@ -86,6 +85,11 @@ namespace Vion.Cli.Bus
                 _session = session;
                 _client.ApplicationMessageReceivedAsync += OnMessage;
                 _client.DisconnectedAsync += OnDisconnected;
+            }
+
+            public ChannelReader<BusMessage> Messages
+            {
+                get => _messages.Reader;
             }
 
             public async Task SubscribeAsync(string topic, CancellationToken cancellationToken)

@@ -41,7 +41,8 @@ namespace Vion.Cli.Commands
             {
                 input = new Option<string[]>("--" + inputName)
                         {
-                            Description = $"Register this {inputName.Replace('-', ' ')} only; repeatable. Every one the row carries when absent.",
+                            Description =
+                                $"Register this {inputName.Replace('-', ' ')} only; repeatable. Every one the row carries when absent.",
                             HelpName = "value",
                             AllowMultipleArgumentsPerToken = false,
                         };
@@ -58,7 +59,10 @@ namespace Vion.Cli.Commands
             return command;
         }
 
-        /// <summary>The group of that name under the parent, made where the operations left none: a channel may be all an aggregate has.</summary>
+        /// <summary>
+        ///     The group of that name under the parent, made where the operations left none: a channel may be all an
+        ///     aggregate has.
+        /// </summary>
         private static Command Group(Command parent, string name, Func<string> description)
         {
             var group = parent.Subcommands.FirstOrDefault(command => command.Name == name);

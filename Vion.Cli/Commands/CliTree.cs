@@ -36,7 +36,12 @@ namespace Vion.Cli.Commands
         /// <summary>The watch commands, which take `--timeout` on its own where every other command takes it beside `--wait`.</summary>
         public HashSet<Command> Watches { get; } = [];
 
-        private CliTree(Command root, GlobalOptions globals, BodyOptions body, HelpOption help, VersionOption version, IReadOnlyList<Operation> operations)
+        private CliTree(Command root,
+                        GlobalOptions globals,
+                        BodyOptions body,
+                        HelpOption help,
+                        VersionOption version,
+                        IReadOnlyList<Operation> operations)
         {
             Operations = operations;
             Root = root;

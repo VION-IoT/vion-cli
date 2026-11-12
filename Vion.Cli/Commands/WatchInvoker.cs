@@ -107,19 +107,20 @@ namespace Vion.Cli.Commands
                                          client,
                                          cancellationToken);
             var topic = (row["meta"] as JsonObject)?["topics"] is JsonObject topics && topics[handOut.Key] is JsonValue handedOut && handedOut.TryGetValue<string>(out var text) ?
-                            text : throw new CliFailure($"{channel.Id}: the row of {handOut.Operation} hands out no topic for it. The caller may read the row without being granted the channel.");
+                            text :
+                            throw new
+                                CliFailure($"{channel.Id}: the row of {handOut.Operation} hands out no topic for it. The caller may read the row without being granted the channel.");
 
-            var register = channel.Registration is { } registration ?
-                               Registration(channel,
-                                            registration,
-                                            input,
-                                            result,
-                                            row,
-                                            values,
-                                            tree.Operations,
-                                            context,
-                                            globals,
-                                            client) : null;
+            var register = channel.Registration is { } registration ? Registration(channel,
+                                                                                   registration,
+                                                                                   input,
+                                                                                   result,
+                                                                                   row,
+                                                                                   values,
+                                                                                   tree.Operations,
+                                                                                   context,
+                                                                                   globals,
+                                                                                   client) : null;
 
             var plan = new WatchPlan(channel,
                                      topic,
@@ -151,7 +152,9 @@ namespace Vion.Cli.Commands
                                                            CancellationToken cancellationToken)
         {
             var operation = OperationOf(operations, handOut.Operation);
-            var pathValues = handOut.Joins.Where(join => join.OperationParameter != null).ToDictionary(join => join.OperationParameter!, join => values[join.ChannelParameter], StringComparer.Ordinal);
+            var pathValues = handOut.Joins
+                                    .Where(join => join.OperationParameter != null)
+                                    .ToDictionary(join => join.OperationParameter!, join => values[join.ChannelParameter], StringComparer.Ordinal);
             var response = await SendAsync(operation,
                                            pathValues,
                                            null,
@@ -164,7 +167,8 @@ namespace Vion.Cli.Commands
             var members = handOut.Joins.Where(join => join.Member != null).ToList();
             var row = RowPath.Select(response.Json, handOut.Row)
                              .OfType<JsonObject>()
-                             .FirstOrDefault(candidate => members.All(join => RowPath.Select(candidate, join.Member!).Any(member => Same(Renderer.Scalar(member), values[join.ChannelParameter]))));
+                             .FirstOrDefault(candidate => members.All(join => RowPath.Select(candidate, join.Member!)
+                                                                                     .Any(member => Same(Renderer.Scalar(member), values[join.ChannelParameter]))));
             if (row != null)
             {
                 return row;
@@ -179,15 +183,15 @@ namespace Vion.Cli.Commands
         ///     connection: the host drops a value it does not know without a word, and the watch would deliver nothing.
         /// </summary>
         private static Func<BrokerSession, string, CancellationToken, Task> Registration(Channel channel,
-                                                                                          Registration registration,
-                                                                                          Option<string[]>? input,
-                                                                                          ParseResult result,
-                                                                                          JsonObject row,
-                                                                                          Dictionary<string, string> values,
-                                                                                          IReadOnlyList<Operation> operations,
-                                                                                          ResolvedContext context,
-                                                                                          GlobalValues globals,
-                                                                                          ApiClient client)
+                                                                                         Registration registration,
+                                                                                         Option<string[]>? input,
+                                                                                         ParseResult result,
+                                                                                         JsonObject row,
+                                                                                         Dictionary<string, string> values,
+                                                                                         IReadOnlyList<Operation> operations,
+                                                                                         ResolvedContext context,
+                                                                                         GlobalValues globals,
+                                                                                         ApiClient client)
         {
             var operation = OperationOf(operations, registration.Operation);
             IReadOnlyList<string> chosen = [""];
@@ -265,8 +269,7 @@ namespace Vion.Cli.Commands
             var answer = response.Json as JsonObject;
             var will = answer?["lastWill"] as JsonObject;
             if (Uri.TryCreate(Renderer.Scalar(answer?["brokerUrl"]), UriKind.Absolute, out var broker) &&
-                Renderer.Scalar(answer?["subscriberId"]) is { Length: > 0 } subscriberId &&
-                Renderer.Scalar(will?["topic"]) is { Length: > 0 } willTopic &&
+                Renderer.Scalar(answer?["subscriberId"]) is { Length: > 0 } subscriberId && Renderer.Scalar(will?["topic"]) is { Length: > 0 } willTopic &&
                 int.TryParse(Renderer.Scalar(answer?["protocolVersion"]), NumberStyles.None, CultureInfo.InvariantCulture, out var protocolVersion) &&
                 int.TryParse(Renderer.Scalar(answer?["subscribeQos"]), NumberStyles.None, CultureInfo.InvariantCulture, out var subscribeQos) &&
                 int.TryParse(Renderer.Scalar(will?["qos"]), NumberStyles.None, CultureInfo.InvariantCulture, out var willQos))
@@ -279,7 +282,8 @@ namespace Vion.Cli.Commands
                                          willQos);
             }
 
-            throw new CliFailure($"{SubscriberOperation} answered no subscriber to connect as: a broker address, a subscriber id, a protocol version, a quality of service and a last will are all needed.");
+            throw new
+                CliFailure($"{SubscriberOperation} answered no subscriber to connect as: a broker address, a subscriber id, a protocol version, a quality of service and a last will are all needed.");
         }
 
         private static async Task<ApiResponse> SendAsync(Operation operation,
@@ -333,13 +337,15 @@ namespace Vion.Cli.Commands
 
         private static Operation OperationOf(IReadOnlyList<Operation> operations, string id)
         {
-            return operations.FirstOrDefault(operation => operation.Id == id) ?? throw new CliFailure($"{id} is not in the committed document; the watch cannot be set up without it.");
+            return operations.FirstOrDefault(operation => operation.Id == id) ??
+                   throw new CliFailure($"{id} is not in the committed document; the watch cannot be set up without it.");
         }
 
         private static string HandOutChoices(Channel channel)
         {
             var names = channel.Parameters.Where(parameter => parameter.OptionName != null).ToDictionary(parameter => parameter.Name, parameter => "--" + parameter.OptionName);
-            return string.Join(", or ", channel.HandOuts.Select(handOut => handOut.Selects.Count == 0 ? "no option" : string.Join(" and ", handOut.Selects.Select(name => names[name]))));
+            return string.Join(", or ",
+                               channel.HandOuts.Select(handOut => handOut.Selects.Count == 0 ? "no option" : string.Join(" and ", handOut.Selects.Select(name => names[name]))));
         }
 
         /// <summary>Two ids are one when both are UUIDs of one value, whatever their case; anything else compares as written.</summary>
@@ -355,8 +361,11 @@ namespace Vion.Cli.Commands
         private sealed class TokenCache
         {
             private readonly ResolvedContext _context;
+
             private readonly GlobalValues _globals;
+
             private readonly CliServices _services;
+
             private string? _piped;
 
             public TokenCache(GlobalValues globals, ResolvedContext context, CliServices services)
