@@ -47,8 +47,7 @@ namespace Vion.Cli.Commands
             {
                 if (!domains.TryGetValue(operation.CommandDomain, out var domain))
                 {
-                    domain = new Command(operation.CommandDomain,
-                                         DomainDescriptions.TryGetValue(operation.CommandDomain, out var text) ? text : $"Operations of the {operation.CommandDomain} domain.");
+                    domain = new Command(operation.CommandDomain, DomainDescription(operation.CommandDomain));
                     domains[operation.CommandDomain] = domain;
                     tree.Root.Subcommands.Add(domain);
                 }
@@ -56,13 +55,23 @@ namespace Vion.Cli.Commands
                 var aggregateKey = operation.CommandDomain + " " + operation.CommandAggregate;
                 if (!aggregates.TryGetValue(aggregateKey, out var aggregate))
                 {
-                    aggregate = new Command(operation.CommandAggregate, $"The {operation.CommandAggregate.Replace('-', ' ')} operations.");
+                    aggregate = new Command(operation.CommandAggregate, AggregateDescription(operation.CommandAggregate));
                     aggregates[aggregateKey] = aggregate;
                     domain.Subcommands.Add(aggregate);
                 }
 
                 aggregate.Subcommands.Add(Create(operation, tree, services));
             }
+        }
+
+        public static string DomainDescription(string domain)
+        {
+            return DomainDescriptions.TryGetValue(domain, out var text) ? text : $"Operations of the {domain} domain.";
+        }
+
+        public static string AggregateDescription(string aggregate)
+        {
+            return $"The {aggregate.Replace('-', ' ')} operations.";
         }
 
         private static Command Create(Operation operation, CliTree tree, CliServices services)

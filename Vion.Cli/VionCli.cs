@@ -23,9 +23,10 @@ namespace Vion.Cli
         public static async Task<int> RunAsync(IReadOnlyList<string> args,
                                                CliServices services,
                                                IReadOnlyList<Derived.Operation>? operations = null,
+                                               IReadOnlyList<Derived.Channel>? channels = null,
                                                CancellationToken cancellationToken = default)
         {
-            var tree = CliTree.Build(services, operations);
+            var tree = CliTree.Build(services, operations, channels);
             var parse = tree.Root.Parse(args, new ParserConfiguration { ResponseFileTokenReplacer = null });
             if (parse.Errors.Count > 0)
             {
@@ -45,7 +46,8 @@ namespace Vion.Cli
                 return ExitCodes.Usage;
             }
 
-            if (parse.GetResult(tree.Globals.Timeout) != null && !parse.GetValue(tree.Globals.Wait))
+            // On a watch the timeout bounds the watch itself, so it stands alone there.
+            if (parse.GetResult(tree.Globals.Timeout) != null && !parse.GetValue(tree.Globals.Wait) && !tree.Watches.Contains(parse.CommandResult.Command))
             {
                 Guard.Report(tree.Globals.Read(parse), services, "--timeout bounds --wait, and --wait is absent; it does not bound a call.", ExitCodes.Usage);
                 return ExitCodes.Usage;

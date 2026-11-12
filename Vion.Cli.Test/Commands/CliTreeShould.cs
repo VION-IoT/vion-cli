@@ -84,6 +84,44 @@ namespace Vion.Cli.Test.Commands
             StringAssert.Contains(run.Out, "--edge-gateway-id <uuid>  Lists only the rows of this edge gateway of the tenant.");
         }
 
+        [TestMethod]
+        [TestProperty("spec", "AC-WATCH-001.1")]
+        public async Task ParseEveryChannelToItsWatchCommand()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(200);
+            var missing = new List<string>();
+
+            // Act
+            foreach (var channel in Channels.All)
+            {
+                var run = await Tool.RunAsync(handler, [channel.CommandDomain, channel.CommandAggregate, "watch", "--help"]);
+                if (run.ExitCode != 0 || !run.Out.Contains($"vion {channel.CommandDomain} {channel.CommandAggregate} watch [options]", System.StringComparison.Ordinal))
+                {
+                    missing.Add(channel.Id);
+                }
+            }
+
+            // Assert
+            Assert.IsNotEmpty(Channels.All);
+            Assert.IsEmpty(missing);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-WATCH-001.4")]
+        public async Task DescribeWatchCommandAndOptionsFromEventDocument()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(200);
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["tenant", "sync-status", "watch", "--help"]);
+
+            // Assert
+            StringAssert.Contains(run.Out, "How far the gateway has applied what was sent to it, published each time a sync status changes.");
+            StringAssert.Contains(run.Out, "--edge-gateway-id <value> (REQUIRED)  The edge gateway's id.");
+        }
+
         private static Operation Synthetic(string id, bool deprecated)
         {
             var (domain, aggregate, verb) = (id.Split('.')[0], id.Split('.')[1], id.Split('.')[2]);

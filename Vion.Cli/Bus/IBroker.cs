@@ -25,7 +25,7 @@ namespace Vion.Cli.Bus
         }
     }
 
-    /// <summary>The connection ended without the tool ending it.</summary>
+    /// <summary>The connection ended without the tool ending it, or the broker could not be reached at all.</summary>
     internal sealed class BrokerLostException : Exception
     {
         public BrokerLostException(string message) : base(message)
@@ -40,6 +40,7 @@ namespace Vion.Cli.Bus
         ///     Connects as the session's subscriber with its will registered, an empty username and the token as the password.
         /// </summary>
         /// <exception cref="BrokerRefusedException">The broker refused the connection.</exception>
+        /// <exception cref="BrokerLostException">The broker could not be reached.</exception>
         Task<IBrokerConnection> ConnectAsync(BrokerSession session, string token, CancellationToken cancellationToken);
     }
 

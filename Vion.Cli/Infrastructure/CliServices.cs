@@ -6,6 +6,7 @@ using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
+using Vion.Cli.Bus;
 
 namespace Vion.Cli.Infrastructure
 {
@@ -37,7 +38,8 @@ namespace Vion.Cli.Infrastructure
         TimeProvider Time,
         IConsoleShape Console,
         Func<Uri, bool> OpenBrowser,
-        string Version)
+        string Version,
+        IBroker Broker)
     {
         public static CliServices Real()
         {
@@ -66,7 +68,8 @@ namespace Vion.Cli.Infrastructure
                                    TimeProvider.System,
                                    new RealConsoleShape(),
                                    OpenBrowserWithShell,
-                                   version);
+                                   version,
+                                   new MqttBroker());
 #pragma warning restore CA2000
         }
 

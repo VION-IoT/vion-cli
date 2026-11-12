@@ -49,7 +49,7 @@ namespace Vion.Cli.Bus
             catch (MqttCommunicationException failed)
             {
                 await connection.DisposeAsync();
-                throw new BrokerRefusedException($"The broker at {session.BrokerUrl} could not be reached: {failed.Message}", failed);
+                throw new BrokerLostException($"The broker at {session.BrokerUrl.Host} could not be reached: {failed.Message}");
             }
             catch
             {
