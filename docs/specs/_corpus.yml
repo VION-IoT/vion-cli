@@ -25,7 +25,7 @@
 # listed here. Every other id on a page is a citation and is written `<repo>/AC-…`; a bare id with
 # an unlisted area fails the lint. List the invariant codes too — `_invariants.md` declares its
 # `SYS-` rules the same way and they are owned the same way.
-owns: [CLI]
+owns: [CLI, WATCH]
 
 # ---------------------------------------------------------------------------------------------
 # tests  (required) — where coverage is counted, as repo-root-relative globs over FILES.
