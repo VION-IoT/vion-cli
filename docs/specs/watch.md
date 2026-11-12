@@ -34,7 +34,8 @@ operations, takes as options only what selects that row, and is described by the
 
 One procedure for every channel, in one order: the row and its topic, the subscriber, the
 connection with its will, the subscription, the registration where the channel names one, then the
-notice that the watch stands. The same order holds after a lost connection. A refusal happens as
+notice that the watch stands. The same order holds after a lost connection, and a call on the way
+back that gets no answer is waited out like the loss itself. A refusal happens as
 early as it can: a row that does not hand the channel out, or a registration value the row does not
 carry, ends the command before any connection.
 
@@ -52,7 +53,8 @@ carry, ends the command before any connection.
 
 A watch prints payloads, as published. Under `--json` each is one line, so the stream is
 line-delimited and a filter is a pipe; in table mode each is the key–value table any object gets.
-Only the channel's own message is printed. A watch that ends as asked has succeeded.
+Only the channel's own message is printed. A watch that ends as asked has succeeded; an interrupt
+before the watch stands is a cancelled command like any other, exit 1.
 
 - `AC-WATCH-003.1` (Ubiquitous): THE SYSTEM SHALL write each message whose `schema` user property names the channel's message, and no other message, as its payload on one line of standard output under `--json` and as an object's key–value table otherwise, projected by `--fields` in both.
 - `AC-WATCH-003.2` (Ubiquitous): THE SYSTEM SHALL watch until `--timeout` where one is given, without `--wait` beside it, and until interrupted otherwise, and exit 0 at either.

@@ -149,11 +149,11 @@ namespace Vion.Cli.Auth
             }
             catch (HttpRequestException exception)
             {
-                throw new CliFailure($"POST {url}: {exception.Message}");
+                throw new NoAnswer($"POST {url}: {exception.Message}");
             }
             catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
-                throw new CliFailure($"POST {url}: no answer within {_client.Timeout.TotalSeconds:0} seconds.");
+                throw new NoAnswer($"POST {url}: no answer within {_client.Timeout.TotalSeconds:0} seconds.");
             }
 
             using (response)

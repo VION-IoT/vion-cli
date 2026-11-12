@@ -212,6 +212,7 @@ namespace Vion.Cli.Commands
                                          .Where(fill => fill is { OperationParameter: not null, ChannelParameter: not null })
                                          .ToDictionary(fill => fill.OperationParameter!, fill => values[fill.ChannelParameter!], StringComparer.Ordinal);
 
+            var registeredOnce = false;
             return async (session, token, cancellationToken) =>
                    {
                        var body = new JsonObject { [registration.SubscriberIdMember] = session.SubscriberId };
@@ -239,14 +240,25 @@ namespace Vion.Cli.Commands
                            }
                        }
 
-                       await SendAsync(operation,
-                                       pathValues,
-                                       body,
-                                       context,
-                                       globals,
-                                       token,
-                                       client,
-                                       cancellationToken);
+                       try
+                       {
+                           await SendAsync(operation,
+                                           pathValues,
+                                           body,
+                                           context,
+                                           globals,
+                                           token,
+                                           client,
+                                           cancellationToken);
+                       }
+                       catch (ApiAnswerException answer) when (registeredOnce && answer.Response.Status >= 500)
+                       {
+                           // The host answered the first registration, so a server error on a later one is the host
+                           // on its way back up and not a refusal of the request.
+                           throw new NoAnswer($"{operation.Id} answered {answer.Response.Status}.");
+                       }
+
+                       registeredOnce = true;
                    };
         }
 

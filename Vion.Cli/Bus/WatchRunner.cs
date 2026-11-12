@@ -29,12 +29,17 @@ namespace Vion.Cli.Bus
 
         private static readonly TimeSpan LongestBackoff = TimeSpan.FromSeconds(30);
 
-        /// <summary>How long the way out may take before the process leaves the will to the broker.</summary>
-        private static readonly TimeSpan EndBudget = TimeSpan.FromSeconds(2);
+        /// <summary>
+        ///     How long the way out may take before the process leaves the will to the broker. Shorter than the two
+        ///     seconds the command line gives an interrupted command before it ends the process, so that a way out
+        ///     which cannot finish still returns in time to exit as the watch decided.
+        /// </summary>
+        private static readonly TimeSpan EndBudget = TimeSpan.FromSeconds(1);
 
         /// <summary>
         ///     Watches until the plan's timeout or <paramref name="interrupt" />, and returns then. A refusal by the broker,
-        ///     or a broker that cannot be reached before the watch stood once, is a <see cref="CliFailure" />.
+        ///     or a broker that cannot be reached before the watch stood once, is a <see cref="CliFailure" />. Once it
+        ///     stood, a lost connection and a call that gets no answer are both tried again.
         /// </summary>
         public static async Task RunAsync(WatchPlan plan, Action<BusMessage> sink, CliServices services, CancellationToken interrupt)
         {
@@ -90,8 +95,11 @@ namespace Vion.Cli.Bus
                 {
                     throw new CliFailure(lost.Message);
                 }
-                catch (BrokerLostException)
+                catch (Exception lost) when (lost is BrokerLostException || (stoodOnce && lost is NoAnswer))
                 {
+                    // A lost connection usually means a lost network, and the token endpoint and the API are behind
+                    // the same one: a call on the way back that gets no answer is the same loss, tried again after
+                    // the same wait. An answer that refuses is not, and ends the watch.
                     try
                     {
                         await Task.Delay(backoff, services.Time, ending.Token);

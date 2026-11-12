@@ -290,6 +290,39 @@ namespace Vion.Cli.Test.Commands
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-WATCH-002.6")]
+        public async Task ConnectAgainAfterTokenEndpointGaveNoAnswer()
+        {
+            // Arrange
+            var broker = new RecordingBroker
+                         {
+                             OnConnected = (connection, index) =>
+                                           {
+                                               if (index == 0)
+                                               {
+                                                   connection.Lose();
+                                               }
+                                           },
+                         };
+            using var handler = Api(broker, Gateways, unreachableTokenRequest: 3);
+            var time = new FakeTimeProvider();
+            var environment = new Dictionary<string, string?> { ["VION_CLIENT_ID"] = "client", ["VION_CLIENT_SECRET"] = "secret" };
+
+            // Act
+            var run = await Tool.RunAdvancingAsync(time,
+                                                   () => Tool.RunAsync(handler,
+                                                                       [.. SyncStatus, "--env", "test", "--timeout", "30s"],
+                                                                       environment: environment,
+                                                                       time: time,
+                                                                       broker: broker));
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode);
+            Assert.HasCount(2, broker.Connections);
+            Assert.AreEqual("minted-4", broker.Connections[1].Token);
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-WATCH-002.7")]
         public async Task ExitOneWhenBrokerRefusesConnection()
         {
@@ -489,7 +522,7 @@ namespace Vion.Cli.Test.Commands
         ///     token endpoint that mints a different token each time. Every request joins the broker's log, so one list
         ///     holds the order across both.
         /// </summary>
-        private static RecordingHandler Api(RecordingBroker broker, string rows, int registrationStatus = 200)
+        private static RecordingHandler Api(RecordingBroker broker, string rows, int registrationStatus = 200, int unreachableTokenRequest = 0)
         {
             var minted = 0;
             return new RecordingHandler(request =>
@@ -499,6 +532,11 @@ namespace Vion.Cli.Test.Commands
                                             if (path.EndsWith("/protocol/openid-connect/token", StringComparison.Ordinal))
                                             {
                                                 minted++;
+                                                if (minted == unreachableTokenRequest)
+                                                {
+                                                    throw new HttpRequestException("no route to host");
+                                                }
+
                                                 return RecordingHandler.Response(200, $$"""{"access_token":"minted-{{minted}}","expires_in":300}""");
                                             }
 
