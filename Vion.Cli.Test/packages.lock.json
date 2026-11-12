@@ -119,6 +119,11 @@
         "resolved": "0.11.6",
         "contentHash": "f33RkDtZO8VlGXCtmQIviOtxgnUdym9xx/b1p9h91CRGOsJFxCFOFK1FDbVt1OCf1aWwYejUFa2MOQyFWTFjbA=="
       },
+      "MQTTnet": {
+        "type": "Transitive",
+        "resolved": "5.2.0.1603",
+        "contentHash": "iNuWVo/568aRo2ExEN2qkC4J5b07ckKqt+9Uok2kIbbK7PMBsXvYiKVENPHmOBWFB5ExhlNQb/qQ8M9/IYRTdQ=="
+      },
       "MSTest.Analyzers": {
         "type": "Transitive",
         "resolved": "4.5.2",
@@ -165,6 +170,7 @@
       "vion": {
         "type": "Project",
         "dependencies": {
+          "MQTTnet": "[5.2.0.1603, )",
           "Spectre.Console": "[0.57.2, )",
           "System.CommandLine": "[2.0.14, )"
         }
