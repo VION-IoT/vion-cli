@@ -1,13 +1,15 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-  Regenerate everything derived from the committed document: the operations table and the help
-  snapshot. With -Verify, fail when either differs from what is committed (the CI gate).
+  Regenerate everything derived from the committed documents: the operations table, the channels
+  table and the help snapshot. With -Verify, fail when any differs from what is committed (the CI
+  gate).
 
 .DESCRIPTION
   Three steps, in order:
-    1. Vion.Cli.Derive reads openapi/v1.json and cli.json and emits Vion.Cli/Derived/Operations.g.cs.
-       A cli.json entry the document lacks fails here.
+    1. Vion.Cli.Derive reads openapi/v1.json, asyncapi/v1.json and cli.json and emits
+       Vion.Cli/Derived/Operations.g.cs and Vion.Cli/Derived/Channels.g.cs. A cli.json entry the
+       document lacks fails here, and so does a channel that names an operation it lacks.
     2. Vion.Cli is built, so the table just emitted is the one compiled in.
     3. The built tool writes every command's --help to docs/snapshots/help.txt through its hidden
        __help-snapshot command, which walks its own tree — so a new command or option is inside the
@@ -36,7 +38,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$derivedPaths = @('Vion.Cli/Derived/Operations.g.cs', 'docs/snapshots/help.txt')
+$derivedPaths = @('Vion.Cli/Derived/Operations.g.cs', 'Vion.Cli/Derived/Channels.g.cs', 'docs/snapshots/help.txt')
 
 Push-Location $repoRoot
 try {
@@ -52,8 +54,8 @@ try {
         }
     }
 
-    Write-Host 'Deriving Vion.Cli/Derived/Operations.g.cs from openapi/v1.json and cli.json'
-    dotnet run --project Vion.Cli.Derive/Vion.Cli.Derive.csproj -c Debug -- openapi/v1.json cli.json Vion.Cli/Derived
+    Write-Host 'Deriving Vion.Cli/Derived from openapi/v1.json, asyncapi/v1.json and cli.json'
+    dotnet run --project Vion.Cli.Derive/Vion.Cli.Derive.csproj -c Debug -- openapi/v1.json asyncapi/v1.json cli.json Vion.Cli/Derived
     if ($LASTEXITCODE -ne 0) { Write-Host 'derive: the derive step failed.'; exit 1 }
 
     Write-Host 'Building Vion.Cli'

@@ -122,12 +122,12 @@ namespace Vion.Cli.Derive
             sb.Append("            ").Append(Bool(o.Hidden)).Append(", ").Append(Literal(o.Alias)).Append("),\n");
         }
 
-        private static string StringArray(IReadOnlyList<string> values)
+        internal static string StringArray(IReadOnlyList<string> values)
         {
             return values.Count == 0 ? "new string[0]" : "new[] { " + string.Join(", ", values.Select(Literal)) + " }";
         }
 
-        private static string Bool(bool value)
+        internal static string Bool(bool value)
         {
             return value ? "true" : "false";
         }
@@ -136,7 +136,7 @@ namespace Vion.Cli.Derive
         ///     A C# string literal, or <c>null</c>; every character outside the printable ASCII range is escaped so the file
         ///     is ASCII whatever the document carries.
         /// </summary>
-        private static string Literal(string? value)
+        internal static string Literal(string? value)
         {
             if (value == null)
             {
