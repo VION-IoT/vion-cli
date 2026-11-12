@@ -9,8 +9,9 @@ namespace Vion.Cli.Test.Derive
     /// <summary>
     ///     The derive step over the committed event document and over small synthetic ones: which channels become watch
     ///     commands, which address parameters become options, and what the step refuses. The collisions are proven on
-    ///     synthetic documents only, since the real one has none. One premise test cites no id by design: the refusal of a
-    ///     hand-out naming an operation the OpenAPI document lacks guards the derivation itself, which no user observes.
+    ///     synthetic documents only, since the real one has none. Two premise tests cite no id by design: the refusals of a
+    ///     hand-out naming an operation the OpenAPI document lacks, and of a registration filling from a parameter no
+    ///     caller supplies, guard the derivation itself, which no user observes.
     /// </summary>
     [TestClass]
     public class EventDocumentReaderShould
@@ -125,6 +126,19 @@ namespace Vion.Cli.Test.Derive
             // Act / Assert
             var exception = Assert.ThrowsExactly<DeriveException>(() => Deriver.DeriveChannels(events, operations));
             StringAssert.Contains(exception.Message, "'tenant.thing.missing'");
+        }
+
+        [TestMethod]
+        public void RefuseRegistrationThatFillsFromParameterCallerDoesNotSupply()
+        {
+            // Arrange
+            var operations = Deriver.Derive(Fixture("synthetic.json"), "{}");
+            var registered = Thing.TrimEnd().TrimEnd('}') +
+                             ", \"x-vion-registeredBy\": { \"operation\": \"tenant.thing.list\", \"subscriberId\": \"subscriberId\", \"fill\": [ { \"channelParameter\": \"elsewhereId\", \"bodyMember\": \"elsewhereId\" } ] } }";
+
+            // Act / Assert
+            var exception = Assert.ThrowsExactly<DeriveException>(() => Deriver.DeriveChannels(Events(registered), operations));
+            StringAssert.Contains(exception.Message, "'elsewhereId'");
         }
 
         private static string Events(string channels)

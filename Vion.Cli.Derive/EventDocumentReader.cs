@@ -160,7 +160,16 @@ namespace Vion.Cli.Derive
                     var bodyMember = TryString(fill, "bodyMember");
                     if (rowMember == null)
                     {
-                        fills.Add(new DerivedFill(TryString(fill, "channelParameter"), false, TryString(fill, "operationParameter"), bodyMember));
+                        // A fill takes its value from what the caller supplies for the address, so one that names a
+                        // parameter no hand-out joins has no value to take.
+                        var channelParameter = TryString(fill, "channelParameter");
+                        if (channelParameter == null || parameters.All(parameter => parameter.Name != channelParameter))
+                        {
+                            throw new
+                                DeriveException($"channel '{channelId}': its registration fills from '{channelParameter}', which is not an address parameter a caller supplies.");
+                        }
+
+                        fills.Add(new DerivedFill(channelParameter, false, TryString(fill, "operationParameter"), bodyMember));
                         continue;
                     }
 
