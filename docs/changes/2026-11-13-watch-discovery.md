@@ -1,6 +1,6 @@
 ---
 slug: watch-discovery
-status: proposed           # proposed | in-flight | parked | archived
+status: in-flight          # proposed | in-flight | parked | archived
 blocked-on: none           # for parked docs: what's blocking + ref
 areas: CLI,WATCH
 author: the watch-discovery session, for Jonas Bertsch

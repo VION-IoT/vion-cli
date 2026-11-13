@@ -29,6 +29,7 @@ operations, takes as options only what selects that row, and is described by the
 - `AC-WATCH-001.2` (Ubiquitous): THE SYSTEM SHALL take as an option, named by the parameter's name in kebab case, every address parameter of a channel that some hand-out joins to an operation parameter or to a member of a listed row, except `tenantId`, `integratorId`, `platformId` and `projectId`, which the context supplies, requiring each unless some hand-out of the channel does not join it.
 - `AC-WATCH-001.3` (Unwanted): IF two channels derive to one command, or a channel derives to a command an operation has, THEN THE SYSTEM SHALL fail the derive step naming both.
 - `AC-WATCH-001.4` (Ubiquitous): THE SYSTEM SHALL describe each watch command by its channel's description and each of its options by the parameter's description in help.
+- `AC-WATCH-001.5` (Ubiquitous): THE SYSTEM SHALL describe `--timeout` in a watch command's help as how long it watches once subscribed, until interrupted when absent, exiting 0 then and 1 if it never subscribed.
 
 ## Subscribing
 

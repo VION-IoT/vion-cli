@@ -123,6 +123,7 @@ namespace Vion.Cli.Test.Commands
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-WATCH-001.5")]
         public async Task DescribeTimeoutOnWatchAsBoundingTheWatch()
         {
             // Arrange
