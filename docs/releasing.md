@@ -17,9 +17,7 @@ in `dotnet-aot-app.yml`).
 
 ## Cutting a release
 
-Prerequisites: `main` is green on the commit you want to release; `gh auth status` is signed in;
-the README's install line (`v=`) names the version about to be cut, moved there in the last pull
-request before the release, so the archive the README installs is the one its claims describe.
+Prerequisites: `main` is green on the commit you want to release; `gh auth status` is signed in.
 
 ```bash
 gh release create v0.2.0 --target main --generate-notes --title "v0.2.0" --notes "Short release summary."
@@ -50,8 +48,13 @@ requests' labels: `feat`, `fix`, `chore`, and everything else under Other.
 
 ### When the run fails
 
-The run's log names the failing job. Nothing is pushed anywhere but the release, so the version is
-not burned until the archives are attached:
+The run's log names the failing job. The README's install line follows the latest release, so it
+fails with a 404 while the archives are missing: `gh release edit v0.2.0 --prerelease` makes the
+previous release the latest again until they are attached, and
+`gh release edit v0.2.0 --prerelease=false --latest` restores it, which fires `winget.yml` again.
+
+Nothing is pushed anywhere but the release, so the version is not burned until the archives are
+attached:
 
 - A cause outside the release — a runner or network failure — re-runs the failed job on the same tag.
 - A fault in the release is fixed on a branch, merged through a pull request as any change, and the
