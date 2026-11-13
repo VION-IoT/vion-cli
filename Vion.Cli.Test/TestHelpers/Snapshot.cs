@@ -33,7 +33,11 @@ namespace Vion.Cli.Test.TestHelpers
             get
             {
                 using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "asyncapi-v1.json")));
-                return document.RootElement.GetProperty("channels").EnumerateObject().Count(channel => channel.Value.TryGetProperty("x-vion-handedOutBy", out _));
+                return document.RootElement
+                               .GetProperty("channels")
+                               .EnumerateObject()
+                               .Count(channel => channel.Value.TryGetProperty("x-vion-handedOutBy", out var handOuts) && handOuts.ValueKind == JsonValueKind.Array &&
+                                                 handOuts.GetArrayLength() > 0);
             }
         }
 
