@@ -168,8 +168,8 @@ jobs:
               fi
               echo
             done
-            echo "- **differs**: the release's committed snapshot is stale against that host — pull the snapshot, derive, release (vion-cli \`docs/releasing.md\` § The snapshot is not a release)."
-            echo "- **fails**: the executable could not read the host's document, or the archive could not be downloaded or verified — the host, the network, the release's assets or the executable's HTTPS."
+            echo "- **differs**: the release's committed snapshot is stale against that host — pull the one each row's \`protocol\` names (\`http\`: \`scripts/snapshot-pull.ps1\`, \`mqtt\`: \`scripts/asyncapi-pull.ps1\`), derive, release (vion-cli \`docs/releasing.md\` § The live check)."
+            echo "- **fails**: the executable could not read one of the host's documents, or the archive could not be downloaded or verified — the host, the network, the release's assets or the executable's HTTPS."
             echo
             echo "One issue is kept open while the check is red; each red run comments on it. Close it by hand once a release fixes what it reports."
           } > "$body"

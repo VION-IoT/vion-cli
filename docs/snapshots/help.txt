@@ -14803,8 +14803,8 @@ Usage:
 
 Options:
   --all                     Include the system operations, which have no command.
-  --live                    Read the environment's document and list the operations added, removed or changed 
-                            against the committed one; exit 1 on any.
+  --live                    Read the environment's OpenAPI and event documents and list the operations added, 
+                            removed or changed against the committed ones; exit 1 on any.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.

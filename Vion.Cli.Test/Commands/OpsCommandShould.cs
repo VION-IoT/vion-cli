@@ -8,8 +8,8 @@ using Vion.Cli.Test.TestHelpers;
 namespace Vion.Cli.Test.Commands
 {
     /// <summary>
-    ///     `vion ops`, offline: the tree's rows, and the system rows behind `--all`; `ops --live`: the environment's
-    ///     document against the committed one.
+    ///     `vion ops`, offline: the tree's rows, the watches among them, and the system rows behind `--all`; `ops --live`:
+    ///     the environment's two documents against the committed ones.
     /// </summary>
     [TestClass]
     public class OpsCommandShould
@@ -127,7 +127,7 @@ namespace Vion.Cli.Test.Commands
                                                                               },
                                                   },
                                     };
-            using var handler = RecordingHandler.Json(200, live.ToJsonString());
+            using var handler = Documents(live.ToJsonString(), Fixture("asyncapi-v1.json"));
 
             // Act
             var run = await Tool.RunAsync(handler, ["ops", "--live", "--env", "test", "--json"]);
@@ -153,7 +153,7 @@ namespace Vion.Cli.Test.Commands
             // Arrange
             var live = JsonNode.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "v1.json")))!;
             live["paths"]!["/integrator/{integratorId}/edgeGateways"]!["post"]!["x-vion-capability"]!["completion"] = "Response";
-            using var handler = RecordingHandler.Json(200, live.ToJsonString());
+            using var handler = Documents(live.ToJsonString(), Fixture("asyncapi-v1.json"));
 
             // Act
             var run = await Tool.RunAsync(handler, ["ops", "--live", "--env", "test", "--json"]);
@@ -173,7 +173,7 @@ namespace Vion.Cli.Test.Commands
             // Arrange
             var live = JsonNode.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "v1.json")))!;
             live["paths"]!["/tenant/{tenantId}/edgeGateways"]!["get"]!["x-vion-capability"]!.AsObject().Remove("completion");
-            using var handler = RecordingHandler.Json(200, live.ToJsonString());
+            using var handler = Documents(live.ToJsonString(), Fixture("asyncapi-v1.json"));
 
             // Act
             var run = await Tool.RunAsync(handler, ["ops", "--live", "--env", "test"]);
@@ -188,7 +188,7 @@ namespace Vion.Cli.Test.Commands
         public async Task ExitZeroWhenLiveDocumentMatchesCommittedOne()
         {
             // Arrange
-            using var handler = RecordingHandler.Json(200, File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "v1.json")));
+            using var handler = Documents(Fixture("v1.json"), Fixture("asyncapi-v1.json"));
 
             // Act
             var run = await Tool.RunAsync(handler, ["ops", "--live", "--env", "test"]);
@@ -197,6 +197,87 @@ namespace Vion.Cli.Test.Commands
             Assert.AreEqual(0, run.ExitCode, run.Error);
             StringAssert.Contains(run.Error, "no differences");
             StringAssert.Contains(run.Error, Snapshot.OperationCount.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.2")]
+        public async Task DiffLiveEventDocumentAgainstCommittedOne()
+        {
+            // Arrange
+            var events = JsonNode.Parse(Fixture("asyncapi-v1.json"))!;
+            var operations = events["operations"]!.AsObject();
+            var channels = events["channels"]!.AsObject();
+            operations.Remove("tenant.vpnSession.state");
+            operations["tenant.thing.state"] = new JsonObject { ["action"] = "send", ["channel"] = new JsonObject { ["$ref"] = "#/channels/tenant.alert.state" } };
+            operations["me.lastWill.event"]!["action"] = "send";
+            operations["integrator.certificate.state"]!["channel"]!["$ref"] = "#/channels/integrator.certificateRequest.state";
+            channels["tenant.syncStatus.state"]!["x-vion-handedOutBy"]![0]!["row"] = "rows[]";
+            channels["tenant.serviceProperty.state"]!["x-vion-registeredBy"]!["subscriberId"] = "id";
+            var alertParameters = channels["tenant.alert.state"]!["parameters"]!.AsObject();
+            var alertRule = alertParameters["alertRuleId"]!.DeepClone();
+            alertParameters.Remove("alertRuleId");
+            alertParameters["ruleId"] = alertRule;
+            using var handler = Documents(Fixture("v1.json"), events.ToJsonString());
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--live", "--env", "test", "--json"]);
+
+            // Assert
+            Assert.AreEqual(1, run.ExitCode, run.Error);
+            Assert.AreEqual("https://api.test.vion.swiss/asyncapi/v1.json", handler.Requests[1].Uri.ToString());
+            Assert.IsFalse(handler.Requests[1].Headers.ContainsKey("Authorization"), "the event document was read with a token");
+            var rows = JsonNode.Parse(run.Out)!["items"]!.AsArray();
+            Assert.IsTrue(rows.All(row => row!["protocol"]!.GetValue<string>() == "mqtt" && row["method"] == null && row["path"] == null), run.Out);
+            var items = rows.Select(i => (i!["change"]!.GetValue<string>(), i["operationId"]!.GetValue<string>(), i["detail"]?.GetValue<string>())).ToList();
+            CollectionAssert.AreEquivalent(new[]
+                                           {
+                                               ("added", "tenant.thing.state", (string?)null),
+                                               ("removed", "tenant.vpnSession.state", (string?)null),
+                                               ("changed", "me.lastWill.event", (string?)"action"),
+                                               ("changed", "integrator.certificate.state", (string?)"channel"),
+                                               ("changed", "tenant.syncStatus.state", (string?)"x-vion-handedOutBy"),
+                                               ("changed", "tenant.serviceProperty.state", (string?)"x-vion-registeredBy"),
+                                               ("changed", "tenant.alert.state", (string?)"parameters"),
+                                           },
+                                           items);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.2")]
+        public async Task IgnoreWhatTheWatchDeriveDoesNotRead()
+        {
+            // Arrange
+            var events = JsonNode.Parse(Fixture("asyncapi-v1.json"))!;
+            foreach (var (_, channel) in events["channels"]!.AsObject())
+            {
+                channel!["address"] = channel["address"]!.GetValue<string>().Replace("v1/test/", "v1/prod/", StringComparison.Ordinal);
+                channel["description"] = "Reworded.";
+            }
+
+            var syncStatus = events["channels"]!["tenant.syncStatus.state"]!;
+            syncStatus["x-vion-handedOutBy"]![0]!["key"] = "another.key";
+            syncStatus["x-vion-handedOutBy"]![0]!["schema"] = "AnotherOutput";
+            syncStatus["parameters"]!["edgeGatewayId"]!["description"] = "Reworded.";
+            events["servers"]!["test"]!["host"] = "ws.vion.swiss";
+            using var handler = Documents(Fixture("v1.json"), events.ToJsonString());
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--live", "--env", "test"]);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error + run.Out);
+            StringAssert.Contains(run.Error, "no differences");
+        }
+
+        /// <summary>An environment that serves the two documents at their own paths, tokenless.</summary>
+        private static RecordingHandler Documents(string openApi, string events)
+        {
+            return new RecordingHandler(request => RecordingHandler.Response(200, request.RequestUri!.AbsolutePath.EndsWith("/asyncapi/v1.json", StringComparison.Ordinal) ? events : openApi));
+        }
+
+        private static string Fixture(string name)
+        {
+            return File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", name));
         }
     }
 }

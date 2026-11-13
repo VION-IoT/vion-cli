@@ -106,12 +106,12 @@ the roots a call fills in; the flags and the `VION_*` variables override it per 
 
 ## The written commands
 
-`ops` is the tree as a table, offline; `ops --live` reads what an environment serves and diffs it
-against the committed document; `can-i` joins the environment's catalog with the caller's own
+`ops` is the tree as a table, offline, the watches included; `ops --live` reads what an
+environment serves and diffs it against the committed documents; `can-i` joins the environment's catalog with the caller's own
 permissions as the dashboard does; `api` is the raw call for anything the tree does not name.
 
 - `AC-CLI-006.1` (Event-driven): WHEN `ops` runs THE SYSTEM SHALL list, from the committed documents and without a request, every tree command with its operationId, protocol, method, path, effect, completion and flags — a watch with the operation of the event document that sends on its channel, protocol `mqtt`, no method or path, effect `Read` and completion `Stream` — and with `--all` the `system` operations too.
-- `AC-CLI-006.2` (Event-driven): WHEN `ops --live` runs THE SYSTEM SHALL read the environment's document and print the operations added, removed or changed in method, path, `x-vion-authorization` or `x-vion-capability` against the committed document, exiting 0 only when none differ.
+- `AC-CLI-006.2` (Event-driven): WHEN `ops --live` runs THE SYSTEM SHALL read the environment's two documents and print the operations added, removed or changed against the committed ones — in method, path, `x-vion-authorization` or `x-vion-capability` for the OpenAPI document, and in action, channel, parameters, `x-vion-handedOutBy` or `x-vion-registeredBy` for the event document, never in a channel's address — exiting 0 only when none differ.
 - `AC-CLI-006.3` (Event-driven): WHEN `can-i <operationId>` runs THE SYSTEM SHALL decide from the environment's catalog row and the context root's own permissions — a `Root` operation from the root set, a `Filtered` or `Scope` operation at `--project` from the held scope of that project else the root set, any other case allowed, an unlisted operation unknown — and exit 0 when allowed, 1 when denied and 2 when unknown.
 - `AC-CLI-006.4` (Event-driven): WHEN `whoami` runs THE SYSTEM SHALL print the caller's identity and memberships with their ids from `me.identity.get`.
 - `AC-CLI-006.5` (Event-driven): WHEN `api <METHOD> <path>` runs THE SYSTEM SHALL send that request to the environment's API with the resolved token, the `-f` and `-F` pairs as the query on `GET` and as the JSON body otherwise, the write-safety headers and refusals of the operation whose template the path matches, and render the answer as any command's.

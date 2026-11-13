@@ -33,7 +33,10 @@ namespace Vion.Cli.Commands
         {
             var all = new Option<bool>("--all") { Description = "Include the system operations, which have no command." };
             var live = new Option<bool>("--live")
-                       { Description = "Read the environment's document and list the operations added, removed or changed against the committed one; exit 1 on any." };
+                       {
+                           Description =
+                               "Read the environment's OpenAPI and event documents and list the operations added, removed or changed against the committed ones; exit 1 on any.",
+                       };
             var command = new Command("ops",
                                       "List the operations of the committed documents, the watches included: the command, the operationId, the protocol, the method and path, the effect, the completion and the write-safety flags.");
             command.Options.Add(all);
@@ -148,25 +151,27 @@ namespace Vion.Cli.Commands
         }
 
         /// <summary>
-        ///     The environment's document against the committed one, by operationId: added, removed, or changed in method,
-        ///     path, `x-vion-authorization` or `x-vion-capability`. Exit 0 only when nothing differs, so a smoke check can
-        ///     use it.
+        ///     The environment's documents against the committed ones, by operation id. The OpenAPI document's operations:
+        ///     added, removed, or changed in method, path, `x-vion-authorization` or `x-vion-capability`. The event document's:
+        ///     added, removed, or changed in action, channel, or what the watch derive reads of the channel — never its
+        ///     address, which names the environment. Exit 0 only when nothing differs, so a smoke check can use it.
         /// </summary>
         private static async Task<int> LiveAsync(GlobalValues globals, CliServices services, CancellationToken cancellationToken)
         {
             var context = ContextResolver.Resolve(globals, services);
-            var live = await ReadDocumentAsync(context.Environment, services, cancellationToken);
+            var live = ReadOpenApiOperations(await ReadDocumentAsync(context.Environment, "/openapi/v1.json", services, cancellationToken));
+            var liveEvents = ReadEventOperations(await ReadDocumentAsync(context.Environment, "/asyncapi/v1.json", services, cancellationToken));
 
             var committed = Operations.All.ToDictionary(o => o.Id, StringComparer.Ordinal);
             var items = new JsonArray();
             foreach (var (id, operation) in live.Where(pair => !committed.ContainsKey(pair.Key)).OrderBy(pair => pair.Key, StringComparer.Ordinal))
             {
-                items.Add((JsonNode)Row("added", id, operation.Method, operation.Path, null));
+                items.Add((JsonNode)Row("added", id, Http, operation.Method, operation.Path, null));
             }
 
             foreach (var operation in committed.Values.Where(o => !live.ContainsKey(o.Id)).OrderBy(o => o.Id, StringComparer.Ordinal))
             {
-                items.Add((JsonNode)Row("removed", operation.Id, operation.Method, operation.Template, null));
+                items.Add((JsonNode)Row("removed", operation.Id, Http, operation.Method, operation.Template, null));
             }
 
             foreach (var operation in committed.Values.Where(o => live.ContainsKey(o.Id)).OrderBy(o => o.Id, StringComparer.Ordinal))
@@ -190,7 +195,27 @@ namespace Vion.Cli.Commands
 
                 if (differences.Count > 0)
                 {
-                    items.Add((JsonNode)Row("changed", operation.Id, served.Method, served.Path, string.Join(", ", differences)));
+                    items.Add((JsonNode)Row("changed", operation.Id, Http, served.Method, served.Path, string.Join(", ", differences)));
+                }
+            }
+
+            var committedEvents = EventOperations.All.ToDictionary(o => o.Id, StringComparer.Ordinal);
+            foreach (var id in liveEvents.Keys.Where(id => !committedEvents.ContainsKey(id)).OrderBy(id => id, StringComparer.Ordinal))
+            {
+                items.Add((JsonNode)Row("added", id, Mqtt, null, null, null));
+            }
+
+            foreach (var id in committedEvents.Keys.Where(id => !liveEvents.ContainsKey(id)).OrderBy(id => id, StringComparer.Ordinal))
+            {
+                items.Add((JsonNode)Row("removed", id, Mqtt, null, null, null));
+            }
+
+            foreach (var operation in committedEvents.Values.Where(o => liveEvents.ContainsKey(o.Id)).OrderBy(o => o.Id, StringComparer.Ordinal))
+            {
+                var differences = EventDifferences(operation, liveEvents[operation.Id]);
+                if (differences.Count > 0)
+                {
+                    items.Add((JsonNode)Row("changed", operation.Id, Mqtt, null, null, string.Join(", ", differences)));
                 }
             }
 
@@ -204,26 +229,28 @@ namespace Vion.Cli.Commands
                 Renderer.WriteTable(document, globals, services);
             }
 
-            services.Error.WriteLine(items.Count == 0 ? $"no differences: {context.Environment.Name} serves the committed document's {committed.Count} operations." :
-                                         $"{items.Count} difference(s) between {context.Environment.Name}'s {live.Count} operations and the committed {committed.Count} (snapshot {Operations.SnapshotSha256[..12]}).");
+            services.Error.WriteLine(items.Count == 0 ?
+                                         $"no differences: {context.Environment.Name} serves the committed documents' {committed.Count} {Http} and {committedEvents.Count} {Mqtt} operations." :
+                                         $"{items.Count} difference(s) between {context.Environment.Name}'s {live.Count} {Http} and {liveEvents.Count} {Mqtt} operations and the committed {committed.Count} and {committedEvents.Count} (snapshots {Operations.SnapshotSha256[..12]}, {Channels.SnapshotSha256[..12]}).");
             return items.Count == 0 ? ExitCodes.Ok : ExitCodes.Failure;
         }
 
-        private static JsonObject Row(string change, string id, string method, string path, string? detail)
+        private static JsonObject Row(string change, string id, string protocol, string? method, string? path, string? detail)
         {
             return new JsonObject
                    {
                        ["change"] = change,
                        ["operationId"] = id,
+                       ["protocol"] = protocol,
                        ["method"] = method,
                        ["path"] = path,
                        ["detail"] = detail,
                    };
         }
 
-        private static async Task<Dictionary<string, LiveOperation>> ReadDocumentAsync(ApiEnvironment environment, CliServices services, CancellationToken cancellationToken)
+        private static async Task<JsonObject> ReadDocumentAsync(ApiEnvironment environment, string documentPath, CliServices services, CancellationToken cancellationToken)
         {
-            var url = environment.ApiUrl.TrimEnd('/') + "/openapi/v1.json";
+            var url = environment.ApiUrl.TrimEnd('/') + documentPath;
             using var client = new HttpClient(services.Handler, false) { Timeout = TimeSpan.FromSeconds(60) };
             string text;
             try
@@ -251,6 +278,11 @@ namespace Vion.Cli.Commands
                 throw new CliFailure($"{url} is not valid JSON: {exception.Message}");
             }
 
+            return root;
+        }
+
+        private static Dictionary<string, LiveOperation> ReadOpenApiOperations(JsonObject root)
+        {
             var operations = new Dictionary<string, LiveOperation>(StringComparer.Ordinal);
             if (root["paths"] is JsonObject paths)
             {
@@ -276,6 +308,87 @@ namespace Vion.Cli.Commands
             }
 
             return operations;
+        }
+
+        /// <summary>
+        ///     The event document's operations by id, each with its action, the id of the channel its `$ref` names, and
+        ///     that channel as served — or an empty object where the document lacks it.
+        /// </summary>
+        private static Dictionary<string, EventOperation> ReadEventOperations(JsonObject root)
+        {
+            const string prefix = "#/channels/";
+            var channels = root["channels"] as JsonObject;
+            var operations = new Dictionary<string, EventOperation>(StringComparer.Ordinal);
+            if (root["operations"] is not JsonObject served)
+            {
+                return operations;
+            }
+
+            foreach (var (id, node) in served)
+            {
+                var reference = node?["channel"]?["$ref"]?.ToString() ?? "";
+                var channelId = reference.StartsWith(prefix, StringComparison.Ordinal) ?
+                                    reference[prefix.Length..].Replace("~1", "/", StringComparison.Ordinal).Replace("~0", "~", StringComparison.Ordinal) : reference;
+                var channel = channels?[channelId] as JsonObject ?? new JsonObject();
+                operations[id] = new EventOperation(id, node?["action"]?.ToString() ?? "", channelId, channel.ToJsonString());
+            }
+
+            return operations;
+        }
+
+        /// <summary>
+        ///     What differs between the committed operation and the served one, in what the watch derive reads: the action,
+        ///     the channel, the channel's parameter names in order, each hand-out's `operation`, `row` and `join`, and the
+        ///     registration. Both sides go through the same projection, so the committed side's copy is never read on its own.
+        /// </summary>
+        private static List<string> EventDifferences(EventOperation committed, EventOperation served)
+        {
+            var differences = new List<string>();
+            if (committed.Action != served.Action)
+            {
+                differences.Add("action");
+            }
+
+            if (committed.Channel != served.Channel)
+            {
+                differences.Add("channel");
+            }
+
+            var mine = JsonNode.Parse(committed.Contract) as JsonObject ?? new JsonObject();
+            var theirs = JsonNode.Parse(served.Contract) as JsonObject ?? new JsonObject();
+            if (!JsonNode.DeepEquals(ParameterNames(mine), ParameterNames(theirs)))
+            {
+                differences.Add("parameters");
+            }
+
+            if (!JsonNode.DeepEquals(HandOuts(mine), HandOuts(theirs)))
+            {
+                differences.Add("x-vion-handedOutBy");
+            }
+
+            if (!JsonNode.DeepEquals(mine["x-vion-registeredBy"], theirs["x-vion-registeredBy"]))
+            {
+                differences.Add("x-vion-registeredBy");
+            }
+
+            return differences;
+        }
+
+        private static JsonArray ParameterNames(JsonObject channel)
+        {
+            return new JsonArray((channel["parameters"] as JsonObject)?.Select(parameter => (JsonNode?)parameter.Key).ToArray() ?? []);
+        }
+
+        private static JsonArray HandOuts(JsonObject channel)
+        {
+            return new JsonArray((channel["x-vion-handedOutBy"] as JsonArray)?.Select(handOut => (JsonNode?)new JsonObject
+                                                                                                                {
+                                                                                                                    ["operation"] = handOut?["operation"]?.DeepClone(),
+                                                                                                                    ["row"] = handOut?["row"]?.DeepClone(),
+                                                                                                                    ["join"] = handOut?["join"]?.DeepClone(),
+                                                                                                                })
+                                                                                                .ToArray() ??
+                                 []);
         }
 
         private static bool SameAuthorization(JsonObject? served, Authorization committed)
