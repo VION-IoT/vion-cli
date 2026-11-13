@@ -62,5 +62,6 @@ says so with exit 1, so that a caller sampling a channel never reads "never conn
 messages".
 
 - `AC-WATCH-003.1` (Ubiquitous): THE SYSTEM SHALL write each message whose `schema` user property names the channel's message, and no other message, as its payload on one line of standard output under `--json` and as an object's key–value table otherwise, projected by `--fields` in both.
-- `AC-WATCH-003.2` (Ubiquitous): THE SYSTEM SHALL watch, once the subscription stands, until `--timeout` where one is given, without `--wait` beside it, and until interrupted otherwise, and exit 0 at either.
+- `AC-WATCH-003.2` (Ubiquitous): THE SYSTEM SHALL watch, once the subscription stands, until `--timeout` where one is given and until interrupted otherwise, and exit 0 at either.
 - `AC-WATCH-003.3` (Unwanted): IF `--timeout` or an interrupt ends a watch before its subscription has stood THEN THE SYSTEM SHALL report that nothing was watched and exit 1.
+- `AC-WATCH-003.4` (Unwanted): IF `--wait` is given on a watch THEN THE SYSTEM SHALL refuse before sending anything, naming it, and exit 2.
