@@ -97,6 +97,7 @@ namespace Vion.Cli.Derive
 
     internal sealed record DerivedChannel(
         string Id,
+        string OperationId,
         string CommandDomain,
         string CommandAggregate,
         string Description,
@@ -105,7 +106,14 @@ namespace Vion.Cli.Derive
         IReadOnlyList<DerivedHandOut> HandOuts,
         DerivedRegistration? Registration);
 
-    internal sealed record DerivedChannels(string SnapshotSha256, IReadOnlyList<DerivedChannel> Channels);
+    /// <summary>
+    ///     One operation of the event document: its id, its action, the channel it names, and that channel's members
+    ///     `ops --live` compares — `parameters`, `x-vion-handedOutBy`, `x-vion-registeredBy` — as one minified JSON object,
+    ///     copied as the document has them so that the tool projects the committed side and the served side alike.
+    /// </summary>
+    internal sealed record DerivedEventOperation(string Id, string Action, string Channel, string Contract);
+
+    internal sealed record DerivedChannels(string SnapshotSha256, IReadOnlyList<DerivedChannel> Channels, IReadOnlyList<DerivedEventOperation> Operations);
 
     /// <summary>A refusal of the input: a malformed document, or a cli.json entry the document lacks.</summary>
     internal sealed class DeriveException : System.Exception

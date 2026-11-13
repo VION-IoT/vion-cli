@@ -15,12 +15,18 @@ using Vion.Cli.Rendering;
 namespace Vion.Cli.Commands
 {
     /// <summary>
-    ///     `vion ops`: the tree's operations from the committed document, offline — what the tool can call and what each
-    ///     call does to the state. `--all` adds the `system` operations, which have no command and are reached through `api`.
-    ///     `--live` reads the environment's own document, tokenless, and lists what differs from the committed one.
+    ///     `vion ops`: the tree's operations from the committed documents, offline — what the tool can call over HTTP, what
+    ///     it can watch over MQTT, and what each does to the state. `--all` adds the `system` operations, which have no
+    ///     command and are reached through `api`. `--live` reads the environment's own documents, tokenless, and lists what
+    ///     differs from the committed ones.
     /// </summary>
     internal static class OpsCommand
     {
+        /// <summary>The protocol of an OpenAPI operation; the event document's server names the other.</summary>
+        private const string Http = "http";
+
+        private const string Mqtt = "mqtt";
+
         private static readonly string[] Methods = ["get", "put", "post", "delete", "patch"];
 
         public static Command Create(CliTree tree, CliServices services)
@@ -29,7 +35,7 @@ namespace Vion.Cli.Commands
             var live = new Option<bool>("--live")
                        { Description = "Read the environment's document and list the operations added, removed or changed against the committed one; exit 1 on any." };
             var command = new Command("ops",
-                                      "List the operations of the committed document: the command, the operationId, the method and path, the effect, the completion and the write-safety flags.");
+                                      "List the operations of the committed documents, the watches included: the command, the operationId, the protocol, the method and path, the effect, the completion and the write-safety flags.");
             command.Options.Add(all);
             command.Options.Add(live);
             command.SetAction((result, cancellationToken) =>
@@ -52,6 +58,7 @@ namespace Vion.Cli.Commands
                                    {
                                        ["command"] = operation.InTree ? "vion " + operation.CommandPath : null,
                                        ["operationId"] = operation.Id,
+                                       ["protocol"] = Http,
                                        ["method"] = operation.Method,
                                        ["path"] = operation.Template,
                                        ["effect"] = operation.Effect.ToString(),
@@ -61,6 +68,28 @@ namespace Vion.Cli.Commands
                                        ["dryRun"] = operation.DryRun,
                                        ["deprecated"] = operation.Deprecated,
                                        ["hidden"] = operation.Hidden,
+                                   });
+            }
+
+            var http = rows.Count;
+
+            // A watch is the event document's operation that sends on its channel: it reads, and it streams until it ends.
+            foreach (var channel in Channels.All)
+            {
+                rows.Add((JsonNode)new JsonObject
+                                   {
+                                       ["command"] = "vion " + channel.CommandPath,
+                                       ["operationId"] = channel.OperationId,
+                                       ["protocol"] = Mqtt,
+                                       ["method"] = null,
+                                       ["path"] = null,
+                                       ["effect"] = "Read",
+                                       ["completion"] = "Stream",
+                                       ["idempotent"] = false,
+                                       ["versioned"] = false,
+                                       ["dryRun"] = false,
+                                       ["deprecated"] = false,
+                                       ["hidden"] = false,
                                    });
             }
 
@@ -104,8 +133,9 @@ namespace Vion.Cli.Commands
                                     {
                                         ["command"] = row["command"]?.DeepClone() ?? "—",
                                         ["operation"] = row["operationId"]!.DeepClone(),
-                                        ["method"] = row["method"]!.DeepClone(),
-                                        ["path"] = row["path"]!.DeepClone(),
+                                        ["protocol"] = row["protocol"]!.DeepClone(),
+                                        ["method"] = row["method"]?.DeepClone() ?? "—",
+                                        ["path"] = row["path"]?.DeepClone() ?? "—",
                                         ["effect"] = row["effect"]!.DeepClone(),
                                         ["completion"] = row["completion"]!.DeepClone(),
                                         ["flags"] = string.Join(" ", flags),
@@ -113,7 +143,7 @@ namespace Vion.Cli.Commands
             }
 
             Renderer.WriteTable(new JsonObject { ["items"] = table }, globals, services);
-            services.Error.WriteLine($"{rows.Count} operations");
+            services.Error.WriteLine($"{http} {Http} operations, {rows.Count - http} {Mqtt} operations");
             return ExitCodes.Ok;
         }
 

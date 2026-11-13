@@ -14,7 +14,7 @@ internal static partial class Channels
     public static readonly IReadOnlyList<Channel> All = new Channel[]
     {
         new Channel(
-            "integrator.certificate.state", "integrator", "certificate",
+            "integrator.certificate.state", "integrator.certificate.state", "integrator", "certificate",
             "The validity of a gateway's certificate, published each time the gateway reports it.",
             "CertificateStateUpdate",
             new[]
@@ -29,7 +29,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "integrator.certificateRequest.state", "integrator", "certificate-request",
+            "integrator.certificateRequest.state", "integrator.certificateRequest.state", "integrator", "certificate-request",
             "A gateway's certificate renewal request, published each time its status changes.",
             "CertificateRenewalStatusUpdate",
             new[]
@@ -44,7 +44,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "integrator.commissioning.state", "integrator", "commissioning",
+            "integrator.commissioning.state", "integrator.commissioning.state", "integrator", "commissioning",
             "The commissioning of a gateway, published each time its status changes.",
             "CommissioningStatusUpdate",
             new[]
@@ -59,7 +59,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "integrator.softwareDeployment.state", "integrator", "software-deployment",
+            "integrator.softwareDeployment.state", "integrator.softwareDeployment.state", "integrator", "software-deployment",
             "A software deployment to a gateway, published each time its status changes.",
             "DeploymentStatusUpdate",
             new[]
@@ -74,7 +74,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "integrator.supportGrant.state", "integrator", "support-grant",
+            "integrator.supportGrant.state", "integrator.supportGrant.state", "integrator", "support-grant",
             "A support access grant the integrator requested, published each time its status changes.",
             "SupportAccessGrantStatusUpdate",
             new[]
@@ -89,7 +89,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "integrator.supportSession.state", "integrator", "support-session",
+            "integrator.supportSession.state", "integrator.supportSession.state", "integrator", "support-session",
             "A support session of the integrator, published each time its status changes.",
             "RemoteAccessSessionStatusUpdate",
             new[]
@@ -104,7 +104,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "integrator.systemHealth.state", "integrator", "system-health",
+            "integrator.systemHealth.state", "integrator.systemHealth.state", "integrator", "system-health",
             "The health of a gateway and its components, published each time the gateway reports it.",
             "SystemHealthStatusUpdate",
             new[]
@@ -119,7 +119,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "me.notification.event", "me", "notification",
+            "me.notification.event", "me.notification.event", "me", "notification",
             "A nudge that the person's notifications changed, published once a notification for them is stored; it carries no notification.",
             "NotificationNudge",
             new ChannelParameter[0],
@@ -129,7 +129,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "tenant.alert.state", "tenant", "alert",
+            "tenant.alert.state", "tenant.alert.state", "tenant", "alert",
             "An alert of an alert rule, published when it is raised and when it is resolved.",
             "AlertStatusUpdate",
             new[]
@@ -144,7 +144,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "tenant.consoleSession.state", "tenant", "console-session",
+            "tenant.consoleSession.state", "tenant.consoleSession.state", "tenant", "console-session",
             "A console remote access session on the gateway, published each time its status changes.",
             "RemoteAccessSessionStatusUpdate",
             new[]
@@ -158,7 +158,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "tenant.logLevel.state", "tenant", "log-level",
+            "tenant.logLevel.state", "tenant.logLevel.state", "tenant", "log-level",
             "The log level of a component of the gateway, published each time the gateway reports it.",
             "LogLevelStateUpdate",
             new[]
@@ -172,7 +172,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "tenant.serviceProperty.state", "tenant", "service-property",
+            "tenant.serviceProperty.state", "tenant.serviceProperty.state", "tenant", "service-property",
             "The values of a service's properties, published by the gateway to the subscribers registered for them: the current values on registration, then each change.",
             "PropertiesStatePayload",
             new[]
@@ -197,7 +197,7 @@ internal static partial class Channels
                 },
                 "property-identifier", "properties[].identifier")),
         new Channel(
-            "tenant.supportGrant.state", "tenant", "support-grant",
+            "tenant.supportGrant.state", "tenant.supportGrant.state", "tenant", "support-grant",
             "A support access grant of the gateway, published each time its status changes.",
             "SupportAccessGrantStatusUpdate",
             new[]
@@ -211,7 +211,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "tenant.supportSession.state", "tenant", "support-session",
+            "tenant.supportSession.state", "tenant.supportSession.state", "tenant", "support-session",
             "A support session on the gateway, published each time its status changes.",
             "RemoteAccessSessionStatusUpdate",
             new[]
@@ -225,7 +225,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "tenant.syncStatus.state", "tenant", "sync-status",
+            "tenant.syncStatus.state", "tenant.syncStatus.state", "tenant", "sync-status",
             "How far the gateway has applied what was sent to it, published each time a sync status changes.",
             "SyncStatusUpdate",
             new[]
@@ -239,7 +239,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "tenant.systemEvent.event", "tenant", "system-event",
+            "tenant.systemEvent.event", "tenant.systemEvent.event", "tenant", "system-event",
             "A system event of the gateway, published as the gateway reports it.",
             "SystemEventUpdate",
             new[]
@@ -253,7 +253,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "tenant.systemHealth.state", "tenant", "system-health",
+            "tenant.systemHealth.state", "tenant.systemHealth.state", "tenant", "system-health",
             "The health of a gateway and its components, published each time the gateway reports it.",
             "SystemHealthStatusUpdate",
             new[]
@@ -267,7 +267,7 @@ internal static partial class Channels
             },
             null),
         new Channel(
-            "tenant.vpnSession.state", "tenant", "vpn-session",
+            "tenant.vpnSession.state", "tenant.vpnSession.state", "tenant", "vpn-session",
             "A VPN remote access session on the gateway, published each time its status changes.",
             "RemoteAccessSessionStatusUpdate",
             new[]
@@ -280,5 +280,50 @@ internal static partial class Channels
                 new HandOut("tenant.vpnSession.state", "tenant.edgeGateway.list", "items[]", new[] { new Join("tenantId", "tenantId", null), new Join("edgeGatewayId", null, "id") }, new[] { "edgeGatewayId" }),
             },
             null),
+    };
+}
+
+internal static partial class EventOperations
+{
+    public static readonly IReadOnlyList<EventOperation> All = new EventOperation[]
+    {
+        new EventOperation("integrator.certificate.state", "send", "integrator.certificate.state",
+            "{\"parameters\":{\"integratorId\":{\"description\":\"The integrator\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"IntegratorEdgeGatewayOutput\",\"key\":\"integrator.certificate.state\",\"operation\":\"integrator.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"integratorId\",\"operationParameter\":\"integratorId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]},{\"schema\":\"MeIntegratorMembershipOutput\",\"key\":\"integrator.certificate.state\",\"operation\":\"me.identity.get\",\"row\":\"integratorMemberships[]\",\"join\":[{\"channelParameter\":\"integratorId\",\"member\":\"integratorMemberships[].integratorId\"}],\"wildcards\":[\"edgeGatewayId\"]}]}"),
+        new EventOperation("integrator.certificateRequest.state", "send", "integrator.certificateRequest.state",
+            "{\"parameters\":{\"integratorId\":{\"description\":\"The integrator\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"IntegratorEdgeGatewayOutput\",\"key\":\"integrator.certificateRequest.state\",\"operation\":\"integrator.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"integratorId\",\"operationParameter\":\"integratorId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]},{\"schema\":\"MeIntegratorMembershipOutput\",\"key\":\"integrator.certificateRequest.state\",\"operation\":\"me.identity.get\",\"row\":\"integratorMemberships[]\",\"join\":[{\"channelParameter\":\"integratorId\",\"member\":\"integratorMemberships[].integratorId\"}],\"wildcards\":[\"edgeGatewayId\"]}]}"),
+        new EventOperation("integrator.commissioning.state", "send", "integrator.commissioning.state",
+            "{\"parameters\":{\"integratorId\":{\"description\":\"The integrator\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"IntegratorEdgeGatewayOutput\",\"key\":\"integrator.commissioning.state\",\"operation\":\"integrator.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"integratorId\",\"operationParameter\":\"integratorId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]},{\"schema\":\"MeIntegratorMembershipOutput\",\"key\":\"integrator.commissioning.state\",\"operation\":\"me.identity.get\",\"row\":\"integratorMemberships[]\",\"join\":[{\"channelParameter\":\"integratorId\",\"member\":\"integratorMemberships[].integratorId\"}],\"wildcards\":[\"edgeGatewayId\"]}]}"),
+        new EventOperation("integrator.softwareDeployment.state", "send", "integrator.softwareDeployment.state",
+            "{\"parameters\":{\"integratorId\":{\"description\":\"The integrator\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"IntegratorEdgeGatewayOutput\",\"key\":\"integrator.softwareDeployment.state\",\"operation\":\"integrator.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"integratorId\",\"operationParameter\":\"integratorId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]},{\"schema\":\"MeIntegratorMembershipOutput\",\"key\":\"integrator.softwareDeployment.state\",\"operation\":\"me.identity.get\",\"row\":\"integratorMemberships[]\",\"join\":[{\"channelParameter\":\"integratorId\",\"member\":\"integratorMemberships[].integratorId\"}],\"wildcards\":[\"edgeGatewayId\"]}]}"),
+        new EventOperation("integrator.supportGrant.state", "send", "integrator.supportGrant.state",
+            "{\"parameters\":{\"integratorId\":{\"description\":\"The integrator\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"IntegratorEdgeGatewayOutput\",\"key\":\"integrator.supportGrant.state\",\"operation\":\"integrator.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"integratorId\",\"operationParameter\":\"integratorId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]},{\"schema\":\"MeIntegratorMembershipOutput\",\"key\":\"integrator.supportGrant.state\",\"operation\":\"me.identity.get\",\"row\":\"integratorMemberships[]\",\"join\":[{\"channelParameter\":\"integratorId\",\"member\":\"integratorMemberships[].integratorId\"}],\"wildcards\":[\"edgeGatewayId\"]}]}"),
+        new EventOperation("integrator.supportSession.state", "send", "integrator.supportSession.state",
+            "{\"parameters\":{\"integratorId\":{\"description\":\"The integrator\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"IntegratorEdgeGatewayOutput\",\"key\":\"integrator.supportSession.state\",\"operation\":\"integrator.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"integratorId\",\"operationParameter\":\"integratorId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]},{\"schema\":\"MeIntegratorMembershipOutput\",\"key\":\"integrator.supportSession.state\",\"operation\":\"me.identity.get\",\"row\":\"integratorMemberships[]\",\"join\":[{\"channelParameter\":\"integratorId\",\"member\":\"integratorMemberships[].integratorId\"}],\"wildcards\":[\"edgeGatewayId\"]}]}"),
+        new EventOperation("integrator.systemHealth.state", "send", "integrator.systemHealth.state",
+            "{\"parameters\":{\"integratorId\":{\"description\":\"The integrator\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"IntegratorEdgeGatewayOutput\",\"key\":\"integrator.systemHealth.state\",\"operation\":\"integrator.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"integratorId\",\"operationParameter\":\"integratorId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]},{\"schema\":\"MeIntegratorMembershipOutput\",\"key\":\"integrator.systemHealth.state\",\"operation\":\"me.identity.get\",\"row\":\"integratorMemberships[]\",\"join\":[{\"channelParameter\":\"integratorId\",\"member\":\"integratorMemberships[].integratorId\"}],\"wildcards\":[\"edgeGatewayId\"]}]}"),
+        new EventOperation("me.lastWill.event", "receive", "me.lastWill.event",
+            "{\"parameters\":{\"identityProviderUserId\":{\"description\":\"The person\\u0027s or service account\\u0027s id in the identity provider, which is also its broker username.\"},\"subscriberId\":{\"description\":\"The subscriber id me.subscriber.create answered.\"}}}"),
+        new EventOperation("me.notification.event", "send", "me.notification.event",
+            "{\"parameters\":{\"identityProviderUserId\":{\"description\":\"The person\\u0027s or service account\\u0027s id in the identity provider, which is also its broker username.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"MeUserOutput\",\"key\":\"me.notification.event\",\"operation\":\"me.identity.get\",\"row\":\"user\",\"join\":[{\"channelParameter\":\"identityProviderUserId\",\"member\":\"user.identityProviderUserId\"}]}]}"),
+        new EventOperation("tenant.alert.state", "send", "tenant.alert.state",
+            "{\"parameters\":{\"tenantId\":{\"description\":\"The tenant\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"},\"alertRuleId\":{\"description\":\"The alert rule\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"TenantEdgeGatewayOutput\",\"key\":\"tenant.alert.state\",\"operation\":\"tenant.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"tenantId\",\"operationParameter\":\"tenantId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}],\"wildcards\":[\"alertRuleId\"]},{\"schema\":\"AlertRuleOutput\",\"key\":\"tenant.alert.state\",\"operation\":\"tenant.alertRule.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"tenantId\",\"operationParameter\":\"tenantId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].edgeGatewayId\"}],\"wildcards\":[\"alertRuleId\"]}]}"),
+        new EventOperation("tenant.consoleSession.state", "send", "tenant.consoleSession.state",
+            "{\"parameters\":{\"tenantId\":{\"description\":\"The tenant\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"TenantEdgeGatewayOutput\",\"key\":\"tenant.consoleSession.state\",\"operation\":\"tenant.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"tenantId\",\"operationParameter\":\"tenantId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]}]}"),
+        new EventOperation("tenant.logLevel.state", "send", "tenant.logLevel.state",
+            "{\"parameters\":{\"tenantId\":{\"description\":\"The tenant\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"TenantEdgeGatewayOutput\",\"key\":\"tenant.logLevel.state\",\"operation\":\"tenant.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"tenantId\",\"operationParameter\":\"tenantId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]}]}"),
+        new EventOperation("tenant.serviceProperty.state", "send", "tenant.serviceProperty.state",
+            "{\"parameters\":{\"tenantId\":{\"description\":\"The tenant\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"},\"serviceProviderIdentifier\":{\"description\":\"The identifier of the service provider that declares the service.\"},\"serviceIdentifier\":{\"description\":\"The service\\u0027s identifier, unique within its service provider.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"ServiceOutput\",\"key\":\"tenant.serviceProperty.state\",\"operation\":\"tenant.service.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"tenantId\",\"operationParameter\":\"tenantId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].edgeGatewayId\"},{\"channelParameter\":\"serviceProviderIdentifier\",\"member\":\"items[].serviceProviderIdentifier\"},{\"channelParameter\":\"serviceIdentifier\",\"member\":\"items[].identifier\"}]}],\"x-vion-registeredBy\":{\"operation\":\"tenant.serviceProperty.subscribe\",\"subscriberId\":\"subscriberId\",\"fill\":[{\"channelParameter\":\"tenantId\",\"operationParameter\":\"tenantId\"},{\"channelParameter\":\"edgeGatewayId\",\"bodyMember\":\"properties[].edgeGatewayId\"},{\"channelParameter\":\"serviceProviderIdentifier\",\"bodyMember\":\"properties[].serviceProviderIdentifier\"},{\"channelParameter\":\"serviceIdentifier\",\"bodyMember\":\"properties[].serviceIdentifier\"},{\"rowMember\":\"items[].properties[].identifier\",\"bodyMember\":\"properties[].propertyIdentifier\"}]}}"),
+        new EventOperation("tenant.supportGrant.state", "send", "tenant.supportGrant.state",
+            "{\"parameters\":{\"tenantId\":{\"description\":\"The tenant\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"TenantEdgeGatewayOutput\",\"key\":\"tenant.supportGrant.state\",\"operation\":\"tenant.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"tenantId\",\"operationParameter\":\"tenantId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]}]}"),
+        new EventOperation("tenant.supportSession.state", "send", "tenant.supportSession.state",
+            "{\"parameters\":{\"tenantId\":{\"description\":\"The tenant\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"TenantEdgeGatewayOutput\",\"key\":\"tenant.supportSession.state\",\"operation\":\"tenant.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"tenantId\",\"operationParameter\":\"tenantId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]}]}"),
+        new EventOperation("tenant.syncStatus.state", "send", "tenant.syncStatus.state",
+            "{\"parameters\":{\"tenantId\":{\"description\":\"The tenant\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"TenantEdgeGatewayOutput\",\"key\":\"tenant.syncStatus.state\",\"operation\":\"tenant.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"tenantId\",\"operationParameter\":\"tenantId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]}]}"),
+        new EventOperation("tenant.systemEvent.event", "send", "tenant.systemEvent.event",
+            "{\"parameters\":{\"tenantId\":{\"description\":\"The tenant\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"TenantEdgeGatewayOutput\",\"key\":\"tenant.systemEvent.event\",\"operation\":\"tenant.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"tenantId\",\"operationParameter\":\"tenantId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]}]}"),
+        new EventOperation("tenant.systemHealth.state", "send", "tenant.systemHealth.state",
+            "{\"parameters\":{\"tenantId\":{\"description\":\"The tenant\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"TenantEdgeGatewayOutput\",\"key\":\"tenant.systemHealth.state\",\"operation\":\"tenant.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"tenantId\",\"operationParameter\":\"tenantId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]}]}"),
+        new EventOperation("tenant.vpnSession.state", "send", "tenant.vpnSession.state",
+            "{\"parameters\":{\"tenantId\":{\"description\":\"The tenant\\u0027s id.\"},\"edgeGatewayId\":{\"description\":\"The edge gateway\\u0027s id.\"}},\"x-vion-handedOutBy\":[{\"schema\":\"TenantEdgeGatewayOutput\",\"key\":\"tenant.vpnSession.state\",\"operation\":\"tenant.edgeGateway.list\",\"row\":\"items[]\",\"join\":[{\"channelParameter\":\"tenantId\",\"operationParameter\":\"tenantId\"},{\"channelParameter\":\"edgeGatewayId\",\"member\":\"items[].id\"}]}]}"),
     };
 }

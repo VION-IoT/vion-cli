@@ -27,6 +27,22 @@ namespace Vion.Cli.Derive
                 EmitChannel(sb, channel);
             }
 
+            sb.Append("    };\n}\n\n");
+            sb.Append("internal static partial class EventOperations\n{\n");
+            sb.Append("    public static readonly IReadOnlyList<EventOperation> All = new EventOperation[]\n    {\n");
+            foreach (var operation in document.Operations)
+            {
+                sb.Append("        new EventOperation(")
+                  .Append(Emitter.Literal(operation.Id))
+                  .Append(", ")
+                  .Append(Emitter.Literal(operation.Action))
+                  .Append(", ")
+                  .Append(Emitter.Literal(operation.Channel))
+                  .Append(",\n            ")
+                  .Append(Emitter.Literal(operation.Contract))
+                  .Append("),\n");
+            }
+
             sb.Append("    };\n}\n");
             return sb.ToString();
         }
@@ -36,6 +52,8 @@ namespace Vion.Cli.Derive
             sb.Append("        new Channel(\n");
             sb.Append("            ")
               .Append(Emitter.Literal(c.Id))
+              .Append(", ")
+              .Append(Emitter.Literal(c.OperationId))
               .Append(", ")
               .Append(Emitter.Literal(c.CommandDomain))
               .Append(", ")

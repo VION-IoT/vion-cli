@@ -30,9 +30,19 @@ namespace Vion.Cli.Derived
     /// </summary>
     internal sealed record Registration(string Operation, string SubscriberIdMember, IReadOnlyList<Fill> Fills, string? InputOptionName, string? InputRowMember);
 
-    /// <summary>One channel of the event document a row hands out, as <c>Channels.g.cs</c> carries it.</summary>
+    /// <summary>
+    ///     One operation of the event document, as <c>Channels.g.cs</c> carries it: <see cref="Contract" /> is the JSON
+    ///     object of its channel's `parameters`, `x-vion-handedOutBy` and `x-vion-registeredBy`, as the document has them.
+    /// </summary>
+    internal sealed record EventOperation(string Id, string Action, string Channel, string Contract);
+
+    /// <summary>
+    ///     One channel of the event document a row hands out, as <c>Channels.g.cs</c> carries it.
+    ///     <see cref="OperationId" /> is the event document's operation that sends on it.
+    /// </summary>
     internal sealed record Channel(
         string Id,
+        string OperationId,
         string CommandDomain,
         string CommandAggregate,
         string Description,

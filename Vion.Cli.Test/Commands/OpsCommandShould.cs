@@ -27,7 +27,7 @@ namespace Vion.Cli.Test.Commands
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
             var items = JsonNode.Parse(run.Out)!["items"]!.AsArray();
-            Assert.HasCount(Snapshot.TreeOperationCount, items);
+            Assert.HasCount(Snapshot.TreeOperationCount, items.Where(i => i!["protocol"]!.GetValue<string>() == "http"));
             var listing = items.Single(i => i!["operationId"]!.GetValue<string>() == "tenant.edgeGateway.list")!;
             Assert.AreEqual("vion tenant edge-gateway list", listing["command"]!.GetValue<string>());
             Assert.AreEqual("GET", listing["method"]!.GetValue<string>());
@@ -53,7 +53,7 @@ namespace Vion.Cli.Test.Commands
 
             // Assert
             var items = JsonNode.Parse(run.Out)!["items"]!.AsArray();
-            Assert.HasCount(Snapshot.OperationCount, items);
+            Assert.HasCount(Snapshot.OperationCount, items.Where(i => i!["protocol"]!.GetValue<string>() == "http"));
             var catalog = items.Single(i => i!["operationId"]!.GetValue<string>() == "system.capability.list")!;
             Assert.IsNull(catalog["command"]);
         }
@@ -71,7 +71,32 @@ namespace Vion.Cli.Test.Commands
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
             StringAssert.Contains(run.Out, "tenant.edgeGateway.list");
-            StringAssert.Contains(run.Error, $"{Snapshot.TreeOperationCount} operations");
+            StringAssert.Contains(run.Out, "tenant.alert.state");
+            Assert.AreEqual($"{Snapshot.TreeOperationCount} http operations, {Snapshot.WatchCount} mqtt operations{Environment.NewLine}", run.Error);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.1")]
+        public async Task ListEveryWatchAsOperationOfEventDocument()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(500);
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--json"]);
+
+            // Assert
+            var items = JsonNode.Parse(run.Out)!["items"]!.AsArray();
+            var watches = items.Where(i => i!["protocol"]!.GetValue<string>() == "mqtt").ToList();
+            Assert.HasCount(Snapshot.WatchCount, watches);
+            var alert = watches.Single(i => i!["command"]!.GetValue<string>() == "vion tenant alert watch")!;
+            Assert.AreEqual("tenant.alert.state", alert["operationId"]!.GetValue<string>());
+            Assert.IsNull(alert["method"]);
+            Assert.IsNull(alert["path"]);
+            Assert.AreEqual("Read", alert["effect"]!.GetValue<string>());
+            Assert.AreEqual("Stream", alert["completion"]!.GetValue<string>());
+            Assert.IsFalse(new[] { "idempotent", "versioned", "dryRun", "deprecated", "hidden" }.Any(flag => alert[flag]!.GetValue<bool>()));
+            Assert.IsEmpty(handler.Requests);
         }
 
         [TestMethod]

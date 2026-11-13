@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Vion.Cli.Derive
 {
@@ -20,29 +21,81 @@ namespace Vion.Cli.Derive
 
         private const string RegisteredBy = "x-vion-registeredBy";
 
+        /// <summary>The members of a channel `ops --live` compares; the channel's address, description and messages are not.</summary>
+        private static readonly string[] ContractMembers = ["parameters", HandedOutBy, RegisteredBy];
+
         public static DerivedChannels Read(string json, DerivedDocument operations)
         {
             using var document = JsonDocument.Parse(json);
             var sha = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(json)));
             var operationIds = new HashSet<string>(operations.Operations.Select(operation => operation.Id), StringComparer.Ordinal);
 
+            var hasChannels = document.RootElement.TryGetProperty("channels", out var channelsElement) && channelsElement.ValueKind == JsonValueKind.Object;
+            var eventOperations = ReadOperations(document.RootElement, hasChannels ? channelsElement : default);
+
             var channels = new List<DerivedChannel>();
-            if (document.RootElement.TryGetProperty("channels", out var channelsElement))
+            if (hasChannels)
             {
                 foreach (var channel in channelsElement.EnumerateObject())
                 {
                     if (channel.Value.TryGetProperty(HandedOutBy, out var handOuts) && handOuts.ValueKind == JsonValueKind.Array && handOuts.GetArrayLength() > 0)
                     {
-                        channels.Add(ReadChannel(channel.Name, channel.Value, handOuts, operationIds));
+                        // A watch receives what the server sends on the channel, so that operation is the watch's own.
+                        var sending = eventOperations.FirstOrDefault(operation => operation.Channel == channel.Name && operation.Action == "send") ??
+                                      throw new DeriveException($"channel '{channel.Name}' is handed out and no operation of the event document sends on it.");
+                        channels.Add(ReadChannel(channel.Name, sending.Id, channel.Value, handOuts, operationIds));
                     }
                 }
             }
 
             RefuseCollisions(channels, operations);
-            return new DerivedChannels(sha, channels);
+            return new DerivedChannels(sha, channels, eventOperations);
         }
 
-        private static DerivedChannel ReadChannel(string id, JsonElement channel, JsonElement handOutsElement, HashSet<string> operationIds)
+        /// <summary>
+        ///     Every operation of the event document, in document order, each with the members of its channel that a
+        ///     comparison with a served document reads. The address is not among them: it names the environment.
+        /// </summary>
+        private static List<DerivedEventOperation> ReadOperations(JsonElement root, JsonElement channels)
+        {
+            var result = new List<DerivedEventOperation>();
+            if (!root.TryGetProperty("operations", out var operations) || operations.ValueKind != JsonValueKind.Object)
+            {
+                return result;
+            }
+
+            foreach (var operation in operations.EnumerateObject())
+            {
+                var action = TryString(operation.Value, "action") ?? throw new DeriveException($"operation '{operation.Name}' names no action.");
+                var reference = operation.Value.TryGetProperty("channel", out var channelElement) ? TryString(channelElement, "$ref") : null;
+                const string prefix = "#/channels/";
+                if (reference == null || !reference.StartsWith(prefix, StringComparison.Ordinal))
+                {
+                    throw new DeriveException($"operation '{operation.Name}' names no channel of the document.");
+                }
+
+                var channelId = reference[prefix.Length..].Replace("~1", "/", StringComparison.Ordinal).Replace("~0", "~", StringComparison.Ordinal);
+                if (channels.ValueKind != JsonValueKind.Object || !channels.TryGetProperty(channelId, out var channel))
+                {
+                    throw new DeriveException($"operation '{operation.Name}' names the channel '{channelId}', which the document lacks.");
+                }
+
+                var contract = new JsonObject();
+                foreach (var member in ContractMembers)
+                {
+                    if (channel.TryGetProperty(member, out var value))
+                    {
+                        contract[member] = JsonNode.Parse(value.GetRawText());
+                    }
+                }
+
+                result.Add(new DerivedEventOperation(operation.Name, action, channelId, contract.ToJsonString()));
+            }
+
+            return result;
+        }
+
+        private static DerivedChannel ReadChannel(string id, string operationId, JsonElement channel, JsonElement handOutsElement, HashSet<string> operationIds)
         {
             if (id.Split('.') is not [var domain, var aggregate, _])
             {
@@ -101,6 +154,7 @@ namespace Vion.Cli.Derive
                                    ReadRegistration(id, registeredBy, handOuts, parameters, operationIds) : null;
 
             return new DerivedChannel(id,
+                                      operationId,
                                       Naming.Kebab(domain),
                                       Naming.Kebab(aggregate),
                                       Collapse(TryString(channel, "description") ?? ""),

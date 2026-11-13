@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Vion.Cli.Derive;
 
 namespace Vion.Cli.Test.Derive
@@ -9,9 +10,9 @@ namespace Vion.Cli.Test.Derive
     /// <summary>
     ///     The derive step over the committed event document and over small synthetic ones: which channels become watch
     ///     commands, which address parameters become options, and what the step refuses. The collisions are proven on
-    ///     synthetic documents only, since the real one has none. Two premise tests cite no id by design: the refusals of a
-    ///     hand-out naming an operation the OpenAPI document lacks, and of a registration filling from a parameter no
-    ///     caller supplies, guard the derivation itself, which no user observes.
+    ///     synthetic documents only, since the real one has none. Three premise tests cite no id by design: the refusals of a
+    ///     hand-out naming an operation the OpenAPI document lacks, of a registration filling from a parameter no caller
+    ///     supplies, and of a handed-out channel no operation sends on, guard the derivation itself, which no user observes.
     /// </summary>
     [TestClass]
     public class EventDocumentReaderShould
@@ -141,9 +142,24 @@ namespace Vion.Cli.Test.Derive
             StringAssert.Contains(exception.Message, "'elsewhereId'");
         }
 
+        [TestMethod]
+        public void RefuseHandedOutChannelNoOperationSendsOn()
+        {
+            // Arrange
+            var operations = Deriver.Derive(Fixture("synthetic.json"), "{}");
+            var events = Events(Thing).Replace("\"action\": \"send\"", "\"action\": \"receive\"", StringComparison.Ordinal);
+
+            // Act / Assert
+            var exception = Assert.ThrowsExactly<DeriveException>(() => Deriver.DeriveChannels(events, operations));
+            Assert.AreEqual("channel 'tenant.thing.state' is handed out and no operation of the event document sends on it.", exception.Message);
+        }
+
+        /// <summary>A synthetic event document: the channels given, and for each one the operation that sends on it.</summary>
         private static string Events(string channels)
         {
-            return "{ \"asyncapi\": \"3.0.0\", \"channels\": {" + channels + "} }";
+            var ids = JsonNode.Parse("{" + channels + "}")!.AsObject().Select(channel => channel.Key);
+            var sending = string.Join(", ", ids.Select(id => $"\"{id}\": {{ \"action\": \"send\", \"channel\": {{ \"$ref\": \"#/channels/{id}\" }} }}"));
+            return "{ \"asyncapi\": \"3.0.0\", \"channels\": {" + channels + "}, \"operations\": {" + sending + "} }";
         }
 
         private static string Fixture(string name)
