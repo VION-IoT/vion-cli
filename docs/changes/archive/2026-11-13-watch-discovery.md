@@ -1,6 +1,6 @@
 ---
 slug: watch-discovery
-status: in-flight          # proposed | in-flight | parked | archived
+status: archived
 blocked-on: none           # for parked docs: what's blocking + ref
 areas: CLI,WATCH
 author: the watch-discovery session, for Jonas Bertsch
@@ -76,16 +76,20 @@ Ratified by Jonas on 2026-11-13 (amendment 1) unless marked (b).
 ### Reviewer's questions
 
 1. (a) `D2`'s `mqtt` over `bus`: ratified. The repo-wide check for `bus` as a compared value is in
-   `D2`.
+   `D2`. OUTCOME: accepted, amendment 1 answer 1.
 2. (a) The smoke hedge: cloud-api's `Get-Walk` (`scripts/smoke-test.ps1:253`, `origin/main`) keeps
    only rows with `method -eq 'GET'` and rows with `operationId -like '*.list'` and a `command`. A
    watch row has `method` null, so it never enters the GET map. Its `operationId` is not null
    (`tenant.alert.state`, for example) but ends in `.state` or `.event`, never `.list`: the 18
-   watched ids are listed in `Vion.Cli/Derived/Channels.g.cs`. The walk is unchanged.
+   watched ids are listed in `Vion.Cli/Derived/Channels.g.cs`. The walk is unchanged. OUTCOME:
+   accepted, amendment 1 § Unchanged.
 3. (b) `D6`–`D9` are this session's calls. Each is cheap to reverse if the reviewer disagrees.
+   OUTCOME: decided by the implementing session as recorded; the human review of the pull request
+   accepts or changes them.
 4. (b) `live-check.yml` reads `items` generically (`jq '.items | length'`), so the event diff
    arrives in the issue unchanged. Its "differs" hint named only the OpenAPI snapshot. It now
-   names both pull scripts.
+   names both pull scripts, as does `docs/releasing.md` § The live check. OUTCOME: decided by the
+   implementing session as recorded; the human review of the pull request accepts or changes it.
 
 ---
 
@@ -119,7 +123,13 @@ broker check and before any request.
 
 ## Drift checkpoints
 
-- _(none yet — append as implementation diverges from Full design)_
+- 2026-11-13: `System.CommandLine` 2.0.14 keeps its per-command help customisation internal, so
+  the `--timeout` text on a watch is swapped in by a help action wrapping the library's own, for
+  the length of that one help (`eebd70e`). Sibling sweep: N/A — no other option's help differs by
+  command.
+- 2026-11-13: run against both hosts with the built tool, `ops --live --env test` and
+  `--env production`: no differences, 269 http and 19 mqtt operations each, while production's
+  channel addresses read `v1/prod/…` — the address is out of the comparison, as `D3` requires.
 
 ---
 
