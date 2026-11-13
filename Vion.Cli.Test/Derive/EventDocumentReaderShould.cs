@@ -10,9 +10,10 @@ namespace Vion.Cli.Test.Derive
     /// <summary>
     ///     The derive step over the committed event document and over small synthetic ones: which channels become watch
     ///     commands, which address parameters become options, and what the step refuses. The collisions are proven on
-    ///     synthetic documents only, since the real one has none. Three premise tests cite no id by design: the refusals of a
+    ///     synthetic documents only, since the real one has none. Four premise tests cite no id by design: the refusals of a
     ///     hand-out naming an operation the OpenAPI document lacks, of a registration filling from a parameter no caller
-    ///     supplies, and of a handed-out channel no operation sends on, guard the derivation itself, which no user observes.
+    ///     supplies, of a handed-out channel no operation sends on, and of servers without one protocol, guard the
+    ///     derivation itself, which no user observes.
     /// </summary>
     [TestClass]
     public class EventDocumentReaderShould
@@ -154,12 +155,43 @@ namespace Vion.Cli.Test.Derive
             Assert.AreEqual("channel 'tenant.thing.state' is handed out and no operation of the event document sends on it.", exception.Message);
         }
 
-        /// <summary>A synthetic event document: the channels given, and for each one the operation that sends on it.</summary>
-        private static string Events(string channels)
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.1")]
+        public void ReadProtocolFromServers()
+        {
+            // Arrange
+            var operations = Deriver.Derive(Fixture("synthetic.json"), "{}");
+
+            // Act
+            var channels = Deriver.DeriveChannels(Events(Thing, "\"a\": { \"protocol\": \"amqp\" }, \"b\": { \"protocol\": \"amqp\" }"), operations);
+
+            // Assert
+            Assert.AreEqual("amqp", channels.Protocol);
+            StringAssert.Contains(ChannelEmitter.Emit(channels), "new Channel(\n            \"tenant.thing.state\", \"tenant.thing.state\", \"amqp\",");
+        }
+
+        [TestMethod]
+        [DataRow("", "the event document's servers declare no protocol.")]
+        [DataRow("\"a\": { \"protocol\": \"mqtt\" }, \"b\": { \"protocol\": \"amqp\" }", "the event document's servers declare more than one protocol: mqtt, amqp.")]
+        public void RefuseServersWithoutOneProtocol(string servers, string message)
+        {
+            // Arrange
+            var operations = Deriver.Derive(Fixture("synthetic.json"), "{}");
+
+            // Act / Assert
+            var exception = Assert.ThrowsExactly<DeriveException>(() => Deriver.DeriveChannels(Events(Thing, servers), operations));
+            Assert.AreEqual(message, exception.Message);
+        }
+
+        /// <summary>
+        ///     A synthetic event document: the servers given, one MQTT server unless given, the channels given, and for each
+        ///     channel the operation that sends on it.
+        /// </summary>
+        private static string Events(string channels, string servers = "\"test\": { \"protocol\": \"mqtt\" }")
         {
             var ids = JsonNode.Parse("{" + channels + "}")!.AsObject().Select(channel => channel.Key);
             var sending = string.Join(", ", ids.Select(id => $"\"{id}\": {{ \"action\": \"send\", \"channel\": {{ \"$ref\": \"#/channels/{id}\" }} }}"));
-            return "{ \"asyncapi\": \"3.0.0\", \"channels\": {" + channels + "}, \"operations\": {" + sending + "} }";
+            return "{ \"asyncapi\": \"3.0.0\", \"servers\": {" + servers + "}, \"channels\": {" + channels + "}, \"operations\": {" + sending + "} }";
         }
 
         private static string Fixture(string name)

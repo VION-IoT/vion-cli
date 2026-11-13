@@ -22,10 +22,8 @@ namespace Vion.Cli.Commands
     /// </summary>
     internal static class OpsCommand
     {
-        /// <summary>The protocol of an OpenAPI operation; the event document's server names the other.</summary>
+        /// <summary>The protocol of every OpenAPI operation; an event operation's is the one its document's servers declare.</summary>
         private const string Http = "http";
-
-        private const string Mqtt = "mqtt";
 
         private static readonly string[] Methods = ["get", "put", "post", "delete", "patch"];
 
@@ -47,12 +45,12 @@ namespace Vion.Cli.Commands
                                   return Guard.RunAsync(globals,
                                                         services,
                                                         () => result.GetValue(live) ? LiveAsync(globals, services, cancellationToken) :
-                                                                  Task.FromResult(Run(globals, result.GetValue(all), services)));
+                                                                  Task.FromResult(Run(globals, result.GetValue(all), tree, services)));
                               });
             return command;
         }
 
-        private static int Run(GlobalValues globals, bool includeSystem, CliServices services)
+        private static int Run(GlobalValues globals, bool includeSystem, CliTree tree, CliServices services)
         {
             var rows = new JsonArray();
             foreach (var operation in Operations.All.Where(o => o.InTree || includeSystem))
@@ -74,19 +72,20 @@ namespace Vion.Cli.Commands
                                    });
             }
 
-            var http = rows.Count;
-
-            // A watch is the event document's operation that sends on its channel: it reads, and it streams until it ends.
-            foreach (var channel in Channels.All)
+            // A watch is the event document's operation that sends on its channel, and it streams until it ends. It reads,
+            // unless the channel is registered: then the watch calls the registration, and has that operation's effect.
+            var effects = tree.Operations.ToDictionary(operation => operation.Id, operation => operation.Effect, StringComparer.Ordinal);
+            foreach (var channel in tree.Channels)
             {
+                var effect = channel.Registration is { } registration ? effects[registration.Operation] : Effect.Read;
                 rows.Add((JsonNode)new JsonObject
                                    {
                                        ["command"] = "vion " + channel.CommandPath,
                                        ["operationId"] = channel.OperationId,
-                                       ["protocol"] = Mqtt,
+                                       ["protocol"] = channel.Protocol,
                                        ["method"] = null,
                                        ["path"] = null,
-                                       ["effect"] = "Read",
+                                       ["effect"] = effect.ToString(),
                                        ["completion"] = "Stream",
                                        ["idempotent"] = false,
                                        ["versioned"] = false,
@@ -146,7 +145,7 @@ namespace Vion.Cli.Commands
             }
 
             Renderer.WriteTable(new JsonObject { ["items"] = table }, globals, services);
-            services.Error.WriteLine($"{http} {Http} operations, {rows.Count - http} {Mqtt} operations");
+            services.Error.WriteLine(string.Join(", ", rows.GroupBy(row => (string)row!["protocol"]!).Select(group => $"{group.Count()} {group.Key} operations")));
             return ExitCodes.Ok;
         }
 
@@ -219,7 +218,7 @@ namespace Vion.Cli.Commands
             {
                 items.Add((JsonNode)Row("added",
                                         id,
-                                        Mqtt,
+                                        Channels.Protocol,
                                         null,
                                         null,
                                         null));
@@ -229,7 +228,7 @@ namespace Vion.Cli.Commands
             {
                 items.Add((JsonNode)Row("removed",
                                         id,
-                                        Mqtt,
+                                        Channels.Protocol,
                                         null,
                                         null,
                                         null));
@@ -242,7 +241,7 @@ namespace Vion.Cli.Commands
                 {
                     items.Add((JsonNode)Row("changed",
                                             operation.Id,
-                                            Mqtt,
+                                            Channels.Protocol,
                                             null,
                                             null,
                                             string.Join(", ", differences)));
@@ -260,8 +259,8 @@ namespace Vion.Cli.Commands
             }
 
             services.Error.WriteLine(items.Count == 0 ?
-                                         $"no differences: {context.Environment.Name} serves the committed documents' {committed.Count} {Http} and {committedEvents.Count} {Mqtt} operations." :
-                                         $"{items.Count} difference(s) between {context.Environment.Name}'s {live.Count} {Http} and {liveEvents.Count} {Mqtt} operations and the committed {committed.Count} and {committedEvents.Count} (snapshots {Operations.SnapshotSha256[..12]}, {Channels.SnapshotSha256[..12]}).");
+                                         $"no differences: {context.Environment.Name} serves the committed documents' {committed.Count} {Http} and {committedEvents.Count} {Channels.Protocol} operations." :
+                                         $"{items.Count} difference(s) between {context.Environment.Name}'s {live.Count} {Http} and {liveEvents.Count} {Channels.Protocol} operations and the committed {committed.Count} and {committedEvents.Count} (snapshots {Operations.SnapshotSha256[..12]}, {Channels.SnapshotSha256[..12]}).");
             return items.Count == 0 ? ExitCodes.Ok : ExitCodes.Failure;
         }
 
@@ -373,7 +372,8 @@ namespace Vion.Cli.Commands
 
         /// <summary>
         ///     What differs between the committed operation and the served one, in what the watch derive reads: the action,
-        ///     the channel, the channel's parameter names in order, each hand-out's `operation`, `row` and `join`, and the
+        ///     the channel, the channel's parameter and message names in order, each hand-out's `key`, `operation`, `row` and
+        ///     `join`, and the
         ///     registration. Both sides go through the same projection, so the committed side's copy is never read on its own.
         /// </summary>
         private static List<string> EventDifferences(EventOperation committed, EventOperation served)
@@ -391,9 +391,14 @@ namespace Vion.Cli.Commands
 
             var mine = JsonNode.Parse(committed.Contract) as JsonObject ?? new JsonObject();
             var theirs = JsonNode.Parse(served.Contract) as JsonObject ?? new JsonObject();
-            if (!JsonNode.DeepEquals(ParameterNames(mine), ParameterNames(theirs)))
+            if (!JsonNode.DeepEquals(Names(mine, "parameters"), Names(theirs, "parameters")))
             {
                 differences.Add("parameters");
+            }
+
+            if (!JsonNode.DeepEquals(Names(mine, "messages"), Names(theirs, "messages")))
+            {
+                differences.Add("messages");
             }
 
             if (!JsonNode.DeepEquals(HandOuts(mine), HandOuts(theirs)))
@@ -409,15 +414,17 @@ namespace Vion.Cli.Commands
             return differences;
         }
 
-        private static JsonArray ParameterNames(JsonObject channel)
+        /// <summary>The names of a member object of the channel, in document order.</summary>
+        private static JsonArray Names(JsonObject channel, string member)
         {
-            return new JsonArray((channel["parameters"] as JsonObject)?.Select(parameter => (JsonNode?)parameter.Key).ToArray() ?? []);
+            return new JsonArray((channel[member] as JsonObject)?.Select(entry => (JsonNode?)entry.Key).ToArray() ?? []);
         }
 
         private static JsonArray HandOuts(JsonObject channel)
         {
             return new JsonArray((channel["x-vion-handedOutBy"] as JsonArray)?.Select(handOut => (JsonNode?)new JsonObject
                                                                                                             {
+                                                                                                                ["key"] = handOut?["key"]?.DeepClone(),
                                                                                                                 ["operation"] = handOut?["operation"]?.DeepClone(),
                                                                                                                 ["row"] = handOut?["row"]?.DeepClone(),
                                                                                                                 ["join"] = handOut?["join"]?.DeepClone(),

@@ -38,11 +38,13 @@ namespace Vion.Cli.Derived
 
     /// <summary>
     ///     One channel of the event document a row hands out, as <c>Channels.g.cs</c> carries it.
-    ///     <see cref="OperationId" /> is the event document's operation that sends on it.
+    ///     <see cref="OperationId" /> is the event document's operation that sends on it, and <see cref="Protocol" /> the
+    ///     protocol the document's servers declare.
     /// </summary>
     internal sealed record Channel(
         string Id,
         string OperationId,
+        string Protocol,
         string CommandDomain,
         string CommandAggregate,
         string Description,

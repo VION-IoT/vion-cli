@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using Vion.Cli.Derived;
 using Vion.Cli.Test.TestHelpers;
 
 namespace Vion.Cli.Test.Commands
@@ -97,6 +98,40 @@ namespace Vion.Cli.Test.Commands
             Assert.AreEqual("Stream", alert["completion"]!.GetValue<string>());
             Assert.IsFalse(new[] { "idempotent", "versioned", "dryRun", "deprecated", "hidden" }.Any(flag => alert[flag]!.GetValue<bool>()));
             Assert.IsEmpty(handler.Requests);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.1")]
+        public async Task GiveRegisteredWatchItsRegistrationEffect()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(500);
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--json"]);
+
+            // Assert
+            var items = JsonNode.Parse(run.Out)!["items"]!.AsArray();
+            var registration = items.Single(i => i!["operationId"]!.GetValue<string>() == "tenant.serviceProperty.subscribe")!;
+            var watch = items.Single(i => i!["command"]!.GetValue<string>() == "vion tenant service-property watch")!;
+            Assert.AreEqual("Reversible", registration["effect"]!.GetValue<string>());
+            Assert.AreEqual("Reversible", watch["effect"]!.GetValue<string>());
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.1")]
+        public async Task NameWatchProtocolAsEventDocumentDeclaresIt()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(500);
+            var channels = new[] { Channels.All.Single(channel => channel.Id == "tenant.alert.state") with { Protocol = "amqp" } };
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--json"], channels: channels);
+
+            // Assert
+            var watch = JsonNode.Parse(run.Out)!["items"]!.AsArray().Single(i => i!["command"]!.GetValue<string>() == "vion tenant alert watch")!;
+            Assert.AreEqual("amqp", watch["protocol"]!.GetValue<string>());
         }
 
         [TestMethod]
@@ -217,6 +252,11 @@ namespace Vion.Cli.Test.Commands
             var alertRule = alertParameters["alertRuleId"]!.DeepClone();
             alertParameters.Remove("alertRuleId");
             alertParameters["ruleId"] = alertRule;
+            channels["tenant.systemHealth.state"]!["x-vion-handedOutBy"]![0]!["key"] = "another.key";
+            var logLevelMessages = channels["tenant.logLevel.state"]!["messages"]!.AsObject();
+            var logLevelMessage = logLevelMessages.Single();
+            logLevelMessages.Remove(logLevelMessage.Key);
+            logLevelMessages["Renamed"] = logLevelMessage.Value!.DeepClone();
             using var handler = Documents(Fixture("v1.json"), events.ToJsonString());
 
             // Act
@@ -234,10 +274,12 @@ namespace Vion.Cli.Test.Commands
                                                ("added", "tenant.thing.state", null),
                                                ("removed", "tenant.vpnSession.state", null),
                                                ("changed", "me.lastWill.event", (string?)"action"),
-                                               ("changed", "integrator.certificate.state", (string?)"channel"),
+                                               ("changed", "integrator.certificate.state", (string?)"channel, messages, x-vion-handedOutBy"),
                                                ("changed", "tenant.syncStatus.state", (string?)"x-vion-handedOutBy"),
                                                ("changed", "tenant.serviceProperty.state", (string?)"x-vion-registeredBy"),
                                                ("changed", "tenant.alert.state", (string?)"parameters"),
+                                               ("changed", "tenant.systemHealth.state", (string?)"x-vion-handedOutBy"),
+                                               ("changed", "tenant.logLevel.state", (string?)"messages"),
                                            },
                                            items);
         }
@@ -255,7 +297,6 @@ namespace Vion.Cli.Test.Commands
             }
 
             var syncStatus = events["channels"]!["tenant.syncStatus.state"]!;
-            syncStatus["x-vion-handedOutBy"]![0]!["key"] = "another.key";
             syncStatus["x-vion-handedOutBy"]![0]!["schema"] = "AnotherOutput";
             syncStatus["parameters"]!["edgeGatewayId"]!["description"] = "Reworded.";
             events["servers"]!["test"]!["host"] = "ws.vion.swiss";

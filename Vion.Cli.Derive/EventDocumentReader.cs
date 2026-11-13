@@ -21,8 +21,8 @@ namespace Vion.Cli.Derive
 
         private const string RegisteredBy = "x-vion-registeredBy";
 
-        /// <summary>The members of a channel `ops --live` compares; the channel's address, description and messages are not.</summary>
-        private static readonly string[] ContractMembers = ["parameters", HandedOutBy, RegisteredBy];
+        /// <summary>The members of a channel `ops --live` compares; the channel's address and description are not.</summary>
+        private static readonly string[] ContractMembers = ["parameters", "messages", HandedOutBy, RegisteredBy];
 
         public static DerivedChannels Read(string json, DerivedDocument operations)
         {
@@ -30,6 +30,7 @@ namespace Vion.Cli.Derive
             var sha = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(json)));
             var operationIds = new HashSet<string>(operations.Operations.Select(operation => operation.Id), StringComparer.Ordinal);
 
+            var protocol = ReadProtocol(document.RootElement);
             var hasChannels = document.RootElement.TryGetProperty("channels", out var channelsElement) && channelsElement.ValueKind == JsonValueKind.Object;
             var eventOperations = ReadOperations(document.RootElement, hasChannels ? channelsElement : default);
 
@@ -49,7 +50,26 @@ namespace Vion.Cli.Derive
             }
 
             RefuseCollisions(channels, operations);
-            return new DerivedChannels(sha, channels, eventOperations);
+            return new DerivedChannels(sha, protocol, channels, eventOperations);
+        }
+
+        /// <summary>
+        ///     The one protocol the document's servers declare. None, or two different ones, leave a watch without a protocol
+        ///     to name, so either fails the derive.
+        /// </summary>
+        private static string ReadProtocol(JsonElement root)
+        {
+            var protocols = root.TryGetProperty("servers", out var servers) && servers.ValueKind == JsonValueKind.Object ? servers.EnumerateObject()
+                                .Select(server => TryString(server.Value, "protocol"))
+                                .OfType<string>()
+                                .Distinct(StringComparer.Ordinal)
+                                .ToList() : [];
+            return protocols switch
+            {
+                [var only] => only,
+                [] => throw new DeriveException("the event document's servers declare no protocol."),
+                _ => throw new DeriveException($"the event document's servers declare more than one protocol: {string.Join(", ", protocols)}."),
+            };
         }
 
         /// <summary>

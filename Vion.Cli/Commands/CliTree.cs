@@ -34,6 +34,9 @@ namespace Vion.Cli.Commands
         /// <summary>The operations the tree was built from: what a command that calls another operation looks it up in.</summary>
         public IReadOnlyList<Operation> Operations { get; }
 
+        /// <summary>The channels the watch commands were built from: what `ops` lists them by.</summary>
+        public IReadOnlyList<Channel> Channels { get; }
+
         /// <summary>The watch commands, which take `--timeout` on its own where every other command takes it beside `--wait`.</summary>
         public HashSet<Command> Watches { get; } = [];
 
@@ -42,9 +45,11 @@ namespace Vion.Cli.Commands
                         BodyOptions body,
                         HelpOption help,
                         VersionOption version,
-                        IReadOnlyList<Operation> operations)
+                        IReadOnlyList<Operation> operations,
+                        IReadOnlyList<Channel> channels)
         {
             Operations = operations;
+            Channels = channels;
             Root = root;
             Globals = globals;
             Body = body;
@@ -74,9 +79,10 @@ namespace Vion.Cli.Commands
                                    body,
                                    help,
                                    version,
-                                   operations ?? Derived.Operations.All);
+                                   operations ?? Derived.Operations.All,
+                                   channels ?? Derived.Channels.All);
             DerivedCommands.AddTo(tree, services, tree.Operations);
-            WatchCommands.AddTo(tree, services, channels ?? Channels.All);
+            WatchCommands.AddTo(tree, services, tree.Channels);
             help.Action = new TreeHelpAction(tree, (HelpAction)help.Action!);
             root.Subcommands.Add(AuthCommands.Create(tree, services));
             root.Subcommands.Add(ContextCommands.Create(tree, services));

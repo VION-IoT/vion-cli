@@ -118,8 +118,8 @@ and runs `vion ops --live --env test --json` and `… --env production --json`, 
 what the pull request gates do not: the released snapshot against what each host serves today, and
 the static Linux executable's HTTPS over a real network. It sees only what `ops --live` compares,
 the derived tables' members: a host that changes no more than what an operation answers, a
-member of `x-vion-capability` the table does not carry, or a channel's address or description,
-leaves it green.
+member of `x-vion-capability` the table does not carry, a channel's address or description, or
+its servers' protocol, leaves it green.
 
 When both are clean, nothing happens. When either is not, the run comments on the open issue
 labelled `live-check` in `VION-IoT/architecture`, or opens one titled `vion live check: …` when
