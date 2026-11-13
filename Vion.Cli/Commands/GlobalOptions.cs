@@ -90,6 +90,10 @@ namespace Vion.Cli.Commands
                                                 Recursive = true,
                                             };
 
+        /// <summary>`--timeout`'s help on a watch, where it bounds the watch itself rather than a `--wait`.</summary>
+        public const string WatchTimeoutDescription =
+            "How long to watch once subscribed: 90s, 15m, 1h or seconds; until interrupted when absent. Exits 0 then, 1 if never subscribed.";
+
         public Option<string> Timeout { get; } = CreateTimeout();
 
         public IEnumerable<Option> All

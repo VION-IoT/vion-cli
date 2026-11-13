@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Help;
+using System.CommandLine.Invocation;
 using System.Linq;
 using Vion.Cli.Derived;
 using Vion.Cli.Infrastructure;
@@ -76,6 +77,7 @@ namespace Vion.Cli.Commands
                                    operations ?? Derived.Operations.All);
             DerivedCommands.AddTo(tree, services, tree.Operations);
             WatchCommands.AddTo(tree, services, channels ?? Channels.All);
+            help.Action = new TreeHelpAction(tree, (HelpAction)help.Action!);
             root.Subcommands.Add(AuthCommands.Create(tree, services));
             root.Subcommands.Add(ContextCommands.Create(tree, services));
             root.Subcommands.Add(WhoamiCommand.Create(tree, services));
@@ -101,6 +103,40 @@ namespace Vion.Cli.Commands
                 foreach (var descendant in Walk([.. path, child.Name], child))
                 {
                     yield return descendant;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Help as System.CommandLine writes it, but with `--timeout` described as what it does on a watch where the
+        ///     command is one: the option is one recursive global, and the library keeps its per-command customisation
+        ///     internal, so the watch's description stands in for the length of that one help.
+        /// </summary>
+        private sealed class TreeHelpAction(CliTree tree, HelpAction help) : SynchronousCommandLineAction
+        {
+            /// <summary>As the wrapped help's: `--help` on a command missing a required option still shows help.</summary>
+            public override bool ClearsParseErrors
+            {
+                get => help.ClearsParseErrors;
+            }
+
+            public override int Invoke(ParseResult parseResult)
+            {
+                if (!tree.Watches.Contains(parseResult.CommandResult.Command))
+                {
+                    return help.Invoke(parseResult);
+                }
+
+                var timeout = tree.Globals.Timeout;
+                var description = timeout.Description;
+                timeout.Description = GlobalOptions.WatchTimeoutDescription;
+                try
+                {
+                    return help.Invoke(parseResult);
+                }
+                finally
+                {
+                    timeout.Description = description;
                 }
             }
         }

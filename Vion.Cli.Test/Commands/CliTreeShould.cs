@@ -122,6 +122,21 @@ namespace Vion.Cli.Test.Commands
             StringAssert.Contains(run.Out, "--edge-gateway-id <value> (REQUIRED)  The edge gateway's id.");
         }
 
+        [TestMethod]
+        public async Task DescribeTimeoutOnWatchAsBoundingTheWatch()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(200);
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["tenant", "sync-status", "watch", "--help"]);
+
+            // Assert
+            var help = System.Text.RegularExpressions.Regex.Replace(run.Out, @"\s+", " ");
+            StringAssert.Contains(help,
+                                  "--timeout <duration> How long to watch once subscribed: 90s, 15m, 1h or seconds; until interrupted when absent. Exits 0 then, 1 if never subscribed.");
+        }
+
         private static Operation Synthetic(string id, bool deprecated)
         {
             var (domain, aggregate, verb) = (id.Split('.')[0], id.Split('.')[1], id.Split('.')[2]);
