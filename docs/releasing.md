@@ -17,9 +17,7 @@ in `dotnet-aot-app.yml`).
 
 ## Cutting a release
 
-Prerequisites: `main` is green on the commit you want to release; `gh auth status` is signed in;
-the README's install line (`v=`) names the version about to be cut, moved there in the last pull
-request before the release, so the archive the README installs is the one its claims describe.
+Prerequisites: `main` is green on the commit you want to release; `gh auth status` is signed in.
 
 ```bash
 gh release create v0.2.0 --target main --generate-notes --title "v0.2.0" --notes "Short release summary."
