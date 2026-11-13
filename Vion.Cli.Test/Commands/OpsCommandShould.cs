@@ -231,8 +231,8 @@ namespace Vion.Cli.Test.Commands
             var items = rows.Select(i => (i!["change"]!.GetValue<string>(), i["operationId"]!.GetValue<string>(), i["detail"]?.GetValue<string>())).ToList();
             CollectionAssert.AreEquivalent(new[]
                                            {
-                                               ("added", "tenant.thing.state", (string?)null),
-                                               ("removed", "tenant.vpnSession.state", (string?)null),
+                                               ("added", "tenant.thing.state", null),
+                                               ("removed", "tenant.vpnSession.state", null),
                                                ("changed", "me.lastWill.event", (string?)"action"),
                                                ("changed", "integrator.certificate.state", (string?)"channel"),
                                                ("changed", "tenant.syncStatus.state", (string?)"x-vion-handedOutBy"),
@@ -272,7 +272,9 @@ namespace Vion.Cli.Test.Commands
         /// <summary>An environment that serves the two documents at their own paths, tokenless.</summary>
         private static RecordingHandler Documents(string openApi, string events)
         {
-            return new RecordingHandler(request => RecordingHandler.Response(200, request.RequestUri!.AbsolutePath.EndsWith("/asyncapi/v1.json", StringComparison.Ordinal) ? events : openApi));
+            return new RecordingHandler(request => RecordingHandler.Response(200,
+                                                                             request.RequestUri!.AbsolutePath.EndsWith("/asyncapi/v1.json", StringComparison.Ordinal) ? events :
+                                                                                 openApi));
         }
 
         private static string Fixture(string name)

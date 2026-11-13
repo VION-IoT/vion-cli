@@ -166,12 +166,22 @@ namespace Vion.Cli.Commands
             var items = new JsonArray();
             foreach (var (id, operation) in live.Where(pair => !committed.ContainsKey(pair.Key)).OrderBy(pair => pair.Key, StringComparer.Ordinal))
             {
-                items.Add((JsonNode)Row("added", id, Http, operation.Method, operation.Path, null));
+                items.Add((JsonNode)Row("added",
+                                        id,
+                                        Http,
+                                        operation.Method,
+                                        operation.Path,
+                                        null));
             }
 
             foreach (var operation in committed.Values.Where(o => !live.ContainsKey(o.Id)).OrderBy(o => o.Id, StringComparer.Ordinal))
             {
-                items.Add((JsonNode)Row("removed", operation.Id, Http, operation.Method, operation.Template, null));
+                items.Add((JsonNode)Row("removed",
+                                        operation.Id,
+                                        Http,
+                                        operation.Method,
+                                        operation.Template,
+                                        null));
             }
 
             foreach (var operation in committed.Values.Where(o => live.ContainsKey(o.Id)).OrderBy(o => o.Id, StringComparer.Ordinal))
@@ -195,19 +205,34 @@ namespace Vion.Cli.Commands
 
                 if (differences.Count > 0)
                 {
-                    items.Add((JsonNode)Row("changed", operation.Id, Http, served.Method, served.Path, string.Join(", ", differences)));
+                    items.Add((JsonNode)Row("changed",
+                                            operation.Id,
+                                            Http,
+                                            served.Method,
+                                            served.Path,
+                                            string.Join(", ", differences)));
                 }
             }
 
             var committedEvents = EventOperations.All.ToDictionary(o => o.Id, StringComparer.Ordinal);
             foreach (var id in liveEvents.Keys.Where(id => !committedEvents.ContainsKey(id)).OrderBy(id => id, StringComparer.Ordinal))
             {
-                items.Add((JsonNode)Row("added", id, Mqtt, null, null, null));
+                items.Add((JsonNode)Row("added",
+                                        id,
+                                        Mqtt,
+                                        null,
+                                        null,
+                                        null));
             }
 
             foreach (var id in committedEvents.Keys.Where(id => !liveEvents.ContainsKey(id)).OrderBy(id => id, StringComparer.Ordinal))
             {
-                items.Add((JsonNode)Row("removed", id, Mqtt, null, null, null));
+                items.Add((JsonNode)Row("removed",
+                                        id,
+                                        Mqtt,
+                                        null,
+                                        null,
+                                        null));
             }
 
             foreach (var operation in committedEvents.Values.Where(o => liveEvents.ContainsKey(o.Id)).OrderBy(o => o.Id, StringComparer.Ordinal))
@@ -215,7 +240,12 @@ namespace Vion.Cli.Commands
                 var differences = EventDifferences(operation, liveEvents[operation.Id]);
                 if (differences.Count > 0)
                 {
-                    items.Add((JsonNode)Row("changed", operation.Id, Mqtt, null, null, string.Join(", ", differences)));
+                    items.Add((JsonNode)Row("changed",
+                                            operation.Id,
+                                            Mqtt,
+                                            null,
+                                            null,
+                                            string.Join(", ", differences)));
                 }
             }
 
@@ -235,7 +265,12 @@ namespace Vion.Cli.Commands
             return items.Count == 0 ? ExitCodes.Ok : ExitCodes.Failure;
         }
 
-        private static JsonObject Row(string change, string id, string protocol, string? method, string? path, string? detail)
+        private static JsonObject Row(string change,
+                                      string id,
+                                      string protocol,
+                                      string? method,
+                                      string? path,
+                                      string? detail)
         {
             return new JsonObject
                    {
@@ -382,13 +417,12 @@ namespace Vion.Cli.Commands
         private static JsonArray HandOuts(JsonObject channel)
         {
             return new JsonArray((channel["x-vion-handedOutBy"] as JsonArray)?.Select(handOut => (JsonNode?)new JsonObject
-                                                                                                                {
-                                                                                                                    ["operation"] = handOut?["operation"]?.DeepClone(),
-                                                                                                                    ["row"] = handOut?["row"]?.DeepClone(),
-                                                                                                                    ["join"] = handOut?["join"]?.DeepClone(),
-                                                                                                                })
-                                                                                                .ToArray() ??
-                                 []);
+                                                                                                            {
+                                                                                                                ["operation"] = handOut?["operation"]?.DeepClone(),
+                                                                                                                ["row"] = handOut?["row"]?.DeepClone(),
+                                                                                                                ["join"] = handOut?["join"]?.DeepClone(),
+                                                                                                            })
+                                                                             .ToArray() ?? []);
         }
 
         private static bool SameAuthorization(JsonObject? served, Authorization committed)
