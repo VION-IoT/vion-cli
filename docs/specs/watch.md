@@ -29,6 +29,7 @@ operations, takes as options only what selects that row, and is described by the
 - `AC-WATCH-001.2` (Ubiquitous): THE SYSTEM SHALL take as an option, named by the parameter's name in kebab case, every address parameter of a channel that some hand-out joins to an operation parameter or to a member of a listed row, except `tenantId`, `integratorId`, `platformId` and `projectId`, which the context supplies, requiring each unless some hand-out of the channel does not join it.
 - `AC-WATCH-001.3` (Unwanted): IF two channels derive to one command, or a channel derives to a command an operation has, THEN THE SYSTEM SHALL fail the derive step naming both.
 - `AC-WATCH-001.4` (Ubiquitous): THE SYSTEM SHALL describe each watch command by its channel's description and each of its options by the parameter's description in help.
+- `AC-WATCH-001.5` (Ubiquitous): THE SYSTEM SHALL describe `--timeout` in a watch command's help as how long it watches once subscribed, until interrupted when absent, exiting 0 then and 1 if it never subscribed.
 
 ## Subscribing
 
@@ -61,5 +62,6 @@ says so with exit 1, so that a caller sampling a channel never reads "never conn
 messages".
 
 - `AC-WATCH-003.1` (Ubiquitous): THE SYSTEM SHALL write each message whose `schema` user property names the channel's message, and no other message, as its payload on one line of standard output under `--json` and as an object's key–value table otherwise, projected by `--fields` in both.
-- `AC-WATCH-003.2` (Ubiquitous): THE SYSTEM SHALL watch, once the subscription stands, until `--timeout` where one is given, without `--wait` beside it, and until interrupted otherwise, and exit 0 at either.
+- `AC-WATCH-003.2` (Ubiquitous): THE SYSTEM SHALL watch, once the subscription stands, until `--timeout` where one is given and until interrupted otherwise, and exit 0 at either.
 - `AC-WATCH-003.3` (Unwanted): IF `--timeout` or an interrupt ends a watch before its subscription has stood THEN THE SYSTEM SHALL report that nothing was watched and exit 1.
+- `AC-WATCH-003.4` (Unwanted): IF `--wait` is given on a watch THEN THE SYSTEM SHALL refuse before sending anything, naming it, and exit 2.

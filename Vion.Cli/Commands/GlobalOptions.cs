@@ -44,6 +44,10 @@ namespace Vion.Cli.Commands
     /// </summary>
     internal sealed class GlobalOptions
     {
+        /// <summary>`--timeout`'s help on a watch, where it bounds the watch itself rather than a `--wait`.</summary>
+        public const string WatchTimeoutDescription =
+            "How long to watch once subscribed: 90s, 15m, 1h or seconds; until interrupted when absent. Exits 0 then, 1 if never subscribed.";
+
         /// <summary>The longest `--timeout` taken: a week, far past any run the host lets live, and far from overflow.</summary>
         public static readonly TimeSpan MaxTimeout = TimeSpan.FromDays(7);
 

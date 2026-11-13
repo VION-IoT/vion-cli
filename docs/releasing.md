@@ -117,17 +117,19 @@ the latest release's `vion-<v>-linux-musl-x64.tar.gz`, refuses it unless it matc
 and runs `vion ops --live --env test --json` and `… --env production --json`, tokenless. It covers
 what the pull request gates do not: the released snapshot against what each host serves today, and
 the static Linux executable's HTTPS over a real network. It sees only what `ops --live` compares,
-the derived table's members: a host that changes no more than what an operation answers, or a
-member of `x-vion-capability` the table does not carry, leaves it green.
+the derived tables' members: a host that changes no more than what an operation answers, a
+member of `x-vion-capability` the table does not carry, a channel's address or description, or
+its servers' protocol, leaves it green.
 
 When both are clean, nothing happens. When either is not, the run comments on the open issue
 labelled `live-check` in `VION-IoT/architecture`, or opens one titled `vion live check: …` when
 none is open, then goes red. This repository is public and gets no issues of its own. The issue
 carries the release, each environment's state and exit code, and what `ops --live` printed:
 
-- **differs**: the release is stale against that host. Pull the snapshot, derive, release
+- **differs**: the release is stale against that host. Pull the snapshot the rows' `protocol` names
+  (`http`: `scripts/snapshot-pull.ps1`; `mqtt`: `scripts/asyncapi-pull.ps1`), derive, release
   (§ The snapshot is not a release), then close the issue by hand.
-- **fails**: the executable could not read the host's document, or the archive could not be
+- **fails**: the executable could not read one of the host's documents, or the archive could not be
   downloaded or failed its checksum. That points at the host, the network, the release's assets or
   the executable's HTTPS; a red that clears on the next run was the host or the network.
 

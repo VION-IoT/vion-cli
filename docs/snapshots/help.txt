@@ -40,8 +40,9 @@ Commands:
                        memberships with their ids.
   can-i <operationId>  Decide from the environment's catalog and your own permissions whether you may call an 
                        operation; --project decides a project-scoped one at that project.
-  ops                  List the operations of the committed document: the command, the operationId, the 
-                       method and path, the effect, the completion and the write-safety flags.
+  ops                  List the operations of the committed documents, the watches included: the command, the 
+                       operationId, the protocol, the method and path, the effect, the completion and the 
+                       write-safety flags.
   api <method> <path>  Send a raw request to the environment's API with the resolved token, and render the 
                        answer as any command's.
 
@@ -464,8 +465,8 @@ Options:
   --verbose                             Show the request and the response headers on standard error.
   --wait                                Wait for a long-running operation to end and exit by its outcome; a 
                                         command whose answer is already the outcome ignores it.
-  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
-                                        Still running then exits 3.
+  --timeout <duration>                  How long to watch once subscribed: 90s, 15m, 1h or seconds; until 
+                                        interrupted when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion tenant system-event
@@ -574,8 +575,8 @@ Options:
   --verbose                             Show the request and the response headers on standard error.
   --wait                                Wait for a long-running operation to end and exit by its outcome; a 
                                         command whose answer is already the outcome ignores it.
-  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
-                                        Still running then exits 3.
+  --timeout <duration>                  How long to watch once subscribed: 90s, 15m, 1h or seconds; until 
+                                        interrupted when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion tenant support-grant
@@ -815,8 +816,8 @@ Options:
   --verbose                             Show the request and the response headers on standard error.
   --wait                                Wait for a long-running operation to end and exit by its outcome; a 
                                         command whose answer is already the outcome ignores it.
-  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
-                                        Still running then exits 3.
+  --timeout <duration>                  How long to watch once subscribed: 90s, 15m, 1h or seconds; until 
+                                        interrupted when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion tenant support-session
@@ -917,8 +918,8 @@ Options:
   --verbose                             Show the request and the response headers on standard error.
   --wait                                Wait for a long-running operation to end and exit by its outcome; a 
                                         command whose answer is already the outcome ignores it.
-  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
-                                        Still running then exits 3.
+  --timeout <duration>                  How long to watch once subscribed: 90s, 15m, 1h or seconds; until 
+                                        interrupted when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion tenant logic-block-instance
@@ -1266,8 +1267,9 @@ Options:
   --wait                                            Wait for a long-running operation to end and exit by its 
                                                     outcome; a command whose answer is already the outcome 
                                                     ignores it.
-  --timeout <duration>                              How long --wait waits: 90s, 15m, 1h or seconds; 15m when 
-                                                    absent. Still running then exits 3.
+  --timeout <duration>                              How long to watch once subscribed: 90s, 15m, 1h or 
+                                                    seconds; until interrupted when absent. Exits 0 then, 1 
+                                                    if never subscribed.
 
 ---
 ## vion tenant service-provider
@@ -1946,8 +1948,8 @@ Options:
   --verbose                             Show the request and the response headers on standard error.
   --wait                                Wait for a long-running operation to end and exit by its outcome; a 
                                         command whose answer is already the outcome ignores it.
-  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
-                                        Still running then exits 3.
+  --timeout <duration>                  How long to watch once subscribed: 90s, 15m, 1h or seconds; until 
+                                        interrupted when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion tenant console-session
@@ -2045,8 +2047,8 @@ Options:
   --verbose                             Show the request and the response headers on standard error.
   --wait                                Wait for a long-running operation to end and exit by its outcome; a 
                                         command whose answer is already the outcome ignores it.
-  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
-                                        Still running then exits 3.
+  --timeout <duration>                  How long to watch once subscribed: 90s, 15m, 1h or seconds; until 
+                                        interrupted when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion tenant vpn-connection
@@ -3152,8 +3154,8 @@ Options:
   --verbose                             Show the request and the response headers on standard error.
   --wait                                Wait for a long-running operation to end and exit by its outcome; a 
                                         command whose answer is already the outcome ignores it.
-  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
-                                        Still running then exits 3.
+  --timeout <duration>                  How long to watch once subscribed: 90s, 15m, 1h or seconds; until 
+                                        interrupted when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion tenant logic-configuration-template
@@ -5976,8 +5978,8 @@ Options:
   --verbose                             Show the request and the response headers on standard error.
   --wait                                Wait for a long-running operation to end and exit by its outcome; a 
                                         command whose answer is already the outcome ignores it.
-  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
-                                        Still running then exits 3.
+  --timeout <duration>                  How long to watch once subscribed: 90s, 15m, 1h or seconds; until 
+                                        interrupted when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion tenant chart
@@ -6141,8 +6143,8 @@ Options:
   --verbose                             Show the request and the response headers on standard error.
   --wait                                Wait for a long-running operation to end and exit by its outcome; a 
                                         command whose answer is already the outcome ignores it.
-  --timeout <duration>                  How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. 
-                                        Still running then exits 3.
+  --timeout <duration>                  How long to watch once subscribed: 90s, 15m, 1h or seconds; until 
+                                        interrupted when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion integrator
@@ -7614,8 +7616,8 @@ Options:
   --verbose                  Show the request and the response headers on standard error.
   --wait                     Wait for a long-running operation to end and exit by its outcome; a command 
                              whose answer is already the outcome ignores it.
-  --timeout <duration>       How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
-                             then exits 3.
+  --timeout <duration>       How long to watch once subscribed: 90s, 15m, 1h or seconds; until interrupted 
+                             when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion integrator support-grant
@@ -7749,8 +7751,8 @@ Options:
   --verbose                  Show the request and the response headers on standard error.
   --wait                     Wait for a long-running operation to end and exit by its outcome; a command 
                              whose answer is already the outcome ignores it.
-  --timeout <duration>       How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
-                             then exits 3.
+  --timeout <duration>       How long to watch once subscribed: 90s, 15m, 1h or seconds; until interrupted 
+                             when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion integrator support-tenant-scope
@@ -7983,8 +7985,8 @@ Options:
   --verbose                  Show the request and the response headers on standard error.
   --wait                     Wait for a long-running operation to end and exit by its outcome; a command 
                              whose answer is already the outcome ignores it.
-  --timeout <duration>       How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
-                             then exits 3.
+  --timeout <duration>       How long to watch once subscribed: 90s, 15m, 1h or seconds; until interrupted 
+                             when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion integrator console-connection
@@ -8378,8 +8380,8 @@ Options:
   --verbose                  Show the request and the response headers on standard error.
   --wait                     Wait for a long-running operation to end and exit by its outcome; a command 
                              whose answer is already the outcome ignores it.
-  --timeout <duration>       How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
-                             then exits 3.
+  --timeout <duration>       How long to watch once subscribed: 90s, 15m, 1h or seconds; until interrupted 
+                             when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion integrator software-profile
@@ -9916,8 +9918,8 @@ Options:
   --verbose                  Show the request and the response headers on standard error.
   --wait                     Wait for a long-running operation to end and exit by its outcome; a command 
                              whose answer is already the outcome ignores it.
-  --timeout <duration>       How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
-                             then exits 3.
+  --timeout <duration>       How long to watch once subscribed: 90s, 15m, 1h or seconds; until interrupted 
+                             when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion integrator edge-gateway-simulation
@@ -11064,8 +11066,8 @@ Options:
   --verbose                  Show the request and the response headers on standard error.
   --wait                     Wait for a long-running operation to end and exit by its outcome; a command 
                              whose answer is already the outcome ignores it.
-  --timeout <duration>       How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
-                             then exits 3.
+  --timeout <duration>       How long to watch once subscribed: 90s, 15m, 1h or seconds; until interrupted 
+                             when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion integrator commissioning
@@ -11128,8 +11130,8 @@ Options:
   --verbose                  Show the request and the response headers on standard error.
   --wait                     Wait for a long-running operation to end and exit by its outcome; a command 
                              whose answer is already the outcome ignores it.
-  --timeout <duration>       How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
-                             then exits 3.
+  --timeout <duration>       How long to watch once subscribed: 90s, 15m, 1h or seconds; until interrupted 
+                             when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion platform
@@ -14082,8 +14084,8 @@ Options:
   --verbose                 Show the request and the response headers on standard error.
   --wait                    Wait for a long-running operation to end and exit by its outcome; a command whose 
                             answer is already the outcome ignores it.
-  --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
-                            then exits 3.
+  --timeout <duration>      How long to watch once subscribed: 90s, 15m, 1h or seconds; until interrupted 
+                            when absent. Exits 0 then, 1 if never subscribed.
 
 ---
 ## vion me long-running-operation
@@ -14793,16 +14795,16 @@ Options:
 ---
 ## vion ops
 Description:
-  List the operations of the committed document: the command, the operationId, the method and path, the 
-  effect, the completion and the write-safety flags.
+  List the operations of the committed documents, the watches included: the command, the operationId, the 
+  protocol, the method and path, the effect, the completion and the write-safety flags.
 
 Usage:
   vion ops [options]
 
 Options:
   --all                     Include the system operations, which have no command.
-  --live                    Read the environment's document and list the operations added, removed or changed 
-                            against the committed one; exit 1 on any.
+  --live                    Read the environment's OpenAPI and event documents and list the operations added, 
+                            removed or changed against the committed ones; exit 1 on any.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.

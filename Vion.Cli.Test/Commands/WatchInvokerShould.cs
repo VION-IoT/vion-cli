@@ -615,6 +615,23 @@ namespace Vion.Cli.Test.Commands
             Assert.IsEmpty(handler.Requests);
         }
 
+        [TestMethod]
+        [TestProperty("spec", "AC-WATCH-003.4")]
+        public async Task RefuseWaitBeforeSending()
+        {
+            // Arrange
+            var broker = new RecordingBroker { EndsOnConnect = true };
+            using var handler = Api(broker, Gateways);
+
+            // Act
+            var run = await Tool.RunAsync(handler, Tool.OnTest([.. SyncStatus, "--wait", "--timeout", "3s"]), Tool.Token, broker: broker);
+
+            // Assert
+            Assert.AreEqual(2, run.ExitCode);
+            Assert.AreEqual($"error: --wait: a watch has no long-running operation to wait for; --timeout alone bounds it.{Environment.NewLine}", run.Error);
+            Assert.IsEmpty(handler.Requests);
+        }
+
         /// <summary>
         ///     A JSON literal with the test's ids put in, so that the literal itself needs no interpolation beside its
         ///     braces.

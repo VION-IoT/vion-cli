@@ -21,21 +21,43 @@ namespace Vion.Cli.Derive
             sb.Append("namespace Vion.Cli.Derived;\n\n");
             sb.Append("internal static partial class Channels\n{\n");
             sb.Append("    public const string SnapshotSha256 = ").Append(Emitter.Literal(document.SnapshotSha256)).Append(";\n\n");
+            sb.Append("    /// <summary>The protocol the event document's servers declare.</summary>\n");
+            sb.Append("    public const string Protocol = ").Append(Emitter.Literal(document.Protocol)).Append(";\n\n");
             sb.Append("    public static readonly IReadOnlyList<Channel> All = new Channel[]\n    {\n");
             foreach (var channel in document.Channels)
             {
-                EmitChannel(sb, channel);
+                EmitChannel(sb, channel, document.Protocol);
+            }
+
+            sb.Append("    };\n}\n\n");
+            sb.Append("internal static partial class EventOperations\n{\n");
+            sb.Append("    public static readonly IReadOnlyList<EventOperation> All = new EventOperation[]\n    {\n");
+            foreach (var operation in document.Operations)
+            {
+                sb.Append("        new EventOperation(")
+                  .Append(Emitter.Literal(operation.Id))
+                  .Append(", ")
+                  .Append(Emitter.Literal(operation.Action))
+                  .Append(", ")
+                  .Append(Emitter.Literal(operation.Channel))
+                  .Append(",\n            ")
+                  .Append(Emitter.Literal(operation.Contract))
+                  .Append("),\n");
             }
 
             sb.Append("    };\n}\n");
             return sb.ToString();
         }
 
-        private static void EmitChannel(StringBuilder sb, DerivedChannel c)
+        private static void EmitChannel(StringBuilder sb, DerivedChannel c, string protocol)
         {
             sb.Append("        new Channel(\n");
             sb.Append("            ")
               .Append(Emitter.Literal(c.Id))
+              .Append(", ")
+              .Append(Emitter.Literal(c.OperationId))
+              .Append(", ")
+              .Append(Emitter.Literal(protocol))
               .Append(", ")
               .Append(Emitter.Literal(c.CommandDomain))
               .Append(", ")

@@ -73,6 +73,11 @@ namespace Vion.Cli.Commands
                 throw new UsageException("--dry-run: a watch offers no dry run.");
             }
 
+            if (globals.Wait)
+            {
+                throw new UsageException("--wait: a watch has no long-running operation to wait for; --timeout alone bounds it.");
+            }
+
             if (!Uri.TryCreate(context.Environment.BrokerUrl, UriKind.Absolute, out var pinned))
             {
                 throw new

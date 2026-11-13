@@ -22,7 +22,7 @@ namespace Vion.Cli.Test.Commands
 
             // Assert
             var items = System.Text.Json.Nodes.JsonNode.Parse(run.Out)!["items"]!.AsArray();
-            var commands = items.Select(i => i!["command"]!.GetValue<string>()).ToList();
+            var commands = items.Where(i => i!["protocol"]!.GetValue<string>() == "http").Select(i => i!["command"]!.GetValue<string>()).ToList();
             Assert.HasCount(Snapshot.TreeOperationCount, commands);
             CollectionAssert.AreEquivalent(Operations.All.Where(o => o.InTree).Select(o => "vion " + o.CommandPath).ToList(), commands);
             Assert.IsFalse(commands.Any(c => c.StartsWith("vion system", System.StringComparison.Ordinal)));
@@ -120,6 +120,22 @@ namespace Vion.Cli.Test.Commands
             // Assert
             StringAssert.Contains(run.Out, "How far the gateway has applied what was sent to it, published each time a sync status changes.");
             StringAssert.Contains(run.Out, "--edge-gateway-id <value> (REQUIRED)  The edge gateway's id.");
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-WATCH-001.5")]
+        public async Task DescribeTimeoutOnWatchAsBoundingTheWatch()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(200);
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["tenant", "sync-status", "watch", "--help"]);
+
+            // Assert
+            var help = System.Text.RegularExpressions.Regex.Replace(run.Out, @"\s+", " ");
+            StringAssert.Contains(help,
+                                  "--timeout <duration> How long to watch once subscribed: 90s, 15m, 1h or seconds; until interrupted when absent. Exits 0 then, 1 if never subscribed.");
         }
 
         private static Operation Synthetic(string id, bool deprecated)

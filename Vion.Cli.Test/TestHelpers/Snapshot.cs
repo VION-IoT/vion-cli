@@ -27,6 +27,20 @@ namespace Vion.Cli.Test.TestHelpers
             get => OperationIds.Value.Count(id => !id.StartsWith("system.", StringComparison.Ordinal));
         }
 
+        /// <summary>The channels of the committed event document a row hands out: each one is a watch command.</summary>
+        public static int WatchCount
+        {
+            get
+            {
+                using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "asyncapi-v1.json")));
+                return document.RootElement
+                               .GetProperty("channels")
+                               .EnumerateObject()
+                               .Count(channel => channel.Value.TryGetProperty("x-vion-handedOutBy", out var handOuts) && handOuts.ValueKind == JsonValueKind.Array &&
+                                                 handOuts.GetArrayLength() > 0);
+            }
+        }
+
         private static string[] ReadOperationIds()
         {
             using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "v1.json")));
