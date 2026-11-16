@@ -37,7 +37,8 @@
 
 .PARAMETER Changed
   Scope cleanupcode to the .cs files this branch changed vs -Base, plus the working tree,
-  plus untracked .cs, and skip entirely when no .cs changed. The 'Full Cleanup (excl.
+  plus untracked .cs, and skip entirely when no .cs changed outside the derived tables, which
+  the run excludes. The 'Full Cleanup (excl.
   optimize usings)' profile is per-file (no cross-file edits), so a scoped pass is
   equivalent for the changed files. When CI uses this scope and when it runs the full solution
   is shared-workflows' dotnet-gate action, which runs -Verify -NoBuild over the solution.
@@ -135,14 +136,17 @@ try {
             # The `git diff` forms see TRACKED files only. A brand-new .cs that has not been `git add`ed is
             # invisible to all of them, so it used to slip past the scoped pass entirely and only surface as
             # CI style drift. `git ls-files --others` is the source that closes it.
+            # The run excludes the derived tables, so the scope drops them too. A scope holding only them
+            # leaves cleanupcode no items. cleanupcode exits non-zero on that, so a branch that only moves
+            # the snapshot would fail before checking a single file instead of skipping.
             $csFiles = @(
                 $branchFiles
                 (git diff --name-only --diff-filter=d 2>$null)
                 (git diff --name-only --diff-filter=d --cached 2>$null)
                 (Get-UntrackedFiles)
-            ) | Where-Object { $_ -and $_.EndsWith('.cs') } | Sort-Object -Unique
+            ) | Where-Object { $_ -and $_.EndsWith('.cs') -and ($_ -notmatch $notCodeStyle) } | Sort-Object -Unique
             if ($csFiles.Count -eq 0) {
-                Write-Host "No changed .cs files (vs $Base + working tree + untracked) - skipping cleanupcode."
+                Write-Host "No changed .cs files outside the derived tables (vs $Base + working tree + untracked) - skipping cleanupcode."
                 exit 0
             }
 
