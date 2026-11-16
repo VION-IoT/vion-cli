@@ -107,7 +107,7 @@ naming the `get` (a generator change for one lookup the runtime does in one line
 
 ## Spec delta (to distill)
 
-- MODIFIED AC-CLI-002.4 -> docs/specs/cli.md : WHERE the operation is `versioned` THE SYSTEM SHALL send `If-Match` from `--if-match`, else from the `--input` document's `meta.version`, else from the version a `GET` on the operation's own path answers where the document has one, else from the version the aggregate's `get` answers for the row the operation's path addresses where the document has one, and SHALL otherwise refuse before sending with exit 2.
+- MODIFIED AC-CLI-002.4 -> docs/specs/cli.md : WHERE the operation is `versioned` THE SYSTEM SHALL send `If-Match` from `--if-match`, else from the `--input` document's `meta.version`, else from the version a `GET` on the operation's own path answers where the committed document has one, else from the version the aggregate's `get` answers for the row the operation's path addresses where the committed document has one, and SHALL otherwise refuse before sending with exit 2.
 
 ---
 
