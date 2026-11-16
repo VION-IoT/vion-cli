@@ -1,6 +1,6 @@
 ---
 slug: aggregate-get-version
-status: in-flight
+status: archived
 blocked-on: none           # for parked docs: what's blocking + ref
 areas: CLI                 # area codes from docs/specs/_corpus.yml's `owns:`
 author: the logic-configuration-document session, for Jonas Bertsch
@@ -53,13 +53,16 @@ of its own changes. No new id, no other page.
 ### Reviewer's questions
 
 1. (a) ratified — the step sits after the same-template `GET` and before the refusal, and is keyed
-   on `<domain>.<aggregate>.get`: the cross-repo spec settled both. OUTCOME: built as settled.
+   on `<domain>.<aggregate>.get`: the cross-repo spec settled both. OUTCOME: accepted, the cross-repo
+   spec § Settled after the review.
 2. (b) decide-and-document — matching by parameter name (`D2`) rather than by template prefix. A
    prefix rule would serve `apply` too, but would read a `get` whose segments happen to align under
-   different names. OUTCOME: name match, pending review.
+   different names. OUTCOME: decided by the implementing session as recorded; the human review of
+   the pull request accepts or changes it.
 3. (b) — values are read back from the path with `OperationMatcher`'s segment matching, unescaped,
-   and re-escaped by `RequestBuilder.Expand` (`D3`). A derived value round-trips; a raw path is
-   unescaped once, which is what the host routes on. OUTCOME: pending review.
+   and re-escaped by `RequestBuilder.Expand` (`D3`), so a segment reaches the `get` escaped as it
+   reached the operation: `t%20one` stays `t%20one`. OUTCOME: decided by the implementing session as
+   recorded; the human review of the pull request accepts or changes it.
 
 ---
 
@@ -94,7 +97,11 @@ naming the `get` (a generator change for one lookup the runtime does in one line
 
 ## Drift checkpoints
 
-- _(none yet — append as implementation diverges from Full design)_
+- 2026-11-16: none against the design. The brief's count held when re-derived over the pulled
+  snapshot: 27 versioned operations without a `GET` on their own path, `apply` the only one whose
+  aggregate has a `get`. One rule left without a test: a `get` needing a path value the
+  operation's path does not carry. No operation in the document reaches it, and the table is
+  compiled, so no fixture can; it keeps today's refusal. Sibling sweep: N/A, one resolver.
 
 ---
 
