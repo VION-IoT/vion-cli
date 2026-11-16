@@ -233,6 +233,7 @@ namespace Vion.Cli.Test.Http
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
             Assert.HasCount(2, handler.Requests);
+            Assert.AreEqual("GET", handler.Requests[0].Method);
             Assert.AreEqual($"https://api.test.vion.swiss/tenant/{Tool.Tenant}/logicConfigurations/{Tool.Id}", handler.Requests[0].Uri.ToString());
             Assert.AreEqual("POST", handler.Requests[1].Method);
             Assert.AreEqual("\"4\"", handler.Requests[1].Headers["If-Match"]);
