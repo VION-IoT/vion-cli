@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vion.Cli.Derived;
 
@@ -25,6 +26,32 @@ namespace Vion.Cli.Commands
                              .OrderByDescending(candidate => Specificity(candidate.Template), StringComparer.Ordinal)
                              .Select(candidate => candidate.Operation)
                              .FirstOrDefault();
+        }
+
+        /// <summary>
+        ///     The value a path carries for each `{parameter}` of the template, by name and unescaped, or null when the path
+        ///     does not match the template. A query is ignored, as in <see cref="Find" />.
+        /// </summary>
+        public static IReadOnlyDictionary<string, string>? Values(string template, string path)
+        {
+            var parts = Split(template);
+            var at = path.IndexOf('?', StringComparison.Ordinal);
+            var segments = Split(at >= 0 ? path[..at] : path);
+            if (!Matches(parts, segments))
+            {
+                return null;
+            }
+
+            var values = new Dictionary<string, string>(StringComparer.Ordinal);
+            for (var i = 0; i < parts.Length; i++)
+            {
+                if (IsParameter(parts[i]))
+                {
+                    values[parts[i][1..^1]] = Uri.UnescapeDataString(segments[i]);
+                }
+            }
+
+            return values;
         }
 
         private static string[] Split(string path)

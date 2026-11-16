@@ -6844,7 +6844,7 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Create a new logic configuration in a project of a tenant.",
+        "description": "Create a new logic configuration in a project of a tenant.\n\nWith `sourceId`, a copy of that configuration of the same project, not current: the way to change the\ncurrent configuration is to copy it, apply to the copy and activate the copy.",
         "operationId": "tenant.logicConfiguration.create",
         "parameters": [
           {
@@ -6968,6 +6968,113 @@
       }
     },
     "/tenant/{tenantId}/logicConfigurations/{id}": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "description": "Get a logic configuration of a tenant.",
+        "operationId": "tenant.logicConfiguration.get",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "description": "The tenant the logic configuration belongs to.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The logic configuration to read.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The logic configuration, with its version in `meta`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogicConfigurationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was malformed or failed input validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server-side error. The exceptionId correlates the response with the server logs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated, but the caller lacks the required permission at the requested scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated. The response has no body by design; the WWW-Authenticate header carries the reason.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer challenge naming the error and, when the token was rejected rather than missing, why.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A route parameter names a target that does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          }
+        },
+        "x-vion-authorization": {
+          "mode": "Entity",
+          "permissions": [
+            "Project.Read"
+          ],
+          "scopeType": "Project",
+          "scopeFrom": "projectId"
+        },
+        "x-vion-capability": {
+          "effect": "Read",
+          "idempotent": false,
+          "versioned": false,
+          "dryRun": false,
+          "completion": "Response"
+        }
+      },
       "put": {
         "tags": [
           "Tenant"
@@ -7281,6 +7388,314 @@
           "idempotent": true,
           "versioned": false,
           "dryRun": false,
+          "completion": "Response"
+        }
+      }
+    },
+    "/tenant/{tenantId}/logicConfigurations/{id}/export": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "description": "Export a logic configuration of a tenant as its document.\n\nThe document names logic blocks, groups, edge gateways and definitions by identifier and holds no server id; sent\nto `apply`, it changes nothing. A configuration whose logic blocks use one library at two versions, or that\nnames a definition, a logic block or an edge gateway that does not exist in its project, or that holds a logic\nblock without an identifier, has no document: 409.",
+        "operationId": "tenant.logicConfiguration.export",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "description": "The tenant the logic configuration belongs to.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The logic configuration to export.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The logic configuration's document, with its version in `meta`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportLogicConfigurationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was malformed or failed input validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server-side error. The exceptionId correlates the response with the server logs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated, but the caller lacks the required permission at the requested scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated. The response has no body by design; the WWW-Authenticate header carries the reason.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer challenge naming the error and, when the token was rejected rather than missing, why.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A route parameter names a target that does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          }
+        },
+        "x-vion-authorization": {
+          "mode": "Entity",
+          "permissions": [
+            "Project.Read"
+          ],
+          "scopeType": "Project",
+          "scopeFrom": "projectId"
+        },
+        "x-vion-capability": {
+          "effect": "Read",
+          "idempotent": false,
+          "versioned": false,
+          "dryRun": false,
+          "completion": "Response"
+        }
+      }
+    },
+    "/tenant/{tenantId}/logicConfigurations/{id}/apply": {
+      "post": {
+        "tags": [
+          "Tenant"
+        ],
+        "description": "Make a logic configuration of a tenant match a document, and answer what changed.\n\nA logic block is the configuration's logic block of its identifier, else the project's current configuration's,\nwhose id and service ids it takes over, else a new one; one of another type is deleted and created anew. What the\ndocument does not state stays, unless `prune`. A document that can never be valid is refused with every\nproblem; what activation would still refuse is answered under `warnings`. A deleted logic block marked\n`active` belongs to the project's current configuration, so activating the result removes it and what hangs\non its id and service ids: grants scoped to it, its node assignment, its services' addresses with the values and\nseries behind them, and its display name. The current configuration is never applied to: 409, the dry run too.\nTo change it, create a copy with `sourceId` set to its id, apply the document to the copy, then activate\nthe copy. A dry run answers what the apply would.",
+        "operationId": "tenant.logicConfiguration.apply",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "description": "The tenant the logic configuration belongs to.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The logic configuration to apply the document to.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "prune",
+            "in": "query",
+            "description": "True to delete what the document does not state and take its order as written.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "An opaque key of 1 to 255 characters naming this request; a repeat under the same key answers the first successful response with Idempotency-Replayed: true, for at least a day, whatever If-Match it carries, though an operation requiring If-Match refuses a repeat without it with 428 first. The body is compared as sent, so a repeat sends the same correlationId or none; another body under the key is a 400.",
+            "schema": {
+              "maxLength": 255,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "The version the change was made on, as the ETag header or meta.version in double quotes, or *; the write is refused with 412 when the row has moved on, and with 428 when the header is missing.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dryRun",
+            "in": "query",
+            "description": "true previews the call: it is authorized and validated as the real call, answers the same status and output, and writes nothing and calls out to nothing. Fields only the skipped write would produce are left empty.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The logic configuration to apply.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyLogicConfigurationInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "What changed, the warnings, and the configuration's version in `meta`.",
+            "headers": {
+              "Idempotency-Replayed": {
+                "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "ETag": {
+                "description": "The row's version after the write, as a strong tag.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyLogicConfigurationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was malformed or failed input validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server-side error. The exceptionId correlates the response with the server logs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated, but the caller lacks the required permission at the requested scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated. The response has no body by design; the WWW-Authenticate header carries the reason.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer challenge naming the error and, when the token was rejected rather than missing, why.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "The request carries no If-Match header, which this replace of the whole row requires; send the ETag header or meta.version in double quotes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A route parameter names a target that does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          }
+        },
+        "x-vion-authorization": {
+          "mode": "Entity",
+          "permissions": [
+            "Project.ManageLogicConfigurations"
+          ],
+          "scopeType": "Project",
+          "scopeFrom": "projectId"
+        },
+        "x-vion-capability": {
+          "effect": "Reversible",
+          "idempotent": true,
+          "versioned": true,
+          "dryRun": true,
           "completion": "Response"
         }
       }
@@ -33480,6 +33895,16 @@
           "description": {
             "type": "string"
           },
+          "groups": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationGroup"
+            },
+            "description": "The groups the configuration's logic blocks sit in, a tree by each group's parent, in reading order."
+          },
           "logicBlockInstances": {
             "type": "array",
             "items": {
@@ -33801,6 +34226,74 @@
           }
         },
         "description": "One problem a validation found, named by the exception its check throws when it is the only one."
+      },
+      "ApplyLogicConfigurationInput": {
+        "type": "object",
+        "properties": {
+          "libraries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationDocumentLibrary"
+            },
+            "description": "Each library the configuration uses, once, with the exact version every logic block of it runs."
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationDocumentGroup"
+            },
+            "description": "The groups, a tree by each group's parent, in reading order among siblings."
+          },
+          "logicBlocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationDocumentLogicBlock"
+            },
+            "description": "The logic blocks, in reading order."
+          },
+          "connections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationDocumentConnection"
+            },
+            "description": "The connections, each between two endpoints in either order."
+          }
+        },
+        "description": "The logic configuration document to make the configuration match."
+      },
+      "ApplyLogicConfigurationOutput": {
+        "required": [
+          "changes",
+          "warnings"
+        ],
+        "type": "object",
+        "properties": {
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationChange"
+            },
+            "description": "Each library, group, logic block and connection created, updated or deleted; empty when nothing changed."
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationWarningOutput"
+            },
+            "description": "What the configuration is not finished for, which activation refuses, and what is worth knowing, which it does\nnot; none refuses the apply."
+          },
+          "meta": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OutputMeta"
+              }
+            ]
+          }
+        },
+        "description": "What an apply changed, or a dry run would change, and what activation would still refuse or meet."
       },
       "ApproveSupportAccessRequestInput": {
         "required": [
@@ -35241,11 +35734,7 @@
       "CreateLogicConfigurationInput": {
         "required": [
           "projectId",
-          "name",
-          "description",
-          "logicBlockInstances",
-          "interfaceMappings",
-          "contractMappings"
+          "name"
         ],
         "type": "object",
         "properties": {
@@ -35258,6 +35747,16 @@
           },
           "description": {
             "type": "string"
+          },
+          "groups": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationGroup"
+            },
+            "description": "The groups the configuration's logic blocks sit in, a tree by each group's parent, in reading order."
           },
           "logicBlockInstances": {
             "type": "array",
@@ -35282,6 +35781,14 @@
               "null",
               "string"
             ]
+          },
+          "sourceId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The logic configuration of the same project to copy, as the first step of every change to a current one.",
+            "format": "uuid"
           }
         }
       },
@@ -35384,6 +35891,16 @@
           },
           "description": {
             "type": "string"
+          },
+          "groups": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationGroup"
+            },
+            "description": "The groups the configuration's logic blocks sit in, a tree by each group's parent, in reading order."
           },
           "logicBlockInstances": {
             "type": "array",
@@ -37573,6 +38090,50 @@
           "Failed"
         ],
         "type": "string"
+      },
+      "ExportLogicConfigurationOutput": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OutputMeta"
+              }
+            ]
+          },
+          "libraries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationDocumentLibrary"
+            },
+            "description": "Each library the configuration uses, once, with the exact version every logic block of it runs."
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationDocumentGroup"
+            },
+            "description": "The groups, a tree by each group's parent, in reading order among siblings."
+          },
+          "logicBlocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationDocumentLogicBlock"
+            },
+            "description": "The logic blocks, in reading order."
+          },
+          "connections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationDocumentConnection"
+            },
+            "description": "The connections, each between two endpoints in either order."
+          }
+        },
+        "description": "A logic configuration's document, with the configuration's version in `meta`."
       },
       "FieldInfo": {
         "required": [
@@ -40297,6 +40858,20 @@
             "type": "string",
             "format": "uuid"
           },
+          "identifier": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The block's reference in the logic configuration document, unique among the configuration's blocks."
+          },
+          "group": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The identifier of the group the block sits in; null for none."
+          },
           "edgeGatewayId": {
             "type": "string",
             "format": "uuid"
@@ -40818,6 +41393,326 @@
           }
         }
       },
+      "LogicConfigurationChange": {
+        "required": [
+          "action",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/LogicConfigurationChangeAction"
+          },
+          "type": {
+            "description": "What the change is about; `Configuration` for a changed order, one entry for the whole order.",
+            "$ref": "#/components/schemas/LogicConfigurationChangeSubject"
+          },
+          "identifier": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The identifier of the group or logic block, or a library's package id; absent for a connection and the order."
+          },
+          "endpoints": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationDocumentEndpoint"
+            },
+            "description": "A connection's two endpoints; absent for anything else."
+          },
+          "differences": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationDifference"
+            },
+            "description": "On an update, each member that changed, by its path in the document."
+          },
+          "active": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "On the delete of a logic block of the project's current configuration: true, as activating the result removes it\nand what hangs on its id and its service ids — grants scoped to it, its node assignment, its services' addresses\nwith the values and series behind them, and its display name."
+          }
+        }
+      },
+      "LogicConfigurationChangeAction": {
+        "enum": [
+          "Create",
+          "Update",
+          "Delete"
+        ],
+        "type": "string"
+      },
+      "LogicConfigurationChangeSubject": {
+        "enum": [
+          "Library",
+          "Configuration",
+          "Group",
+          "LogicBlock",
+          "Connection"
+        ],
+        "type": "string"
+      },
+      "LogicConfigurationDifference": {
+        "required": [
+          "member"
+        ],
+        "type": "object",
+        "properties": {
+          "member": {
+            "type": "string",
+            "description": "The member's path in the document, such as `parent` or `instantiationParameters.MaxCurrent`."
+          },
+          "from": {
+            "description": "The value before; absent where the member had none or the difference is an order."
+          },
+          "to": {
+            "description": "The value after; absent where the member has none or the difference is an order."
+          }
+        }
+      },
+      "LogicConfigurationDocumentConnection": {
+        "required": [
+          "endpoints"
+        ],
+        "type": "object",
+        "properties": {
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationDocumentEndpoint"
+            },
+            "description": "Exactly two: two logic block interfaces, or a logic block contract and a service provider's contract."
+          }
+        }
+      },
+      "LogicConfigurationDocumentDefinition": {
+        "required": [
+          "packageId",
+          "typeFullName"
+        ],
+        "type": "object",
+        "properties": {
+          "packageId": {
+            "type": "string"
+          },
+          "typeFullName": {
+            "type": "string"
+          }
+        },
+        "description": "A logic block definition, whose version is its library's in `libraries`."
+      },
+      "LogicConfigurationDocumentEndpoint": {
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/LogicConfigurationDocumentEndpointLogicBlockInterface"
+          },
+          {
+            "$ref": "#/components/schemas/LogicConfigurationDocumentEndpointLogicBlockContract"
+          },
+          {
+            "$ref": "#/components/schemas/LogicConfigurationDocumentEndpointServiceProviderContract"
+          }
+        ],
+        "description": "One end of a connection, the kind in `type`.",
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "LogicBlockInterface": "#/components/schemas/LogicConfigurationDocumentEndpointLogicBlockInterface",
+            "LogicBlockContract": "#/components/schemas/LogicConfigurationDocumentEndpointLogicBlockContract",
+            "ServiceProviderContract": "#/components/schemas/LogicConfigurationDocumentEndpointServiceProviderContract"
+          }
+        }
+      },
+      "LogicConfigurationDocumentEndpointLogicBlockContract": {
+        "required": [
+          "logicBlock",
+          "contract",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "LogicBlockContract"
+            ],
+            "type": "string"
+          },
+          "logicBlock": {
+            "type": "string"
+          },
+          "contract": {
+            "type": "string"
+          }
+        },
+        "description": "A contract of a logic block."
+      },
+      "LogicConfigurationDocumentEndpointLogicBlockInterface": {
+        "required": [
+          "logicBlock",
+          "interface",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "LogicBlockInterface"
+            ],
+            "type": "string"
+          },
+          "logicBlock": {
+            "type": "string"
+          },
+          "interface": {
+            "type": "string"
+          }
+        },
+        "description": "An interface of a logic block."
+      },
+      "LogicConfigurationDocumentEndpointServiceProviderContract": {
+        "required": [
+          "serviceProvider",
+          "service",
+          "contract",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "ServiceProviderContract"
+            ],
+            "type": "string"
+          },
+          "edgeGateway": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The identifier of the service provider's edge gateway; absent for the logic block's own."
+          },
+          "serviceProvider": {
+            "type": "string"
+          },
+          "service": {
+            "type": "string"
+          },
+          "contract": {
+            "type": "string"
+          }
+        },
+        "description": "A contract of a service provider's service."
+      },
+      "LogicConfigurationDocumentGroup": {
+        "required": [
+          "identifier",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "description": "The group's reference: lowercase letters, digits and `-`, starting with a letter, at most 40 characters."
+          },
+          "name": {
+            "type": "string"
+          },
+          "parent": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The identifier of the group this one is part of; absent for a root."
+          }
+        }
+      },
+      "LogicConfigurationDocumentLibrary": {
+        "required": [
+          "packageId",
+          "packageVersion"
+        ],
+        "type": "object",
+        "properties": {
+          "packageId": {
+            "type": "string"
+          },
+          "packageVersion": {
+            "type": "string"
+          }
+        }
+      },
+      "LogicConfigurationDocumentLogicBlock": {
+        "required": [
+          "identifier",
+          "name",
+          "edgeGateway",
+          "definition"
+        ],
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "description": "The logic block's reference: lowercase letters, digits and `-`, starting with a letter, at most 40 characters."
+          },
+          "name": {
+            "type": "string"
+          },
+          "edgeGateway": {
+            "type": "string",
+            "description": "The identifier of the edge gateway the logic block runs on."
+          },
+          "group": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The identifier of the group the logic block sits in; absent for none."
+          },
+          "definition": {
+            "$ref": "#/components/schemas/LogicConfigurationDocumentDefinition"
+          },
+          "instantiationParameters": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "The values applied to the logic block before it starts, by parameter identifier as the definition declares it."
+          }
+        }
+      },
+      "LogicConfigurationGroup": {
+        "required": [
+          "identifier",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parent": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The identifier of the group this one is part of; null for a root."
+          }
+        }
+      },
       "LogicConfigurationOutput": {
         "required": [
           "id",
@@ -40917,6 +41812,16 @@
           },
           "description": {
             "type": "string"
+          },
+          "groups": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationGroup"
+            },
+            "description": "The groups the configuration's logic blocks sit in, a tree by each group's parent, in reading order."
           },
           "logicBlockInstances": {
             "type": "array",
@@ -41019,6 +41924,22 @@
           "annotations": {
             "type": "object",
             "additionalProperties": {}
+          }
+        }
+      },
+      "LogicConfigurationWarningOutput": {
+        "required": [
+          "code",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "What the warning is about. More codes may follow, so a client shows one it does not know by its message."
+          },
+          "message": {
+            "type": "string"
           }
         }
       },
@@ -44287,8 +45208,7 @@
           },
           "serviceId": {
             "type": "string",
-            "description": "The unique id of the service instance, created when the logic block is instantiated.",
-            "format": "uuid"
+            "description": "The service's address on its edge gateway, stored and answered in the case sent."
           }
         }
       },
@@ -47456,6 +48376,16 @@
           "description": {
             "type": "string"
           },
+          "groups": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationGroup"
+            },
+            "description": "The groups the configuration's logic blocks sit in, a tree by each group's parent, in reading order."
+          },
           "logicBlockInstances": {
             "type": "array",
             "items": {
@@ -47581,6 +48511,16 @@
           },
           "description": {
             "type": "string"
+          },
+          "groups": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationGroup"
+            },
+            "description": "The groups the configuration's logic blocks sit in, a tree by each group's parent, in reading order."
           },
           "logicBlockInstances": {
             "type": "array",
