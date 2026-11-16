@@ -8,8 +8,8 @@ using Vion.Cli.Test.TestHelpers;
 namespace Vion.Cli.Test.Http
 {
     /// <summary>
-    ///     The two write-safety headers: the idempotency key a write carries, and where a versioned update's `If-Match`
-    ///     comes from — the flag, the document, the aggregate's own `get`, or a refusal. Proven through the derived
+    ///     The two write-safety headers: the idempotency key a write carries, and where a versioned write's `If-Match`
+    ///     comes from — the flag, the document, a `GET` on the same path, the aggregate's `get`, or a refusal. Proven through the derived
     ///     commands and through `api`, which share the one resolver.
     /// </summary>
     [TestClass]
@@ -179,6 +179,92 @@ namespace Vion.Cli.Test.Http
             Assert.AreEqual($"https://api.test.vion.swiss/tenant/{Tool.Tenant}/overviewComposition", handler.Requests[0].Uri.ToString());
             Assert.AreEqual("PUT", handler.Requests[1].Method);
             Assert.AreEqual("\"5\"", handler.Requests[1].Headers["If-Match"]);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.4")]
+        public async Task FetchIfMatchFromAggregateGetWhereOwnPathHasNone()
+        {
+            // Arrange
+            using var handler = new RecordingHandler(request => request.Method == HttpMethod.Get ?
+                                                                    Json(200, """{ "name": "copy", "meta": { "version": 4, "permissions": [] } }""") :
+                                                                    Json(200, """{ "changes": [], "warnings": [] }"""));
+            using var home = new TemporaryHome();
+            var input = home.Write("configuration.json", """{ "logicBlocks": [] }""");
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("tenant",
+                                                      "logic-configuration",
+                                                      "apply",
+                                                      "--tenant",
+                                                      Tool.Tenant,
+                                                      "--id",
+                                                      Tool.Id,
+                                                      "--input",
+                                                      input,
+                                                      "--dry-run"),
+                                          Tool.Token);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.HasCount(2, handler.Requests);
+            Assert.AreEqual("GET", handler.Requests[0].Method);
+            Assert.AreEqual($"https://api.test.vion.swiss/tenant/{Tool.Tenant}/logicConfigurations/{Tool.Id}", handler.Requests[0].Uri.ToString());
+            Assert.AreEqual("POST", handler.Requests[1].Method);
+            Assert.AreEqual($"https://api.test.vion.swiss/tenant/{Tool.Tenant}/logicConfigurations/{Tool.Id}/apply?dryRun=true", handler.Requests[1].Uri.ToString());
+            Assert.AreEqual("\"4\"", handler.Requests[1].Headers["If-Match"]);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.4")]
+        public async Task FetchIfMatchFromAggregateGetForRawCall()
+        {
+            // Arrange
+            using var handler = new RecordingHandler(request => request.Method == HttpMethod.Get ?
+                                                                    Json(200, """{ "name": "copy", "meta": { "version": 4, "permissions": [] } }""") :
+                                                                    Json(200, """{ "changes": [], "warnings": [] }"""));
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("api", "POST", $"/tenant/{Tool.Tenant}/logicConfigurations/{Tool.Id}/apply?prune=true", "-F", "logicBlocks=[]"),
+                                          Tool.Token);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.HasCount(2, handler.Requests);
+            Assert.AreEqual($"https://api.test.vion.swiss/tenant/{Tool.Tenant}/logicConfigurations/{Tool.Id}", handler.Requests[0].Uri.ToString());
+            Assert.AreEqual("POST", handler.Requests[1].Method);
+            Assert.AreEqual("\"4\"", handler.Requests[1].Headers["If-Match"]);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.4")]
+        public async Task SendIfMatchFromInputDocumentBeforeAggregateGet()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, """{ "changes": [], "warnings": [] }""");
+            using var home = new TemporaryHome();
+            var input = home.Write("configuration.json", """{ "logicBlocks": [], "meta": { "version": 9, "permissions": [] } }""");
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("tenant",
+                                                      "logic-configuration",
+                                                      "apply",
+                                                      "--tenant",
+                                                      Tool.Tenant,
+                                                      "--id",
+                                                      Tool.Id,
+                                                      "--input",
+                                                      input),
+                                          Tool.Token);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.HasCount(1, handler.Requests);
+            Assert.AreEqual("\"9\"", handler.Requests[0].Headers["If-Match"]);
+            Assert.AreEqual("""{"logicBlocks":[]}""", handler.Requests[0].Body);
         }
 
         [TestMethod]

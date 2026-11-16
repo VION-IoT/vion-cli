@@ -14,8 +14,9 @@ namespace Vion.Cli.Http
     /// <summary>
     ///     The two headers that make a write safe to repeat and safe against a lost update, resolved the same way for a
     ///     derived command and for a raw call on a path the table knows. The idempotency key is the given one, else a fresh
-    ///     one where the operation honours it. `If-Match` is the flag, else the document's `meta.version`, else the
-    ///     aggregate's own `get` on the same path, else a refusal before anything is sent.
+    ///     one where the operation honours it. `If-Match` is the flag, else the document's `meta.version`, else a `GET` on
+    ///     the operation's own path, else the aggregate's `get` on the row that path addresses, else a refusal before
+    ///     anything is sent.
     /// </summary>
     internal static class WriteSafety
     {
@@ -64,12 +65,11 @@ namespace Vion.Cli.Http
                 return;
             }
 
-            var read = Operations.All.FirstOrDefault(o => o.Method == "GET" && o.Template == operation.Template);
-            if (read != null)
+            if (VersionSource(operation, expandedPath) is var (read, readPath))
             {
                 using var request = RequestBuilder.Build(context.Environment,
                                                          "GET",
-                                                         expandedPath,
+                                                         readPath,
                                                          new Dictionary<string, string>(StringComparer.Ordinal),
                                                          [],
                                                          null,
@@ -89,6 +89,30 @@ namespace Vion.Cli.Http
 
             throw new
                 UsageException($"{operation.Id} replaces a versioned row: pass --if-match <version>, or --input the document from `get --json`, whose meta.version is the version; the list row's meta.version carries it too.");
+        }
+
+        /// <summary>
+        ///     Where the current version is read: a `GET` on the operation's own template, at the same path; else the
+        ///     aggregate's `get`, at the row the operation's path addresses. Both templates name the row's parameters alike,
+        ///     so the `get`'s path takes the operation's path values by name; a `get` needing a value the path does not carry
+        ///     is no source, and the refusal stands.
+        /// </summary>
+        private static (Operation Read, string Path)? VersionSource(Operation operation, string path)
+        {
+            var same = Operations.All.FirstOrDefault(o => o.Method == "GET" && o.Template == operation.Template);
+            if (same != null)
+            {
+                return (same, path);
+            }
+
+            var get = Operations.All.FirstOrDefault(o => o.Method == "GET" && o.Id == $"{operation.Domain}.{operation.Aggregate}.get");
+            var values = get != null ? OperationMatcher.Values(operation.Template, path) : null;
+            if (get == null || values == null || !get.Parameters.Where(p => p.In == ParameterLocation.Path).All(p => values.ContainsKey(p.Name)))
+            {
+                return null;
+            }
+
+            return (get, RequestBuilder.Expand(get.Template, values));
         }
 
         private static void StripMeta(Operation? operation, JsonNode? body)
