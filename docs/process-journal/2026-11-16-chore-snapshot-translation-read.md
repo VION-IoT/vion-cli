@@ -1,0 +1,1 @@
+2026-11-16 · gate · cleanup-code.ps1 · -Changed exited 1 with cleanupcode finding no items on a branch whose only changed .cs is Vion.Cli/Derived/Operations.g.cs: the scope keeps that file and the run excludes Vion.Cli/Derived/*.g.cs. The full-solution run, the one the CI gate makes, was used instead and was clean. (self)
