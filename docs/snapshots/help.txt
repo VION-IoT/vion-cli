@@ -3255,11 +3255,30 @@ Options:
 
 Commands:
   list      Get the logic configurations of a tenant that the caller may read.
-  create    Create a new logic configuration in a project of a tenant.
+  create    Create a new logic configuration in a project of a tenant. With `sourceId`, a copy of that 
+            configuration of the same project, not current: the way to change the current configuration is to 
+            copy it, apply to the copy and activate the copy.
+  get       Get a logic configuration of a tenant.
   update    Update an existing logic configuration of a tenant. While the configuration is the active one, a 
             change to its content fails with 409, and its name, description and editor layout stay editable. 
             A logic block instance's name is content, so renaming one fails too.
   delete    Delete a logic configuration of a tenant. Deleting the active configuration fails with 409.
+  export    Export a logic configuration of a tenant as its document. The document names logic blocks, 
+            groups, edge gateways and definitions by identifier and holds no server id; sent to `apply`, it 
+            changes nothing. A configuration whose logic blocks use one library at two versions, or that 
+            names a definition, a logic block or an edge gateway that does not exist in its project, or that 
+            holds a logic block without an identifier, has no document: 409.
+  apply     Make a logic configuration of a tenant match a document, and answer what changed. A logic block 
+            is the configuration's logic block of its identifier, else the project's current configuration's, 
+            whose id and service ids it takes over, else a new one; one of another type is deleted and 
+            created anew. What the document does not state stays, unless `prune`. A document that can never 
+            be valid is refused with every problem; what activation would still refuse is answered under 
+            `warnings`. A deleted logic block marked `active` belongs to the project's current configuration, 
+            so activating the result removes it and what hangs on its id and service ids: grants scoped to 
+            it, its node assignment, its services' addresses with the values and series behind them, and its 
+            display name. The current configuration is never applied to: 409, the dry run too. To change it, 
+            create a copy with `sourceId` set to its id, apply the document to the copy, then activate the 
+            copy. A dry run answers what the apply would.
   activate  Activate a logic configuration of a tenant in place of its project's current one. Every edge 
             gateway the configuration reaches is sent its share of it, and an edge gateway the replaced 
             configuration reached and this one does not is sent an empty configuration. A dry run validates 
@@ -3298,7 +3317,9 @@ Options:
 ---
 ## vion tenant logic-configuration create
 Description:
-  Create a new logic configuration in a project of a tenant.
+  Create a new logic configuration in a project of a tenant. With `sourceId`, a copy of that configuration of 
+  the same project, not current: the way to change the current configuration is to copy it, apply to the copy 
+  and activate the copy.
 
 Usage:
   vion tenant logic-configuration create [options]
@@ -3328,6 +3349,37 @@ Options:
                                whose answer is already the outcome ignores it.
   --timeout <duration>         How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                                then exits 3.
+
+---
+## vion tenant logic-configuration get
+Description:
+  Get a logic configuration of a tenant.
+
+Usage:
+  vion tenant logic-configuration get [options]
+
+Options:
+  --id <uuid>               The logic configuration to read.
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+  --wait                    Wait for a long-running operation to end and exit by its outcome; a command whose 
+                            answer is already the outcome ignores it.
+  --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                            then exits 3.
 
 ---
 ## vion tenant logic-configuration update
@@ -3396,6 +3448,86 @@ Options:
                             answer is already the outcome ignores it.
   --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                             then exits 3.
+
+---
+## vion tenant logic-configuration export
+Description:
+  Export a logic configuration of a tenant as its document. The document names logic blocks, groups, edge 
+  gateways and definitions by identifier and holds no server id; sent to `apply`, it changes nothing. A 
+  configuration whose logic blocks use one library at two versions, or that names a definition, a logic block 
+  or an edge gateway that does not exist in its project, or that holds a logic block without an identifier, 
+  has no document: 409.
+
+Usage:
+  vion tenant logic-configuration export [options]
+
+Options:
+  --id <uuid>               The logic configuration to export.
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+  --wait                    Wait for a long-running operation to end and exit by its outcome; a command whose 
+                            answer is already the outcome ignores it.
+  --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                            then exits 3.
+
+---
+## vion tenant logic-configuration apply
+Description:
+  Make a logic configuration of a tenant match a document, and answer what changed. A logic block is the 
+  configuration's logic block of its identifier, else the project's current configuration's, whose id and 
+  service ids it takes over, else a new one; one of another type is deleted and created anew. What the 
+  document does not state stays, unless `prune`. A document that can never be valid is refused with every 
+  problem; what activation would still refuse is answered under `warnings`. A deleted logic block marked 
+  `active` belongs to the project's current configuration, so activating the result removes it and what hangs 
+  on its id and service ids: grants scoped to it, its node assignment, its services' addresses with the 
+  values and series behind them, and its display name. The current configuration is never applied to: 409, 
+  the dry run too. To change it, create a copy with `sourceId` set to its id, apply the document to the copy, 
+  then activate the copy. A dry run answers what the apply would.
+
+Usage:
+  vion tenant logic-configuration apply [options]
+
+Options:
+  --id <uuid>                  The logic configuration to apply the document to.
+  --prune                      True to delete what the document does not state and take its order as written.
+  --input <file|->             The JSON body from a file, or `-` for standard input.
+  -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
+  -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
+                               content, else a string.
+  -?, -h, --help               Show help and usage information
+  --env <name>                 The environment: production, test, or one defined with `context use`.
+  --integrator <id>            The integrator id, filling {integratorId} for this call.
+  --tenant <id>                The tenant id, filling {tenantId} for this call.
+  --project <id>               The project id, filling projectId for this call.
+  --platform <id>              The platform id, filling {platformId} for this call.
+  --json                       Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>             Keep only these members, comma-separated, dotted for a nested one.
+  --yes                        Confirm an irreversible operation without asking.
+  --dry-run                    Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>      The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>         The version to send as If-Match on a versioned update.
+  --token <->                  Read the bearer token from standard input: `--token -`.
+  --client-id <id>             A service account's client id, with --client-secret.
+  --client-secret <secret>     A service account's client secret, with --client-id.
+  --verbose                    Show the request and the response headers on standard error.
+  --wait                       Wait for a long-running operation to end and exit by its outcome; a command 
+                               whose answer is already the outcome ignores it.
+  --timeout <duration>         How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                               then exits 3.
 
 ---
 ## vion tenant logic-configuration activate
