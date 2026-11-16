@@ -9,7 +9,8 @@ namespace Vion.Cli.Test.Http
 {
     /// <summary>
     ///     The two write-safety headers: the idempotency key a write carries, and where a versioned write's `If-Match`
-    ///     comes from — the flag, the document, a `GET` on the same path, the aggregate's `get`, or a refusal. Proven through the derived
+    ///     comes from — the flag, the document, a `GET` on the same path, the aggregate's `get`, or a refusal. Proven through
+    ///     the derived
     ///     commands and through `api`, which share the one resolver.
     /// </summary>
     [TestClass]
