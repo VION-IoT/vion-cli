@@ -123,7 +123,7 @@ jobs:
           permission-issues: write
 
       # One open issue at a time, found by its label and title prefix: commented on when it exists,
-      # created when it does not. Closed by hand once a release fixes what it reports.
+      # created when it does not. Who closes it, and when, is docs/releasing.md § The live check.
       - name: Open or update the issue in architecture
         if: steps.check.outputs.dirty == 'true'
         env:
@@ -171,7 +171,7 @@ jobs:
             echo "- **differs**: the release's committed snapshot is stale against that host — pull the one each row's \`protocol\` names (\`http\`: \`scripts/snapshot-pull.ps1\`, \`mqtt\`: \`scripts/asyncapi-pull.ps1\`), derive, release (vion-cli \`docs/releasing.md\` § The live check)."
             echo "- **fails**: the executable could not read one of the host's documents, or the archive could not be downloaded or verified — the host, the network, the release's assets or the executable's HTTPS."
             echo
-            echo "One issue is kept open while the check is red; each red run comments on it. Close it by hand once a release fixes what it reports."
+            echo "One issue is kept open while the check is red; each red run comments on it. Who closes it, and when: vion-cli \`docs/releasing.md\` § The live check."
           } > "$body"
 
           if ! gh label list --repo "$REPO" --search live-check --json name --jq '.[].name' | grep -qx live-check; then
