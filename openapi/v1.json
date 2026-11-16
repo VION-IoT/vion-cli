@@ -1651,7 +1651,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Every instance at which the caller holds `LogicBlock.Read`, in the order of its logic configuration.",
+            "description": "Every instance at which the caller holds `LogicBlock.Read`, ordered by its position in its logic\nconfiguration.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4033,7 +4033,7 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Get all Projects for a tenant",
+        "description": "Get the projects of a tenant that the caller may read.",
         "operationId": "tenant.project.list",
         "parameters": [
           {
@@ -4129,13 +4129,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Create a new Project for a tenant",
+        "description": "Create a new project for a tenant.",
         "operationId": "tenant.project.create",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the project is created in.",
             "required": true,
             "schema": {
               "type": "string",
@@ -4166,7 +4166,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created project.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -4257,13 +4257,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Update an existing Project for a tenant",
+        "description": "Update an existing project of a tenant.",
         "operationId": "tenant.project.update",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the project belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -4273,7 +4273,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The project's id.",
+            "description": "The project to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -4312,7 +4312,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The updated project.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -4427,13 +4427,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Delete a Project for a tenant.",
+        "description": "Delete a project of a tenant.",
         "operationId": "tenant.project.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the project belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -4443,7 +4443,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The project's id.",
+            "description": "The project to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -4463,7 +4463,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -4564,13 +4564,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Get the site photo of a Project as raw bytes. 404 when the project has no photo.",
+        "description": "Get the site photo of a project as raw bytes.\n\nA project without a photo answers 404.",
         "operationId": "tenant.projectImage.get",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the project belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -4580,7 +4580,7 @@
           {
             "name": "projectId",
             "in": "path",
-            "description": "The project's id.",
+            "description": "The project whose photo is served.",
             "required": true,
             "schema": {
               "type": "string",
@@ -4590,7 +4590,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The photo under its stored content type.",
             "content": {
               "image/jpeg": {
                 "schema": {
@@ -4676,13 +4676,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Set or replace the site photo of a Project. JPEG and PNG only, proven by content.",
+        "description": "Set or replace the site photo of a project.\n\nOnly JPEG and PNG are accepted, and the file's content must match its declared type.",
         "operationId": "tenant.projectImage.set",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the project belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -4692,7 +4692,7 @@
           {
             "name": "projectId",
             "in": "path",
-            "description": "The project's id.",
+            "description": "The project whose photo is set.",
             "required": true,
             "schema": {
               "type": "string",
@@ -4723,7 +4723,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The project with its new image version.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -4822,13 +4822,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Remove the site photo of a Project. Removing a photo that is not there succeeds.",
+        "description": "Remove the site photo of a project.\n\nRemoving a photo that is not there succeeds.",
         "operationId": "tenant.projectImage.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the project belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -4838,7 +4838,7 @@
           {
             "name": "projectId",
             "in": "path",
-            "description": "The project's id.",
+            "description": "The project whose photo is removed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -4858,7 +4858,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -5311,7 +5311,7 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Get all NodeAssignments for a tenant",
+        "description": "Get the node assignments of a tenant that the caller may read.",
         "operationId": "tenant.nodeAssignment.list",
         "parameters": [
           {
@@ -5407,13 +5407,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Create a new NodeAssignment for a tenant",
+        "description": "Create a new node assignment for a tenant.",
         "operationId": "tenant.nodeAssignment.create",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the assignment is created in.",
             "required": true,
             "schema": {
               "type": "string",
@@ -5444,7 +5444,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created node assignment.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -5535,13 +5535,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Delete a NodeAssignment for a tenant.",
+        "description": "Delete a node assignment of a tenant.",
         "operationId": "tenant.nodeAssignment.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the assignment belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -5551,7 +5551,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The node assignment's id.",
+            "description": "The node assignment to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -5571,7 +5571,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -5672,7 +5672,7 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Get all Nodes for a tenant",
+        "description": "Get the nodes of a tenant that the caller may read.",
         "operationId": "tenant.node.list",
         "parameters": [
           {
@@ -5768,13 +5768,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Create a new Node for a tenant",
+        "description": "Create a new node for a tenant.",
         "operationId": "tenant.node.create",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the node is created in.",
             "required": true,
             "schema": {
               "type": "string",
@@ -5805,7 +5805,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created node.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -5896,13 +5896,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Update an existing Node for a tenant",
+        "description": "Update an existing node of a tenant.",
         "operationId": "tenant.node.update",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the node belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -5912,7 +5912,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The node's id.",
+            "description": "The node to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -5951,7 +5951,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The updated node.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -6066,13 +6066,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Delete a Node for a tenant. A node with child nodes is refused; the assignments on the node go with it.",
+        "description": "Delete a node of a tenant.\n\nA node with child nodes is refused with 409, and the assignments on the node are deleted with it.",
         "operationId": "tenant.node.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the node belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -6082,7 +6082,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The node's id.",
+            "description": "The node to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -6102,7 +6102,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -6661,13 +6661,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Browse logic configuration templates available from the tenant's integrator",
+        "description": "Get the logic configuration templates of the tenant's integrator.",
         "operationId": "tenant.logicConfigurationTemplate.list",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant whose integrator's templates are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -6677,7 +6677,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The templates of the tenant's integrator.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6748,7 +6748,7 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Get all logic configurations for a tenant, maybe add filters, e.g. by edge gateway",
+        "description": "Get the logic configurations of a tenant that the caller may read.",
         "operationId": "tenant.logicConfiguration.list",
         "parameters": [
           {
@@ -6844,13 +6844,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Create a new logic configuration for a tenant",
+        "description": "Create a new logic configuration in a project of a tenant.",
         "operationId": "tenant.logicConfiguration.create",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the logic configuration is created in.",
             "required": true,
             "schema": {
               "type": "string",
@@ -6881,7 +6881,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created logic configuration.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -6972,13 +6972,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Update an existing logic configuration for a tenant. While the configuration is the active one its\ncontent is frozen and a change to it fails with 409; the configuration's own name, description and\neditor layout stay editable. A logic block instance's name is content, so renaming one does not.",
+        "description": "Update an existing logic configuration of a tenant.\n\nWhile the configuration is the active one, a change to its content fails with 409, and its name, description\nand editor layout stay editable. A logic block instance's name is content, so renaming one fails too.",
         "operationId": "tenant.logicConfiguration.update",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the logic configuration belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -6988,7 +6988,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The logic configuration's id.",
+            "description": "The logic configuration to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -7028,7 +7028,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The updated logic configuration.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -7153,13 +7153,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Delete a logic configuration for a tenant. Fails with 409 if the configuration is in use — either the\nactive one, or still deployed on an edge gateway.",
+        "description": "Delete a logic configuration of a tenant.\n\nDeleting the active configuration fails with 409.",
         "operationId": "tenant.logicConfiguration.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the logic configuration belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -7169,7 +7169,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The logic configuration's id.",
+            "description": "The logic configuration to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -7189,7 +7189,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -7290,7 +7290,7 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Activate a logic configuration for a tenant. All edge gateways are updated if there are changes to the currently\nactive configuration.",
+        "description": "Activate a logic configuration of a tenant in place of its project's current one.\n\nEvery edge gateway the configuration reaches is sent its share of it, and an edge gateway the replaced\nconfiguration reached and this one does not is sent an empty configuration. A dry run validates the\nconfiguration and answers the same output and warnings without activating it.",
         "operationId": "tenant.logicConfiguration.activate",
         "parameters": [
           {
@@ -7334,7 +7334,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The activated logic configuration with its warnings.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -7435,7 +7435,7 @@
         "tags": [
           "Tenant"
         ],
-        "description": "The tenant's translation bundle for one locale: a flat `{ key: value }` map, under\n`translations`, merged across every library its parent integrator may consume\n(own ∪ public ∪ granted). Exact-locale rows only — a key the bundle does not carry renders from the\ncompiled source string on the client.",
+        "description": "Get the translations into one locale of every library the tenant's integrator may use.\n\nThe libraries are the integrator's own, the public ones and the ones granted to it. A key with no\ntranslation into exactly the requested locale is absent, and no other locale stands in for it.",
         "operationId": "tenant.logicBlockTranslationBundle.get",
         "parameters": [
           {
@@ -7530,13 +7530,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Get all logic block definitions a tenant can use (own ∪ public ∪ granted, by its parent integrator).",
+        "description": "Get the logic block definitions a tenant can use, which are those of every library its integrator may see.\n\nThe integrator may see its own libraries, the public ones and the ones granted to it.",
         "operationId": "tenant.logicBlockDefinition.list",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant whose usable definitions are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -7546,7 +7546,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The definitions the tenant can use.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8525,7 +8525,7 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Get all AlertRules for a tenant",
+        "description": "Get the alert rules of a tenant that the caller may read.",
         "operationId": "tenant.alertRule.list",
         "parameters": [
           {
@@ -8630,13 +8630,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Create a new alert rule for a tenant and edge gateway",
+        "description": "Create a new alert rule on an edge gateway of a tenant's project.",
         "operationId": "tenant.alertRule.create",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the alert rule is created in.",
             "required": true,
             "schema": {
               "type": "string",
@@ -8667,7 +8667,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created alert rule.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -8758,13 +8758,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Update an existing alert rule for a tenant",
+        "description": "Update an existing alert rule of a tenant.",
         "operationId": "tenant.alertRule.update",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the alert rule belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -8774,7 +8774,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The alert rule's id.",
+            "description": "The alert rule to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -8813,7 +8813,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The updated alert rule.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -8928,13 +8928,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Delete a alert rule for a tenant",
+        "description": "Delete an alert rule of a tenant.",
         "operationId": "tenant.alertRule.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the alert rule belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -8944,7 +8944,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The alert rule's id.",
+            "description": "The alert rule to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -8964,7 +8964,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -9065,7 +9065,7 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Get all rules for a tenant",
+        "description": "Get the rules of a tenant that the caller may read.",
         "operationId": "tenant.rule.list",
         "parameters": [
           {
@@ -9170,13 +9170,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Create a new rule for a tenant and edge gateway",
+        "description": "Create a new rule on an edge gateway of a tenant's project.",
         "operationId": "tenant.rule.create",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the rule is created in.",
             "required": true,
             "schema": {
               "type": "string",
@@ -9207,7 +9207,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created rule.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -9298,13 +9298,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Update an existing rule for a tenant",
+        "description": "Update an existing rule of a tenant.",
         "operationId": "tenant.rule.update",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the rule belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -9314,7 +9314,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The rule's id.",
+            "description": "The rule to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -9353,7 +9353,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The updated rule.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -9468,13 +9468,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Delete a rule for a tenant",
+        "description": "Delete a rule of a tenant.",
         "operationId": "tenant.rule.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the rule belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -9484,7 +9484,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The rule's id.",
+            "description": "The rule to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -9504,7 +9504,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -9605,7 +9605,7 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Get all Schedules for a tenant",
+        "description": "Get the schedules of a tenant that the caller may read.",
         "operationId": "tenant.schedule.list",
         "parameters": [
           {
@@ -9710,13 +9710,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Create a new Schedule for a tenant and edge gateway",
+        "description": "Create a new schedule on an edge gateway of a tenant's project.",
         "operationId": "tenant.schedule.create",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the schedule is created in.",
             "required": true,
             "schema": {
               "type": "string",
@@ -9747,7 +9747,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created schedule.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -9838,13 +9838,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Update an existing Schedule for a tenant",
+        "description": "Update an existing schedule of a tenant.",
         "operationId": "tenant.schedule.update",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the schedule belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -9854,7 +9854,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The schedule's id.",
+            "description": "The schedule to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -9893,7 +9893,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The updated schedule.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -10008,13 +10008,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Delete a Schedule for a tenant",
+        "description": "Delete a schedule of a tenant.",
         "operationId": "tenant.schedule.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the schedule belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -10024,7 +10024,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The schedule's id.",
+            "description": "The schedule to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -10044,7 +10044,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -26675,13 +26675,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Get all logic configuration templates for an integrator",
+        "description": "Get the logic configuration templates of an integrator.",
         "operationId": "integrator.logicConfigurationTemplate.list",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator whose templates are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -26691,7 +26691,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The integrator's templates.",
             "content": {
               "application/json": {
                 "schema": {
@@ -26762,13 +26762,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Create a new logic configuration template",
+        "description": "Create a new logic configuration template for an integrator.",
         "operationId": "integrator.logicConfigurationTemplate.create",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator the template is created for.",
             "required": true,
             "schema": {
               "type": "string",
@@ -26799,7 +26799,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created template.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -26890,13 +26890,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Update an existing logic configuration template",
+        "description": "Update an existing logic configuration template of an integrator.",
         "operationId": "integrator.logicConfigurationTemplate.update",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator the template belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -26906,7 +26906,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The logic configuration template's id.",
+            "description": "The template to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -26945,7 +26945,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The updated template.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -27060,13 +27060,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Delete a logic configuration template",
+        "description": "Delete a logic configuration template of an integrator.",
         "operationId": "integrator.logicConfigurationTemplate.delete",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator the template belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -27076,7 +27076,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The logic configuration template's id.",
+            "description": "The template to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -27096,7 +27096,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -27197,13 +27197,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "The authoring matrix: every catalog row of the library joined with its locale cells. Orphaned rows are\nincluded and flagged — they stay visible so an integrator can copy a translation over after a rename.",
+        "description": "Get the translation matrix of a library the integrator owns.\n\nA key the latest version no longer emits stays in the matrix, flagged as orphaned, so its translations can\nstill be copied to the key that replaced it.",
         "operationId": "integrator.logicBlockLibraryTranslation.list",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator that owns the library.",
             "required": true,
             "schema": {
               "type": "string",
@@ -27213,7 +27213,7 @@
           {
             "name": "logicBlockLibraryId",
             "in": "path",
-            "description": "The logic block library's id.",
+            "description": "The library whose matrix is read.",
             "required": true,
             "schema": {
               "type": "string",
@@ -27223,7 +27223,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Every catalog row of the library with its translation into each locale.",
             "content": {
               "application/json": {
                 "schema": {
@@ -27287,7 +27287,7 @@
         "x-vion-authorization": {
           "mode": "Root",
           "permissions": [
-            "Integrator.ManageLibraries"
+            "Integrator.Read"
           ],
           "scopeType": "Integrator",
           "scopeFrom": "integratorId"
@@ -27304,13 +27304,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Bulk upsert of matrix cells. Last-write-wins; every written cell re-pins the source digest.",
+        "description": "Write translations into the matrix of a library the integrator owns.\n\nA translation already stored for a key and locale is overwritten, the last write winning, and every written\ntranslation stops being outdated. A key that is not in the library's catalog fails the whole request.",
         "operationId": "integrator.logicBlockLibraryTranslation.upsert",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator that owns the library.",
             "required": true,
             "schema": {
               "type": "string",
@@ -27320,7 +27320,7 @@
           {
             "name": "logicBlockLibraryId",
             "in": "path",
-            "description": "The logic block library's id.",
+            "description": "The library whose translations are written.",
             "required": true,
             "schema": {
               "type": "string",
@@ -27351,7 +27351,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The counts inserted and updated, and every matrix row a written translation belongs to.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -27450,13 +27450,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Reset-to-default for the listed catalog keys. With `locale` omitted every locale of each key is\ncleared. Bulk so the editor can clear a filtered selection — orphaned rows, AI suggestions — in one\nrequest; the keys are listed explicitly rather than re-derived from a server-side filter, because the\neditor's view and the server can be out of sync.",
+        "description": "Delete the translations of the listed keys, so their compiled source strings render again.\n\nWithout a `locale`, the translations into every locale of each key are deleted. The catalog rows stay.",
         "operationId": "integrator.logicBlockLibraryTranslation.delete",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator that owns the library.",
             "required": true,
             "schema": {
               "type": "string",
@@ -27466,7 +27466,7 @@
           {
             "name": "logicBlockLibraryId",
             "in": "path",
-            "description": "The logic block library's id.",
+            "description": "The library whose translations are deleted.",
             "required": true,
             "schema": {
               "type": "string",
@@ -27497,7 +27497,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The number of translations deleted.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -27598,7 +27598,7 @@
         "tags": [
           "Integrator"
         ],
-        "description": "        Exports the library's catalog for one locale: columns\n        `key, context, source, target, status,\noutdated`\n        , UTF-8 with BOM, semicolon-delimited (German-locale Excel is the audience).",
+        "description": "Export the catalog of a library the integrator owns, with its translations into one locale, as a CSV file.\n\nThe columns are `key`, `context`, `source`, `target`, `status` and\n`outdated`, separated by semicolons, in UTF-8 with a byte-order mark, which is how German-locale Excel\nreads a CSV file.",
         "operationId": "integrator.logicBlockLibraryTranslation.export",
         "parameters": [
           {
@@ -27696,7 +27696,7 @@
         "x-vion-authorization": {
           "mode": "Root",
           "permissions": [
-            "Integrator.ManageLibraries"
+            "Integrator.Read"
           ],
           "scopeType": "Integrator",
           "scopeFrom": "integratorId"
@@ -27713,7 +27713,7 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Imports a translated CSV into one locale. Partial-accept: valid rows are applied, invalid ones are\nreported with a line number and a reason.",
+        "description": "Import a translated CSV file into one locale of a library the integrator owns.\n\nEvery valid row is applied and every invalid one is reported with its line number and a reason. Only a file\nthat is empty or lacks a `key` or a `target` column is refused as a whole.",
         "operationId": "integrator.logicBlockLibraryTranslation.import",
         "parameters": [
           {
@@ -27874,7 +27874,7 @@
         "tags": [
           "Integrator"
         ],
-        "description": "The integrator's translation bundle for one locale: a flat `{ key: value }` map, under\n`translations`, merged across every library the integrator may consume (own ∪ public ∪ granted).\nExact-locale rows only — a key the bundle does not carry renders from the compiled source string on the\nclient.",
+        "description": "Get the translations into one locale of every library the integrator may use.\n\nThe libraries are the integrator's own, the public ones and the ones granted to it. A key with no\ntranslation into exactly the requested locale is absent, and no other locale stands in for it.",
         "operationId": "integrator.logicBlockTranslationBundle.get",
         "parameters": [
           {
@@ -27969,13 +27969,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Get all logic block libraries visible to an integrator — own ∪ public ∪ granted. The UI compares\nOwnerIntegratorId against the current integrator to decide whether management actions apply.",
+        "description": "Get the logic block libraries an integrator may see, which are its own, the public ones and the ones granted to it.\n\nA library whose integrator id is another integrator's can be read but not updated, archived or granted.",
         "operationId": "integrator.logicBlockLibrary.list",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator whose visible libraries are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -27985,7 +27985,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The libraries the integrator may see.",
             "content": {
               "application/json": {
                 "schema": {
@@ -28058,13 +28058,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Update logic block library metadata like name and description",
+        "description": "Update the name, description and visibility of one of an integrator's own logic block libraries.",
         "operationId": "integrator.logicBlockLibrary.update",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator that owns the library.",
             "required": true,
             "schema": {
               "type": "string",
@@ -28074,7 +28074,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The logic block library's id.",
+            "description": "The library to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -28113,7 +28113,7 @@
         },
         "responses": {
           "200": {
-            "description": "",
+            "description": "The updated library.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -28228,13 +28228,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Archive a logic block library (soft delete)",
+        "description": "Archive one of an integrator's own logic block libraries.\n\nAn archived library is kept and still listed, and an upload of a new version of it is refused.",
         "operationId": "integrator.logicBlockLibrary.archive",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator that owns the library.",
             "required": true,
             "schema": {
               "type": "string",
@@ -28244,7 +28244,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The logic block library's id.",
+            "description": "The library to archive.",
             "required": true,
             "schema": {
               "type": "string",
@@ -28264,7 +28264,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The archive's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -28365,7 +28365,7 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Get the outgoing grants an integrator has made on its own libraries (the libraries it shares\nwith other integrators). Optionally filtered to a single library.",
+        "description": "Get the grants an integrator has made on its own logic block libraries.",
         "operationId": "integrator.logicBlockLibraryGrant.list",
         "parameters": [
           {
@@ -28461,13 +28461,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Grant one of the integrator's libraries to another integrator.",
+        "description": "Grant one of an integrator's own logic block libraries to another integrator.\n\nA grant to the owning integrator, and a second grant of a library to the same integrator, are refused.",
         "operationId": "integrator.logicBlockLibraryGrant.create",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator that owns the library.",
             "required": true,
             "schema": {
               "type": "string",
@@ -28498,7 +28498,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created grant.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -28589,13 +28589,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Revoke a grant. Prospective: running configurations keep running, but a configuration that still\nreferences the now-invisible library fails its next activation until those blocks are removed.",
+        "description": "Revoke a grant an integrator has made on one of its own logic block libraries.\n\nGateways already running a configuration that uses the library keep running it. Such a configuration fails\nits next activation until the library's blocks are removed from it.",
         "operationId": "integrator.logicBlockLibraryGrant.delete",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator that made the grant.",
             "required": true,
             "schema": {
               "type": "string",
@@ -28605,7 +28605,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The logic block library grant's id.",
+            "description": "The grant to revoke.",
             "required": true,
             "schema": {
               "type": "string",
@@ -28625,7 +28625,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The revocation's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -28821,13 +28821,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Create a new version of a logic block library by uploading a NuGet package file.\nThe library is auto-resolved by the packageId embedded in the .nupkg. If no library exists yet, one is\nauto-created.",
+        "description": "Create a new version of a logic block library by uploading its NuGet package.\n\nThe version is added to the integrator's library for the package id the package's .nuspec declares, matched\ncase-insensitively, and that library is created when the integrator has none. A package id another\nintegrator has registered is refused, and so is a new version of an archived library.",
         "operationId": "integrator.logicBlockLibraryVersion.upload",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator that owns the library.",
             "required": true,
             "schema": {
               "type": "string",
@@ -28887,7 +28887,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created version.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -28978,13 +28978,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Update logic block library version metadata like release notes and tags",
+        "description": "Update the release notes and tags of a version of one of an integrator's own logic block libraries.",
         "operationId": "integrator.logicBlockLibraryVersion.update",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator that owns the library.",
             "required": true,
             "schema": {
               "type": "string",
@@ -28994,7 +28994,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The logic block library version's id.",
+            "description": "The library version to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -29033,7 +29033,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The updated version.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -29150,13 +29150,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Get all logic block definitions accessible to an integrator (own ∪ public ∪ granted) — used for\ntemplate authoring, so it includes public and granted definitions, not only the integrator's own.",
+        "description": "Get the logic block definitions of every library an integrator may see, which are its own, the public ones\nand the ones granted to it.",
         "operationId": "integrator.logicBlockDefinition.list",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator whose visible definitions are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -29166,7 +29166,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The definitions the integrator may see.",
             "content": {
               "application/json": {
                 "schema": {
@@ -32985,13 +32985,6 @@
           "token": {
             "type": "string",
             "description": "The invitation token."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for accepting an integrator invitation."
@@ -33013,10 +33006,6 @@
           "integratorId": {
             "type": "string",
             "description": "The integrator ID (alias for AuthDomainRootScopeId).",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": "string",
             "format": "uuid"
           },
           "id": {
@@ -33102,10 +33091,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "description": "The user's ID within this domain (PrincipalId).",
@@ -33184,13 +33169,6 @@
           "token": {
             "type": "string",
             "description": "The invitation token."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for accepting a Platform invitation."
@@ -33212,10 +33190,6 @@
           "platformId": {
             "type": "string",
             "description": "The Platform ID (alias for AuthDomainRootScopeId).",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": "string",
             "format": "uuid"
           },
           "id": {
@@ -33296,13 +33270,6 @@
           "token": {
             "type": "string",
             "description": "The invitation token."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for accepting a tenant invitation."
@@ -33324,10 +33291,6 @@
           "tenantId": {
             "type": "string",
             "description": "The tenant ID (alias for AuthDomainRootScopeId).",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": "string",
             "format": "uuid"
           },
           "id": {
@@ -33411,6 +33374,7 @@
       },
       "ActivateLogicConfigurationOutput": {
         "required": [
+          "warnings",
           "id",
           "tenantId",
           "projectId",
@@ -33430,9 +33394,12 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogicConfigurationActivationWarningOutput"
+            },
+            "description": "The problems the configuration may meet on a gateway once it runs, none of which refuses the activation."
           },
           "id": {
             "type": "string",
@@ -33472,7 +33439,7 @@
               "null",
               "string"
             ],
-            "description": "Principal id of the creator; null when none was recorded.",
+            "description": "The principal id of the creator.",
             "format": "uuid"
           },
           "createdByName": {
@@ -33480,14 +33447,14 @@
               "null",
               "string"
             ],
-            "description": "Display name for Guid? LogicConfigurationOutput.CreatedBy. Null exactly when Guid? LogicConfigurationOutput.CreatedBy is null; a deleted\nprincipal renders as a placeholder, never a guid."
+            "description": "The display name of Guid? LogicConfigurationOutput.CreatedBy."
           },
           "activatedBy": {
             "type": [
               "null",
               "string"
             ],
-            "description": "Principal id of the last activator; null if this version was never activated.",
+            "description": "The principal id of the last activator.",
             "format": "uuid"
           },
           "activatedByName": {
@@ -33495,7 +33462,7 @@
               "null",
               "string"
             ],
-            "description": "Display name for Guid? LogicConfigurationOutput.ActivatedBy, same contract as string? LogicConfigurationOutput.CreatedByName."
+            "description": "The display name of Guid? LogicConfigurationOutput.ActivatedBy."
           },
           "meta": {
             "oneOf": [
@@ -33548,7 +33515,6 @@
           "raisedDateTime",
           "alertRuleId",
           "name",
-          "description",
           "severity",
           "expression",
           "expressionParameters"
@@ -33600,7 +33566,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "severity": {
             "$ref": "#/components/schemas/SeverityLevel"
@@ -33623,7 +33592,6 @@
           "projectId",
           "edgeGatewayId",
           "name",
-          "description",
           "severity",
           "condition"
         ],
@@ -33659,7 +33627,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "severity": {
             "$ref": "#/components/schemas/SeverityLevel"
@@ -33781,11 +33752,9 @@
             }
           },
           "currentVersion": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
               "null",
-              "integer",
-              "string"
+              "integer"
             ],
             "format": "int64"
           },
@@ -33885,25 +33854,13 @@
             ],
             "description": "How long sessions may start unasked, in minutes. Omitted keeps the requested validity, which may itself\nbe unlimited — the dashboard warns about that rather than the API forbidding it.",
             "format": "int32"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Answering a pending grant request. The tenant restates the terms it is willing to give — every one of them\noptional, because leaving a field out means \"as asked\". Sessions under the resulting grant then start\nwithout another click, which is exactly what the duration below buys."
       },
       "ArchiveLogicBlockLibraryOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "ArrangementCollection": {
         "enum": [
@@ -34001,37 +33958,51 @@
           "type"
         ],
         "type": "object",
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/AutomationActionSetProperty"
+          }
+        ],
+        "description": "What an automation does when it fires, the kind in `type`.",
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "SetProperty": "#/components/schemas/AutomationActionSetProperty"
+          }
+        }
+      },
+      "AutomationActionSetProperty": {
+        "required": [
+          "edgeGatewayId",
+          "serviceProviderIdentifier",
+          "serviceIdentifier",
+          "propertyIdentifier",
+          "type"
+        ],
+        "type": "object",
         "properties": {
           "type": {
+            "enum": [
+              "SetProperty"
+            ],
             "type": "string"
           },
           "edgeGatewayId": {
-            "type": [
-              "null",
-              "string"
-            ],
+            "type": "string",
             "format": "uuid"
           },
           "serviceProviderIdentifier": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": "string"
           },
           "serviceIdentifier": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": "string"
           },
           "propertyIdentifier": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": "string"
           },
           "value": {}
-        }
+        },
+        "description": "Sets a property of a service to a value."
       },
       "AutomationCondition": {
         "required": [
@@ -34063,29 +34034,63 @@
           "type"
         ],
         "type": "object",
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/AutomationScheduleOneTime"
+          },
+          {
+            "$ref": "#/components/schemas/AutomationScheduleRecurring"
+          }
+        ],
+        "description": "When a schedule fires, the kind in `type`.",
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "OneTime": "#/components/schemas/AutomationScheduleOneTime",
+            "Recurring": "#/components/schemas/AutomationScheduleRecurring"
+          }
+        }
+      },
+      "AutomationScheduleOneTime": {
+        "required": [
+          "dateTime",
+          "type"
+        ],
+        "type": "object",
         "properties": {
           "type": {
+            "enum": [
+              "OneTime"
+            ],
             "type": "string"
           },
           "dateTime": {
-            "type": [
-              "null",
-              "string"
-            ],
+            "type": "string",
             "format": "date-time"
+          }
+        },
+        "description": "Fires once, at an instant."
+      },
+      "AutomationScheduleRecurring": {
+        "required": [
+          "localTime",
+          "days",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "Recurring"
+            ],
+            "type": "string"
           },
           "localTime": {
-            "type": [
-              "null",
-              "string"
-            ],
+            "type": "string",
             "format": "time"
           },
           "days": {
-            "type": [
-              "null",
-              "array"
-            ],
+            "type": "array",
             "items": {
               "$ref": "#/components/schemas/DayOfWeek"
             }
@@ -34096,16 +34101,12 @@
               "string"
             ]
           }
-        }
+        },
+        "description": "Fires at a local time on each of its days."
       },
       "BootstrapOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "CapabilityOutput": {
         "required": [
@@ -34222,10 +34223,6 @@
             "additionalProperties": {
               "type": "string"
             }
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           }
         }
       },
@@ -34538,27 +34535,15 @@
         "type": "object",
         "properties": {
           "inputTokens": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int32"
           },
           "outputTokens": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int32"
           },
           "estimatedUsd": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
-            "type": [
-              "number",
-              "string"
-            ],
+            "type": "number",
             "format": "double"
           }
         }
@@ -34568,7 +34553,6 @@
           "edgeGatewayId",
           "projectId",
           "name",
-          "description",
           "severity",
           "condition"
         ],
@@ -34582,18 +34566,14 @@
             "type": "string",
             "format": "uuid"
           },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "severity": {
             "$ref": "#/components/schemas/SeverityLevel"
@@ -34610,16 +34590,11 @@
           "projectId",
           "edgeGatewayId",
           "name",
-          "description",
           "severity",
           "condition"
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -34650,7 +34625,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "severity": {
             "$ref": "#/components/schemas/SeverityLevel"
@@ -34670,13 +34648,6 @@
         "properties": {
           "projectId": {
             "type": "string",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
             "format": "uuid"
           },
           "name": {
@@ -34703,10 +34674,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -34771,13 +34738,6 @@
             ],
             "description": "The tenant of this integrator the gateway is assigned to on creation, or null to leave it unassigned.",
             "format": "uuid"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -34797,10 +34757,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -34908,13 +34864,6 @@
           },
           "slug": {
             "type": "string"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -34927,10 +34876,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -34975,13 +34920,6 @@
               "string"
             ],
             "description": "Optional description."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "        Input for creating a service account that owns an integrator.\n        The machine-identity counterpart of InviteIntegratorOwnerInput: the caller is a platform\nprincipal, the owner is written into the integrator domain, and there is no email, no token and no\naccept step — a service account's \"redeem\" is the client_credentials grant itself."
@@ -35018,13 +34956,6 @@
           "scopeType": {
             "type": "string",
             "description": "The scope type."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for creating an integrator role assignment."
@@ -35044,10 +34975,6 @@
           "integratorId": {
             "type": "string",
             "description": "The integrator ID (alias for AuthDomainRootScopeId).",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": "string",
             "format": "uuid"
           },
           "id": {
@@ -35112,13 +35039,6 @@
               "string"
             ],
             "description": "Optional description."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for creating an integrator service account."
@@ -35144,10 +35064,6 @@
             "type": "string",
             "description": "The client secret. Only returned on creation and rotation.",
             "x-vion-secret": true
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           },
           "id": {
             "type": "string",
@@ -35199,14 +35115,7 @@
           },
           "granteeIntegratorSlug": {
             "type": "string",
-            "description": "The grantee integrator's slug — its shareable handle. Resolved to an id server-side: the granter\nhas no way to know another integrator's GUID, but the grantee shares its slug out of band."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
+            "description": "The slug of the integrator the library is granted to."
           }
         }
       },
@@ -35223,10 +35132,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -35279,10 +35184,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -35302,15 +35203,28 @@
             "type": "string"
           },
           "releaseNotes": {
-            "type": "string",
-            "description": "e.g. Markdown?"
+            "type": "string"
           },
           "tags": {
             "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "e.g. \"Preview\", \"Deprecated\""
+            "description": "Free-form labels of the version, such as \"Preview\" or \"Deprecated\"."
+          },
+          "targetDaleSdkVersion": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The highest `Vion.Dale.Sdk` version, as `MAJOR.MINOR.PATCH`, that the library's package stamped as\nreferenced by its assemblies."
+          },
+          "minimumDaleSdkVersion": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The minimum `Vion.Dale.Sdk` version, as `MAJOR.MINOR.PATCH`, that the library's author declared."
           },
           "meta": {
             "oneOf": [
@@ -35337,13 +35251,6 @@
         "properties": {
           "projectId": {
             "type": "string",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
             "format": "uuid"
           },
           "name": {
@@ -35399,10 +35306,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -35441,7 +35344,7 @@
               "null",
               "string"
             ],
-            "description": "Principal id of the creator; null when none was recorded.",
+            "description": "The principal id of the creator.",
             "format": "uuid"
           },
           "createdByName": {
@@ -35449,14 +35352,14 @@
               "null",
               "string"
             ],
-            "description": "Display name for Guid? LogicConfigurationOutput.CreatedBy. Null exactly when Guid? LogicConfigurationOutput.CreatedBy is null; a deleted\nprincipal renders as a placeholder, never a guid."
+            "description": "The display name of Guid? LogicConfigurationOutput.CreatedBy."
           },
           "activatedBy": {
             "type": [
               "null",
               "string"
             ],
-            "description": "Principal id of the last activator; null if this version was never activated.",
+            "description": "The principal id of the last activator.",
             "format": "uuid"
           },
           "activatedByName": {
@@ -35464,7 +35367,7 @@
               "null",
               "string"
             ],
-            "description": "Display name for Guid? LogicConfigurationOutput.ActivatedBy, same contract as string? LogicConfigurationOutput.CreatedByName."
+            "description": "The display name of Guid? LogicConfigurationOutput.ActivatedBy."
           },
           "meta": {
             "oneOf": [
@@ -35518,13 +35421,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -35574,10 +35470,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -35662,17 +35554,10 @@
           },
           "assignedObjectType": {
             "type": "string",
-            "description": "The type of the assigned object: EdgeGateway or LogicBlock, matched exactly."
+            "description": "The type of the assigned object, `EdgeGateway` or `LogicBlock` in exactly that case."
           },
           "projectId": {
             "type": "string",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
             "format": "uuid"
           }
         }
@@ -35688,10 +35573,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -35739,18 +35620,11 @@
               "null",
               "string"
             ],
-            "description": "Null means root node (no parent).",
+            "description": "The parent node, or null for a root node.",
             "format": "uuid"
           },
           "projectId": {
             "type": "string",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
             "format": "uuid"
           },
           "name": {
@@ -35773,10 +35647,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -35794,7 +35664,7 @@
               "null",
               "string"
             ],
-            "description": "Null for a root node.",
+            "description": "The parent node, or null for a root node.",
             "format": "uuid"
           },
           "meta": {
@@ -35850,13 +35720,6 @@
           "scopeType": {
             "type": "string",
             "description": "The scope type."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for creating a Platform role assignment."
@@ -35876,10 +35739,6 @@
           "platformId": {
             "type": "string",
             "description": "The Platform ID (alias for AuthDomainRootScopeId).",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": "string",
             "format": "uuid"
           },
           "id": {
@@ -35944,13 +35803,6 @@
               "string"
             ],
             "description": "Optional description."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for creating a platform service account."
@@ -35976,10 +35828,6 @@
             "type": "string",
             "description": "The client secret. Only returned on creation and rotation.",
             "x-vion-secret": true
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           },
           "id": {
             "type": "string",
@@ -36025,13 +35873,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -36049,7 +35890,7 @@
               "null",
               "string"
             ],
-            "description": "Single-line display text, not structured postal data. Line breaks and control characters are rejected."
+            "description": "Single-line display text rather than structured postal data, so a line break or other control character is\nrefused."
           },
           "latitude": {
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
@@ -36058,7 +35899,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 latitude, -90..90. Sent together with the longitude or not at all.",
+            "description": "The World Geodetic System 1984 (WGS 84) latitude from -90 to 90, sent together with the longitude or not\nat all.",
             "format": "double"
           },
           "longitude": {
@@ -36068,7 +35909,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 longitude, -180..180. Sent together with the latitude or not at all.",
+            "description": "The World Geodetic System 1984 (WGS 84) longitude from -180 to 180, sent together with the latitude or not\nat all.",
             "format": "double"
           }
         }
@@ -36082,10 +35923,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -36095,13 +35932,11 @@
             "format": "uuid"
           },
           "imageVersion": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
               "null",
-              "integer",
-              "string"
+              "integer"
             ],
-            "description": "Read-only. Null means the project has no site photo; otherwise it increases on every photo set, and a\nclient busts its cache of the photo by sending it as the query parameter v.",
+            "description": "The site photo's version, or null without a photo, which a client sends as the photo's query parameter\n`v` so that a replaced photo is never served from its cache.",
             "format": "int32"
           },
           "meta": {
@@ -36131,26 +35966,22 @@
               "null",
               "string"
             ],
-            "description": "Single-line display text, not structured postal data. Line breaks and control characters are rejected."
+            "description": "Single-line display text rather than structured postal data, so a line break or other control character is\nrefused."
           },
           "latitude": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
-            "description": "WGS 84 latitude, -90..90. Sent together with the longitude or not at all.",
+            "description": "The World Geodetic System 1984 (WGS 84) latitude from -90 to 90, sent together with the longitude or not\nat all.",
             "format": "double"
           },
           "longitude": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
-            "description": "WGS 84 longitude, -180..180. Sent together with the latitude or not at all.",
+            "description": "The World Geodetic System 1984 (WGS 84) longitude from -180 to 180, sent together with the latitude or not\nat all.",
             "format": "double"
           }
         }
@@ -36164,13 +35995,6 @@
           "email": {
             "type": "string",
             "description": "The email address of the admin user."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -36182,10 +36006,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "description": "Id of the RabbitMQ user in the Database",
@@ -36216,7 +36036,6 @@
           "edgeGatewayId",
           "projectId",
           "name",
-          "description",
           "condition",
           "actions"
         ],
@@ -36230,18 +36049,14 @@
             "type": "string",
             "format": "uuid"
           },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "condition": {
             "$ref": "#/components/schemas/AutomationCondition"
@@ -36261,16 +36076,11 @@
           "projectId",
           "edgeGatewayId",
           "name",
-          "description",
           "condition",
           "actions"
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -36301,7 +36111,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "condition": {
             "$ref": "#/components/schemas/AutomationCondition"
@@ -36319,7 +36132,6 @@
           "edgeGatewayId",
           "projectId",
           "name",
-          "description",
           "schedules",
           "actions"
         ],
@@ -36333,18 +36145,14 @@
             "type": "string",
             "format": "uuid"
           },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "schedules": {
             "type": "array",
@@ -36367,16 +36175,11 @@
           "projectId",
           "edgeGatewayId",
           "name",
-          "description",
           "schedules",
           "actions"
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -36407,7 +36210,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "schedules": {
             "type": "array",
@@ -36430,13 +36236,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -36469,10 +36268,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -36567,13 +36362,6 @@
             ],
             "description": "How long sessions may start unasked, in minutes. Omitted means unlimited — deliberately expressible,\nand deliberately something the dashboard warns about.",
             "format": "int32"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "\"Invite support\": consent given without any pending request. Identical in shape to what the approval dialog\ncollects, because it is the same decision taken from the other direction."
@@ -36584,13 +36372,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -36614,10 +36395,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -36689,13 +36466,6 @@
               "format": "uuid"
             },
             "description": "Initial member principal IDs."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for creating a tenant group."
@@ -36714,10 +36484,6 @@
           "tenantId": {
             "type": "string",
             "description": "The tenant ID (alias for AuthDomainRootScopeId).",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": "string",
             "format": "uuid"
           },
           "id": {
@@ -36777,13 +36543,6 @@
           },
           "slug": {
             "type": "string"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -36797,10 +36556,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -36849,13 +36604,6 @@
               "string"
             ],
             "description": "Optional description."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "        Input for creating a service account that owns a tenant.\n        The machine-identity counterpart of InviteTenantOwnerInput: the caller is an integrator\nprincipal, the owner is written into the tenant domain, and there is no email, no token and no accept\nstep — a service account's \"redeem\" is the client_credentials grant itself."
@@ -36892,13 +36640,6 @@
           "scopeType": {
             "type": "string",
             "description": "The scope type."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for creating a tenant role assignment."
@@ -36918,10 +36659,6 @@
           "tenantId": {
             "type": "string",
             "description": "The tenant ID (alias for AuthDomainRootScopeId).",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": "string",
             "format": "uuid"
           },
           "id": {
@@ -36986,13 +36723,6 @@
               "string"
             ],
             "description": "Optional description."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for creating a tenant service account."
@@ -37018,10 +36748,6 @@
             "type": "string",
             "description": "The client secret. Only returned on creation and rotation.",
             "x-vion-secret": true
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           },
           "id": {
             "type": "string",
@@ -37069,13 +36795,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -37123,10 +36842,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -37211,13 +36926,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -37265,10 +36973,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -37341,6 +37045,25 @@
           },
           "defaultSize": {
             "$ref": "#/components/schemas/WidgetDefaultSize"
+          }
+        }
+      },
+      "DaleRuntimeOutput": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The version of dale the gateway runs, as dale declares it; absent when it declares none."
+          },
+          "sdkVersion": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The `Vion.Dale.Sdk` version the gateway's dale hosts, `MAJOR.MINOR.PATCH`; absent when it declares\nnone."
           }
         }
       },
@@ -37486,87 +37209,42 @@
       },
       "DeleteAlertRuleOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteArrangementOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteDashboardOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteEdgeGatewayOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteIntegratorOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteIntegratorRoleAssignmentOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
+        "additionalProperties": false,
         "description": "Output after deleting an integrator role assignment."
       },
       "DeleteIntegratorServiceAccountOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
+        "additionalProperties": false,
         "description": "Output after deleting an integrator service account."
       },
       "DeleteIntegratorUserOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
+        "additionalProperties": false,
         "description": "Output after deleting an Integrator user."
       },
       "DeleteLogicBlockLibraryGrantOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteLogicBlockTranslationsInput": {
         "required": [
@@ -37579,24 +37257,16 @@
             "items": {
               "type": "string"
             },
-            "description": "The catalog keys whose cells are cleared. One entry clears a single matrix row."
+            "description": "The catalog keys whose translations are deleted, at least one."
           },
           "locale": {
             "type": [
               "null",
               "string"
             ],
-            "description": "The locale cell to clear; `null` clears every locale of each listed key."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
+            "description": "The one locale whose translations are deleted, or `null` for every locale."
           }
-        },
-        "description": "Reset-to-default: drops the authored value(s) for the given catalog keys so the compiled source strings\nrender again. Deliberately an explicit key list rather than a server-side filter (`orphaned`,\n`status`, …): the editor's view and the server can be out of sync, and a filter would delete rows the\nuser never saw."
+        }
       },
       "DeleteLogicBlockTranslationsOutput": {
         "required": [
@@ -37605,259 +37275,121 @@
         "type": "object",
         "properties": {
           "deleted": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int32"
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           }
         }
       },
       "DeleteLogicConfigurationOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteLogicConfigurationTemplateOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteNodeAssignmentOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteNodeOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteOnboardingSessionOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteOwnOverviewCompositionOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeletePlatformRoleAssignmentOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
+        "additionalProperties": false,
         "description": "Output after deleting an Platform role assignment."
       },
       "DeletePlatformServiceAccountOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
+        "additionalProperties": false,
         "description": "Output after deleting a platform service account."
       },
       "DeletePlatformUserOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
+        "additionalProperties": false,
         "description": "Output after deleting a Platform user."
       },
       "DeleteProjectImageOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteProjectOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteRabbitMqAdminUserOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteRuleOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteScheduleOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteServiceProviderOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteSoftwareProfileOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteTenantDashboardTemplateOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteTenantGroupOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
+        "additionalProperties": false,
         "description": "Output after deleting a tenant group."
       },
       "DeleteTenantOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteTenantOverviewCompositionLayerOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteTenantRoleAssignmentOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
+        "additionalProperties": false,
         "description": "Output after deleting a tenant role assignment."
       },
       "DeleteTenantServiceAccountOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
+        "additionalProperties": false,
         "description": "Output after deleting a tenant service account."
       },
       "DeleteTenantUserOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
+        "additionalProperties": false,
         "description": "Output after deleting an Tenant user."
       },
       "DeleteTenantWidgetDefinitionOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DeleteWidgetDefinitionOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "DenySupportAccessRequestOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
+        "additionalProperties": false,
         "description": "Denying a request changes only that grant, which the caller re-reads from the grant list."
       },
       "DeployInput": {
@@ -37880,13 +37412,6 @@
           },
           "softwareReleaseVersion": {
             "type": "string"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -37971,10 +37496,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           }
         }
       },
@@ -38227,27 +37748,15 @@
         "type": "object",
         "properties": {
           "inserted": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int32"
           },
           "updated": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int32"
           },
           "rejected": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int32"
           },
           "rejections": {
@@ -38256,10 +37765,6 @@
               "$ref": "#/components/schemas/ImportLogicBlockTranslationsCsvRejectionOutput"
             },
             "description": "One entry per rejected row, in file order."
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           }
         }
       },
@@ -38272,12 +37777,8 @@
         "type": "object",
         "properties": {
           "line": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
-            "description": "1-based line number in the uploaded file, header included — so it points at what the user sees in Excel.",
+            "type": "integer",
+            "description": "The row's 1-based number in the uploaded file, counting the header row as a spreadsheet does.",
             "format": "int32"
           },
           "key": {
@@ -38295,11 +37796,13 @@
         "type": "object",
         "properties": {
           "identifier": {
-            "type": "string"
+            "type": "string",
+            "description": "The case-sensitive identifier of the instantiation parameter's introspection property."
           },
-          "value": {}
-        },
-        "description": "One operator-chosen `[InstantiationParameter]` value on a LogicBlockInstance.\nstring InstantiationParameterValue.Identifier is the case-sensitive introspection property identifier;\nJsonNode? InstantiationParameterValue.Value is the JSON scalar (enum as a member-name string, integer as a number, bool, or\nstring) the gate evaluator reads and dale applies to the block before `Configure`."
+          "value": {
+            "description": "The chosen value as a JSON scalar, with an enum as its member name string, an integer as a number, a boolean\nor a string."
+          }
+        }
       },
       "IntegratorAccessGrantOutput": {
         "required": [
@@ -38580,11 +38083,12 @@
           },
           "integratorId": {
             "type": "string",
+            "description": "The integrator that owns the definition's library, which is not the requesting integrator for a public or\ngranted library.",
             "format": "uuid"
           },
           "ownerIntegratorName": {
             "type": "string",
-            "description": "Owner integrator display name/slug — always a non-null string. A definition normally cannot outlive its\nowner (both are cascade-deleted with the integrator), but the listing falls back to \"n/a\" rather than\nfailing the whole request if a single owner can't be resolved (e.g. an orphaned public definition). The\nUI compares Guid LogicBlockDefinitionOutput.IntegratorId against the current integrator to render provenance / gate actions."
+            "description": "The display name of the integrator that owns the definition's library."
           },
           "ownerIntegratorSlug": {
             "type": "string"
@@ -38715,12 +38219,7 @@
       },
       "IntegratorRestartOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "IntegratorRoleAssignmentOutput": {
         "required": [
@@ -38974,13 +38473,6 @@
               "type": "string"
             },
             "description": "The integrator's tags for the gateway, the whole list, or `null` to leave them unchanged."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -39000,10 +38492,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -39279,13 +38767,6 @@
         "properties": {
           "email": {
             "type": "string"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for inviting a user as an Integrator owner."
@@ -39317,10 +38798,6 @@
           "emailSent": {
             "type": "boolean",
             "description": "Whether the invitation mail was accepted by the provider. Not a delivery confirmation."
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           },
           "id": {
             "type": "string",
@@ -39400,13 +38877,6 @@
           "email": {
             "type": "string",
             "description": "The email address of the user to invite."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for inviting a user to an integrator."
@@ -39444,10 +38914,6 @@
           "emailSent": {
             "type": "boolean",
             "description": "Whether the invitation mail was accepted by the provider. Not a delivery confirmation. When\n`false` the invitation is still valid and the operator must share string InviteUserOutput.InvitationLink\nthemselves — so every surface has to render this."
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           },
           "id": {
             "type": "string",
@@ -39527,13 +38993,6 @@
           "email": {
             "type": "string",
             "description": "The email address of the user to invite."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for inviting a user to a Platform."
@@ -39571,10 +39030,6 @@
           "emailSent": {
             "type": "boolean",
             "description": "Whether the invitation mail was accepted by the provider. Not a delivery confirmation. When\n`false` the invitation is still valid and the operator must share string InviteUserOutput.InvitationLink\nthemselves — so every surface has to render this."
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           },
           "id": {
             "type": "string",
@@ -39653,13 +39108,6 @@
         "properties": {
           "email": {
             "type": "string"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for inviting a user as a Tenant owner."
@@ -39691,10 +39139,6 @@
           "emailSent": {
             "type": "boolean",
             "description": "Whether the invitation mail was accepted by the provider. Not a delivery confirmation."
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           },
           "id": {
             "type": "string",
@@ -39774,13 +39218,6 @@
           "email": {
             "type": "string",
             "description": "The email address of the user to invite."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for inviting a user to a tenant.\nShares Email property with InviteDomainUserInput."
@@ -39818,10 +39255,6 @@
           "emailSent": {
             "type": "boolean",
             "description": "Whether the invitation mail was accepted by the provider. Not a delivery confirmation. When\n`false` the invitation is still valid and the operator must share string InviteUserOutput.InvitationLink\nthemselves — so every surface has to render this."
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           },
           "id": {
             "type": "string",
@@ -39919,19 +39352,11 @@
             "type": "string"
           },
           "expiresAt": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int64"
           },
           "issuedAt": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int64"
           }
         }
@@ -39941,8 +39366,7 @@
           "Private",
           "Public"
         ],
-        "type": "string",
-        "description": "Visibility of a logic block library to integrators other than its owner.\nOrthogonal to (and composable with) explicit integrator-to-integrator grants: a Public\nlibrary is visible to all integrators regardless of grants. A grant on a Public library is\nredundant for visibility today, but is intentionally not forbidden — it is the future home\nfor per-relationship licensing terms when a marketplace splits visibility from entitlement\n(see architecture spec 2026-06-16-logic-block-library-sharing and decision 0040)."
+        "type": "string"
       },
       "ListOutputOfAlertRuleOutput": {
         "required": [
@@ -40895,7 +40319,7 @@
             "items": {
               "$ref": "#/components/schemas/InstantiationParameterValue"
             },
-            "description": "Operator-chosen `[InstantiationParameter]` values (config-time structural gating): the first\nconfig-time value channel stored on an instance. Applied to the block before `Configure` so\ninclusion gates resolve at bind time. Default empty; additive — configs saved before the feature\ncarry no values, and ungated blocks never grow any. Draft save leaves these <b>unvalidated</b>;\nactivation is the single gate (value completeness + type, see\nActivateLogicConfigurationRequestHandler)."
+            "description": "The operator-chosen `[InstantiationParameter]` values of the instance, applied to the logic block before\nits `Configure` runs."
           }
         }
       },
@@ -41034,11 +40458,12 @@
           },
           "integratorId": {
             "type": "string",
+            "description": "The integrator that owns the library, which is not the requesting integrator for a public or granted library.",
             "format": "uuid"
           },
           "ownerIntegratorName": {
             "type": "string",
-            "description": "Owner integrator display name/slug — always a non-null string. A library normally cannot outlive its\nowner (both are cascade-deleted with the integrator), but the listing falls back to \"n/a\" rather than\nfailing the whole request if a single owner can't be resolved (e.g. an orphaned public library). The UI\ncompares Guid LogicBlockLibraryOutput.IntegratorId against the current integrator to decide whether management actions\n(edit / archive / grant / upload) apply."
+            "description": "The display name of the integrator that owns the library."
           },
           "ownerIntegratorSlug": {
             "type": "string"
@@ -41107,15 +40532,28 @@
             "type": "string"
           },
           "releaseNotes": {
-            "type": "string",
-            "description": "e.g. Markdown?"
+            "type": "string"
           },
           "tags": {
             "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "e.g. \"Preview\", \"Deprecated\""
+            "description": "Free-form labels of the version, such as \"Preview\" or \"Deprecated\"."
+          },
+          "targetDaleSdkVersion": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The highest `Vion.Dale.Sdk` version, as `MAJOR.MINOR.PATCH`, that the library's package stamped as\nreferenced by its assemblies."
+          },
+          "minimumDaleSdkVersion": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The minimum `Vion.Dale.Sdk` version, as `MAJOR.MINOR.PATCH`, that the library's author declared."
           },
           "meta": {
             "oneOf": [
@@ -41220,7 +40658,8 @@
             "type": "object",
             "additionalProperties": {
               "type": "string"
-            }
+            },
+            "description": "The translation of each key into the locale, each key served exactly as it is stored."
           },
           "meta": {
             "oneOf": [
@@ -41232,8 +40671,7 @@
               }
             ]
           }
-        },
-        "description": "A scope's translation bundle for one locale: the merged `{ key: value }` map across every library the\nscope may consume. Both the tenant and the integrator endpoint serve this shape."
+        }
       },
       "LogicBlockTranslationCellInput": {
         "required": [
@@ -41245,11 +40683,11 @@
         "properties": {
           "key": {
             "type": "string",
-            "description": "The catalog key. Rows whose key is not in the library's catalog are rejected."
+            "description": "The catalog key, which must be in the library's catalog."
           },
           "locale": {
             "type": "string",
-            "description": "BCP 47 language tag; v1 accepts plain-language tags only."
+            "description": "The locale, a BCP 47 plain-language tag such as `de`."
           },
           "value": {
             "type": "string"
@@ -41260,7 +40698,7 @@
                 "type": "null"
               },
               {
-                "description": "Provenance, not approval. Defaults to TranslationStatus.Human.",
+                "description": "Who produced the value, TranslationStatus.Human when omitted.",
                 "$ref": "#/components/schemas/TranslationStatus"
               }
             ]
@@ -41284,8 +40722,7 @@
           "isOutdated": {
             "type": "boolean"
           }
-        },
-        "description": "One locale cell of a matrix row — the integrator's authored value for that locale."
+        }
       },
       "LogicBlockTranslationMatrixRowOutput": {
         "required": [
@@ -41313,7 +40750,8 @@
             "type": "object",
             "additionalProperties": {
               "$ref": "#/components/schemas/LogicBlockTranslationCellOutput"
-            }
+            },
+            "description": "The translation into each locale that has one, by locale."
           },
           "meta": {
             "oneOf": [
@@ -41325,8 +40763,60 @@
               }
             ]
           }
-        },
-        "description": "One catalog row joined with all its locale cells — the authoring-matrix shape the Translations tab renders.\nLocales with no authored value are simply absent from Dictionary&lt;string, LogicBlockTranslationCellOutput&gt; LogicBlockTranslationMatrixRowOutput.Cells."
+        }
+      },
+      "LogicConfigurationActivationWarningOutput": {
+        "required": [
+          "code",
+          "message",
+          "packageId",
+          "packageVersion",
+          "effectiveMinimumDaleSdkVersion",
+          "edgeGatewayId",
+          "edgeGatewayDaleSdkVersion"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "What the warning is about."
+          },
+          "message": {
+            "type": "string"
+          },
+          "packageId": {
+            "type": "string"
+          },
+          "packageVersion": {
+            "type": "string"
+          },
+          "targetDaleSdkVersion": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The highest `Vion.Dale.Sdk` version the library's assemblies reference."
+          },
+          "minimumDaleSdkVersion": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The minimum `Vion.Dale.Sdk` version the library's author declared."
+          },
+          "effectiveMinimumDaleSdkVersion": {
+            "type": "string",
+            "description": "The version compared with the gateway's, which is string? LogicConfigurationActivationWarningOutput.MinimumDaleSdkVersion where it is set and\nstring? LogicConfigurationActivationWarningOutput.TargetDaleSdkVersion otherwise."
+          },
+          "edgeGatewayId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "edgeGatewayDaleSdkVersion": {
+            "type": "string",
+            "description": "The `Vion.Dale.Sdk` version the gateway's dale declares it hosts."
+          }
+        }
       },
       "LogicConfigurationOutput": {
         "required": [
@@ -41387,7 +40877,7 @@
               "null",
               "string"
             ],
-            "description": "Principal id of the creator; null when none was recorded.",
+            "description": "The principal id of the creator.",
             "format": "uuid"
           },
           "createdByName": {
@@ -41395,14 +40885,14 @@
               "null",
               "string"
             ],
-            "description": "Display name for Guid? LogicConfigurationOutput.CreatedBy. Null exactly when Guid? LogicConfigurationOutput.CreatedBy is null; a deleted\nprincipal renders as a placeholder, never a guid."
+            "description": "The display name of Guid? LogicConfigurationOutput.CreatedBy."
           },
           "activatedBy": {
             "type": [
               "null",
               "string"
             ],
-            "description": "Principal id of the last activator; null if this version was never activated.",
+            "description": "The principal id of the last activator.",
             "format": "uuid"
           },
           "activatedByName": {
@@ -41410,7 +40900,7 @@
               "null",
               "string"
             ],
-            "description": "Display name for Guid? LogicConfigurationOutput.ActivatedBy, same contract as string? LogicConfigurationOutput.CreatedByName."
+            "description": "The display name of Guid? LogicConfigurationOutput.ActivatedBy."
           },
           "meta": {
             "oneOf": [
@@ -41641,10 +41131,6 @@
                 "$ref": "#/components/schemas/OutputMeta"
               }
             ]
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           }
         },
         "description": "The handle of work that outlives its request: the body a start answers with 202 and the body its reads answer."
@@ -41687,13 +41173,6 @@
             ],
             "description": "Limits the marking to one context, together with string? MarkNotificationsReadInput.AuthDomain.",
             "format": "uuid"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -41705,25 +41184,13 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "total": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "The unread items of the whole inbox.",
             "format": "int32"
           },
           "personal": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "The unread items that belong to no context.",
             "format": "int32"
           },
@@ -41794,11 +41261,9 @@
         "type": "object",
         "properties": {
           "value": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
             "description": "The measured value captured for the measuring point.",
             "format": "double"
@@ -41813,21 +41278,17 @@
             "$ref": "#/components/schemas/MeasurementQuality"
           },
           "min": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
             "description": "The minimum value observed within the bucket.",
             "format": "double"
           },
           "max": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
             "description": "The maximum value observed within the bucket.",
             "format": "double"
@@ -42077,7 +41538,7 @@
               "null",
               "string"
             ],
-            "description": "Null for a root node.",
+            "description": "The parent node, or null for a root node.",
             "format": "uuid"
           },
           "meta": {
@@ -42196,11 +41657,7 @@
             "format": "uuid"
           },
           "count": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "The context's unread items.",
             "format": "int32"
           }
@@ -42379,20 +41836,12 @@
         "type": "object",
         "properties": {
           "total": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "The unread items of the whole inbox.",
             "format": "int32"
           },
           "personal": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "The unread items that belong to no context.",
             "format": "int32"
           },
@@ -42528,12 +41977,7 @@
       },
       "OutputBase": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "OutputMeta": {
         "required": [
@@ -42549,11 +41993,9 @@
             "description": "The caller's permissions at the row's scope that some operation evaluates at scopes of its type, in ordinal\norder."
           },
           "version": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
               "null",
-              "integer",
-              "string"
+              "integer"
             ],
             "description": "The row's version, which an `If-Match` header names to replace the row only over it, or null when the row is\nof no versioned aggregate.",
             "format": "int64"
@@ -42642,53 +42084,101 @@
       },
       "ParameterConfigDto": {
         "required": [
+          "type"
+        ],
+        "type": "object",
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/ParameterConfigDtoProperty"
+          },
+          {
+            "$ref": "#/components/schemas/ParameterConfigDtoMeasuringPoint"
+          }
+        ],
+        "description": "A value the expression reads from an element of a gateway, the kind of element in `type`.",
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "Property": "#/components/schemas/ParameterConfigDtoProperty",
+            "MeasuringPoint": "#/components/schemas/ParameterConfigDtoMeasuringPoint"
+          }
+        }
+      },
+      "ParameterConfigDtoMeasuringPoint": {
+        "required": [
           "name",
+          "edgeGatewayId",
+          "serviceProviderIdentifier",
+          "serviceIdentifier",
+          "measuringPointIdentifier",
           "type"
         ],
         "type": "object",
         "properties": {
+          "type": {
+            "enum": [
+              "MeasuringPoint"
+            ],
+            "type": "string"
+          },
           "name": {
             "maxLength": 500,
             "type": "string"
           },
-          "type": {
-            "maxLength": 100,
-            "type": "string"
-          },
           "edgeGatewayId": {
-            "type": [
-              "null",
-              "string"
-            ],
+            "type": "string",
             "format": "uuid"
           },
           "serviceProviderIdentifier": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": "string"
           },
           "serviceIdentifier": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "propertyIdentifier": {
-            "maxLength": 1000,
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": "string"
           },
           "measuringPointIdentifier": {
             "maxLength": 1000,
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": "string"
           }
-        }
+        },
+        "description": "A measuring point of a service."
+      },
+      "ParameterConfigDtoProperty": {
+        "required": [
+          "name",
+          "edgeGatewayId",
+          "serviceProviderIdentifier",
+          "serviceIdentifier",
+          "propertyIdentifier",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "Property"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "edgeGatewayId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serviceProviderIdentifier": {
+            "type": "string"
+          },
+          "serviceIdentifier": {
+            "type": "string"
+          },
+          "propertyIdentifier": {
+            "maxLength": 1000,
+            "type": "string"
+          }
+        },
+        "description": "A property of a service."
       },
       "ParameterDefinition": {
         "required": [
@@ -43255,7 +42745,7 @@
             ]
           }
         },
-        "description": "An uploaded site photo: the declared content type plus the raw file, base64-encoded."
+        "description": "An uploaded site photo, its declared content type and the file base64-encoded."
       },
       "ProjectOutput": {
         "required": [
@@ -43275,13 +42765,11 @@
             "format": "uuid"
           },
           "imageVersion": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
               "null",
-              "integer",
-              "string"
+              "integer"
             ],
-            "description": "Read-only. Null means the project has no site photo; otherwise it increases on every photo set, and a\nclient busts its cache of the photo by sending it as the query parameter v.",
+            "description": "The site photo's version, or null without a photo, which a client sends as the photo's query parameter\n`v` so that a replaced photo is never served from its cache.",
             "format": "int32"
           },
           "meta": {
@@ -43311,26 +42799,22 @@
               "null",
               "string"
             ],
-            "description": "Single-line display text, not structured postal data. Line breaks and control characters are rejected."
+            "description": "Single-line display text rather than structured postal data, so a line break or other control character is\nrefused."
           },
           "latitude": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
-            "description": "WGS 84 latitude, -90..90. Sent together with the longitude or not at all.",
+            "description": "The World Geodetic System 1984 (WGS 84) latitude from -90 to 90, sent together with the longitude or not\nat all.",
             "format": "double"
           },
           "longitude": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
-            "description": "WGS 84 longitude, -180..180. Sent together with the latitude or not at all.",
+            "description": "The World Geodetic System 1984 (WGS 84) longitude from -180 to 180, sent together with the latitude or not\nat all.",
             "format": "double"
           }
         }
@@ -43400,13 +42884,6 @@
           },
           "managementType": {
             "$ref": "#/components/schemas/EdgeGatewayManagementType"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -43471,10 +42948,6 @@
               "string"
             ],
             "format": "uuid"
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           }
         }
       },
@@ -43535,13 +43008,6 @@
               "string"
             ],
             "description": "Optional new device identifier (serial). Null/empty keeps the existing identifier (SD-failure case)."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -43758,13 +43224,6 @@
               "string"
             ],
             "description": "The name to show for the instance, or `null` or blank to show its declared name again."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -43779,10 +43238,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -43806,7 +43261,7 @@
               "null",
               "string"
             ],
-            "description": "The library package id the instance's definition came from, snapshotted at activation. It is the\nnamespace of the translation keys the client derives for this instance's metadata strings.\n`null` for rows activated before the snapshot shipped and never re-activated — those simply\nrender untranslated."
+            "description": "The package id of the library the instance's definition came from, taken at activation."
           },
           "annotations": {
             "type": "object",
@@ -43820,7 +43275,7 @@
             "items": {
               "type": "string"
             },
-            "description": "Block-level section ordering declared via `[LogicBlock(Groups = ...)]` in the SDK and\ncarried through the introspection annotations. `null` when the block does not declare\nit; the dashboard then falls back to the platform default group order."
+            "description": "The order of the block's sections, as the block declares it with `[LogicBlock(Groups = ...)]`."
           },
           "meta": {
             "oneOf": [
@@ -43870,13 +43325,6 @@
               "format": "uuid"
             },
             "description": "Further gateways to serve in one RemoteAccessProfile.Twincat session, allowed only when a\nsingle grant covers the whole set (a project- or tenant-scoped consent). Fixed for the session's life:\nthe broker pod's ACL and routes are rendered from it once and have no reload path."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -43896,10 +43344,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -44019,13 +43463,6 @@
             ],
             "description": "How long sessions should be allowed to start unasked, in minutes; omitted asks for an unlimited grant.\nIt is the CONSENT's duration and never a session's — a session names its own TTL when it starts.",
             "format": "int32"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Support asking a customer for standing consent. The same fields the tenant's invite dialog collects, minus\nthe grantee kinds — a requester can only ask on its own behalf, and which kinds the consent ends up\ncovering is the tenant's choice at approval."
@@ -44038,10 +43475,6 @@
         "properties": {
           "grant": {
             "$ref": "#/components/schemas/SupportAccessGrantOutput"
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           }
         },
         "description": "A request produces exactly one grant — the requester can only ask on its own behalf — so this wraps one\nwhere SupportAccessGrantsOutput wraps the set an approval or an invite produces. Both carry\nthe same read shape, per the DTO rule that a write returns what a read would."
@@ -44070,13 +43503,6 @@
             ],
             "description": "Optional requested TTL in minutes; capped at the configured maximum. Defaults to the configured TTL.",
             "format": "int32"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -44113,10 +43539,6 @@
           "emailSent": {
             "type": "boolean",
             "description": "Whether the invitation mail was accepted by the provider. Not a delivery confirmation. When\n`false` the invitation is still valid and the operator must share string ResendInvitationOutput.InvitationLink\nthemselves — so every surface has to render this."
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           },
           "id": {
             "type": "string",
@@ -44214,10 +43636,6 @@
           "emailSent": {
             "type": "boolean",
             "description": "Whether the invitation mail was accepted by the provider. Not a delivery confirmation."
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           },
           "id": {
             "type": "string",
@@ -44322,10 +43740,6 @@
             "type": "boolean",
             "description": "Whether the invitation mail was accepted by the provider. Not a delivery confirmation. When\n`false` the invitation is still valid and the operator must share string ResendInvitationOutput.InvitationLink\nthemselves — so every surface has to render this."
           },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "description": "The user's ID within this domain (PrincipalId).",
@@ -44429,10 +43843,6 @@
             "type": "boolean",
             "description": "Whether the invitation mail was accepted by the provider. Not a delivery confirmation. When\n`false` the invitation is still valid and the operator must share string ResendInvitationOutput.InvitationLink\nthemselves — so every surface has to render this."
           },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "description": "The user's ID within this domain (PrincipalId).",
@@ -44529,10 +43939,6 @@
           "emailSent": {
             "type": "boolean",
             "description": "Whether the invitation mail was accepted by the provider. Not a delivery confirmation."
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           },
           "id": {
             "type": "string",
@@ -44647,12 +44053,7 @@
       },
       "RevokeSupportAccessGrantOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
+        "additionalProperties": false,
         "description": "Revoking a grant carries no entity data back; the caller re-reads the grant list."
       },
       "RotateServiceAccountSecretOutput": {
@@ -44673,10 +44074,6 @@
           "clientSecretHint": {
             "type": "string",
             "description": "Partially obfuscated client secret hint for display (e.g. \"••••••••s7Kx\")."
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           }
         },
         "description": "Output after rotating a service account secret."
@@ -44688,7 +44085,6 @@
           "projectId",
           "edgeGatewayId",
           "name",
-          "description",
           "condition",
           "actions"
         ],
@@ -44724,7 +44120,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "condition": {
             "$ref": "#/components/schemas/AutomationCondition"
@@ -44744,7 +44143,6 @@
           "projectId",
           "edgeGatewayId",
           "name",
-          "description",
           "schedules",
           "actions"
         ],
@@ -44780,7 +44178,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "schedules": {
             "type": "array",
@@ -44819,11 +44220,7 @@
             "description": "The name of the ancestor scope"
           },
           "depth": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "The depth of the ancestor in the hierarchy (1 = immediate parent, 2 = grandparent, etc.)",
             "format": "int32"
           }
@@ -44886,11 +44283,11 @@
         "properties": {
           "identifier": {
             "type": "string",
-            "description": "Service definition identifier of the logic block definition"
+            "description": "The identifier of the service in the logic block definition."
           },
           "serviceId": {
             "type": "string",
-            "description": "Unique identifier of the service instance, created when instantiating the logic block",
+            "description": "The unique id of the service instance, created when the logic block is instantiated.",
             "format": "uuid"
           }
         }
@@ -44929,7 +44326,7 @@
               "null",
               "string"
             ],
-            "description": "The library package id the instance's definition came from, snapshotted at activation. It is the\nnamespace of the translation keys the client derives for this instance's metadata strings.\n`null` for rows activated before the snapshot shipped and never re-activated — those simply\nrender untranslated."
+            "description": "The package id of the library the instance's definition came from, taken at activation."
           },
           "annotations": {
             "type": "object",
@@ -44943,7 +44340,7 @@
             "items": {
               "type": "string"
             },
-            "description": "Block-level section ordering declared via `[LogicBlock(Groups = ...)]` in the SDK and\ncarried through the introspection annotations. `null` when the block does not declare\nit; the dashboard then falls back to the platform default group order."
+            "description": "The order of the block's sections, as the block declares it with `[LogicBlock(Groups = ...)]`."
           },
           "meta": {
             "oneOf": [
@@ -45295,10 +44692,6 @@
               }
             ]
           },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "meta": {
             "oneOf": [
               {
@@ -45374,24 +44767,12 @@
         "properties": {
           "logLevel": {
             "$ref": "#/components/schemas/LogLevel"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
       "SetLogLevelOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "SetProjectImageInput": {
         "required": [
@@ -45405,17 +44786,10 @@
                 "type": "null"
               },
               {
-                "description": "The photo to store; a body without it is refused, since clearing the photo is the DELETE.",
+                "description": "The photo to store, required because clearing the photo is the DELETE.",
                 "$ref": "#/components/schemas/ProjectImageInput"
               }
             ]
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -45428,10 +44802,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -45441,13 +44811,11 @@
             "format": "uuid"
           },
           "imageVersion": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
               "null",
-              "integer",
-              "string"
+              "integer"
             ],
-            "description": "Read-only. Null means the project has no site photo; otherwise it increases on every photo set, and a\nclient busts its cache of the photo by sending it as the query parameter v.",
+            "description": "The site photo's version, or null without a photo, which a client sends as the photo's query parameter\n`v` so that a replaced photo is never served from its cache.",
             "format": "int32"
           },
           "meta": {
@@ -45477,26 +44845,22 @@
               "null",
               "string"
             ],
-            "description": "Single-line display text, not structured postal data. Line breaks and control characters are rejected."
+            "description": "Single-line display text rather than structured postal data, so a line break or other control character is\nrefused."
           },
           "latitude": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
-            "description": "WGS 84 latitude, -90..90. Sent together with the longitude or not at all.",
+            "description": "The World Geodetic System 1984 (WGS 84) latitude from -90 to 90, sent together with the longitude or not\nat all.",
             "format": "double"
           },
           "longitude": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
-            "description": "WGS 84 longitude, -180..180. Sent together with the latitude or not at all.",
+            "description": "The World Geodetic System 1984 (WGS 84) longitude from -180 to 180, sent together with the latitude or not\nat all.",
             "format": "double"
           }
         }
@@ -45507,24 +44871,12 @@
         ],
         "type": "object",
         "properties": {
-          "value": {},
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          }
+          "value": {}
         }
       },
       "SetPropertyValueOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "SetupSchemaOutput": {
         "required": [
@@ -45762,13 +45114,6 @@
             "type": "object",
             "additionalProperties": {},
             "description": "Flat key-value map of the integrator's choices. Keys are field identifiers from the setup schema,\nvalues match the field's type.\ne.g. { \"has_rs485\": true, \"baudrate\": 9600, \"gpio4\": \"DigitalInput\", \"gpio4_pull\": \"PullUp\" }"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -45788,24 +45133,12 @@
             "items": {
               "$ref": "#/components/schemas/SubscribeProperty"
             }
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
       "SubscribePropertiesOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "SubscribeProperty": {
         "required": [
@@ -45843,11 +45176,7 @@
             "description": "The topic the will is published to."
           },
           "qos": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "The quality of service the will is published with.",
             "format": "int32"
           }
@@ -45872,20 +45201,12 @@
             "description": "The broker's MQTT-over-WebSockets address."
           },
           "protocolVersion": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "The MQTT protocol version to connect with.",
             "format": "int32"
           },
           "subscribeQos": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "The quality of service to subscribe with, the only one the client's queue is granted.",
             "format": "int32"
           },
@@ -46046,10 +45367,6 @@
             "items": {
               "$ref": "#/components/schemas/SupportAccessGrantOutput"
             }
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           }
         },
         "description": "One consent decision produces one grant per checked grantee kind, so the write endpoints return the whole\nset they created — the write output is the same shape the list endpoint serves, per the DTO rule that a\nwrite returns what a read would."
@@ -46347,10 +45664,6 @@
                 "$ref": "#/components/schemas/OutputMeta"
               }
             ]
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           }
         }
       },
@@ -46386,10 +45699,10 @@
           },
           "annotations": {
             "type": "object",
-            "additionalProperties": {}
+            "additionalProperties": {},
+            "description": "The parameter's display metadata, keyed by name."
           }
-        },
-        "description": "Follows the SetupSchema.FieldInfo pattern: Identifier, Type, Annotations.\nAnnotations keys: \"name\" (display label), \"default\" (default value),\n\"options\" (list for Enum type), \"group\" (visual grouping),\n\"visibleWhen\" (conditional visibility, e.g. { \"fieldId\": \"x\", \"equals\": true })"
+        }
       },
       "TemplateWidget": {
         "required": [
@@ -46693,6 +46006,17 @@
               "$ref": "#/components/schemas/SoftwareInfo"
             }
           },
+          "dale": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The versions the gateway's dale declares it runs; absent when it declares none.",
+                "$ref": "#/components/schemas/DaleRuntimeOutput"
+              }
+            ]
+          },
           "deviceType": {
             "type": [
               "null",
@@ -46847,11 +46171,12 @@
           },
           "integratorId": {
             "type": "string",
+            "description": "The integrator that owns the definition's library, which is not the tenant's integrator for a public or\ngranted library.",
             "format": "uuid"
           },
           "ownerIntegratorName": {
             "type": "string",
-            "description": "Owner integrator display name/slug — always a non-null string. A definition normally cannot outlive its\nowner (both are cascade-deleted with the integrator), but the listing falls back to \"n/a\" rather than\nfailing the whole request if a single owner can't be resolved (e.g. an orphaned public definition). The\nUI compares Guid LogicBlockDefinitionOutput.IntegratorId against the current integrator to render provenance / gate actions."
+            "description": "The display name of the integrator that owns the definition's library."
           },
           "ownerIntegratorSlug": {
             "type": "string"
@@ -47119,12 +46444,7 @@
       },
       "TenantRestartOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "TenantRoleAssignmentOutput": {
         "required": [
@@ -47400,13 +46720,6 @@
           },
           "description": {
             "type": "string"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -47424,10 +46737,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -47461,6 +46770,17 @@
             "items": {
               "$ref": "#/components/schemas/SoftwareInfo"
             }
+          },
+          "dale": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The versions the gateway's dale declares it runs; absent when it declares none.",
+                "$ref": "#/components/schemas/DaleRuntimeOutput"
+              }
+            ]
           },
           "deviceType": {
             "type": [
@@ -47633,12 +46953,7 @@
       },
       "TerminateRemoteAccessSessionOutput": {
         "type": "object",
-        "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "additionalProperties": false
       },
       "TimingInfo": {
         "required": [
@@ -47648,19 +46963,11 @@
         "type": "object",
         "properties": {
           "durationMs": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int32"
           },
           "durationS": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
-            "type": [
-              "number",
-              "string"
-            ],
+            "type": "number",
             "format": "double"
           }
         }
@@ -47687,29 +46994,24 @@
           "AiSuggested"
         ],
         "type": "string",
-        "description": "Provenance of an integrator-authored translation — <em>not</em> an approval state. There is no approval\nworkflow: both values are served identically, the flag only tells the authoring UI which rows a human\nhas already looked at."
+        "description": "Who produced a translation, which changes nothing about how it is served."
       },
       "UpdateAlertRuleInput": {
         "required": [
           "name",
-          "description",
           "severity",
           "condition"
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "severity": {
             "$ref": "#/components/schemas/SeverityLevel"
@@ -47726,16 +47028,11 @@
           "projectId",
           "edgeGatewayId",
           "name",
-          "description",
           "severity",
           "condition"
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -47766,7 +47063,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "severity": {
             "$ref": "#/components/schemas/SeverityLevel"
@@ -47783,13 +47083,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -47814,10 +47107,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -47866,13 +47155,6 @@
           },
           "slug": {
             "type": "string"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -47885,10 +47167,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -47933,13 +47211,6 @@
               "string"
             ],
             "description": "Updated description."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for updating an integrator service account."
@@ -47958,10 +47229,6 @@
           "integratorId": {
             "type": "string",
             "description": "The integrator ID (alias for AuthDomainRootScopeId).",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": "string",
             "format": "uuid"
           },
           "id": {
@@ -48020,17 +47287,10 @@
                 "type": "null"
               },
               {
-                "description": "New visibility for the library. Optional: when null the current visibility is preserved, so\nexisting callers that do not send it keep working (owner self-service). See decision 0040.",
+                "description": "The library's new visibility, which keeps the current one when absent.",
                 "$ref": "#/components/schemas/LibraryVisibility"
               }
             ]
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -48058,7 +47318,7 @@
           },
           "ownerIntegratorName": {
             "type": "string",
-            "description": "Owner integrator display name/slug. Always present — the library being updated has a live owner\n(both are cascade-deleted together)."
+            "description": "The display name of the integrator that owns the library."
           },
           "ownerIntegratorSlug": {
             "type": "string"
@@ -48093,10 +47353,6 @@
                 "$ref": "#/components/schemas/OutputMeta"
               }
             ]
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           }
         }
       },
@@ -48115,13 +47371,6 @@
             "items": {
               "type": "string"
             }
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -48137,10 +47386,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -48160,15 +47405,28 @@
             "type": "string"
           },
           "releaseNotes": {
-            "type": "string",
-            "description": "e.g. Markdown?"
+            "type": "string"
           },
           "tags": {
             "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "e.g. \"Preview\", \"Deprecated\""
+            "description": "Free-form labels of the version, such as \"Preview\" or \"Deprecated\"."
+          },
+          "targetDaleSdkVersion": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The highest `Vion.Dale.Sdk` version, as `MAJOR.MINOR.PATCH`, that the library's package stamped as\nreferenced by its assemblies."
+          },
+          "minimumDaleSdkVersion": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The minimum `Vion.Dale.Sdk` version, as `MAJOR.MINOR.PATCH`, that the library's author declared."
           },
           "meta": {
             "oneOf": [
@@ -48192,13 +47450,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -48252,10 +47503,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -48294,7 +47541,7 @@
               "null",
               "string"
             ],
-            "description": "Principal id of the creator; null when none was recorded.",
+            "description": "The principal id of the creator.",
             "format": "uuid"
           },
           "createdByName": {
@@ -48302,14 +47549,14 @@
               "null",
               "string"
             ],
-            "description": "Display name for Guid? LogicConfigurationOutput.CreatedBy. Null exactly when Guid? LogicConfigurationOutput.CreatedBy is null; a deleted\nprincipal renders as a placeholder, never a guid."
+            "description": "The display name of Guid? LogicConfigurationOutput.CreatedBy."
           },
           "activatedBy": {
             "type": [
               "null",
               "string"
             ],
-            "description": "Principal id of the last activator; null if this version was never activated.",
+            "description": "The principal id of the last activator.",
             "format": "uuid"
           },
           "activatedByName": {
@@ -48317,7 +47564,7 @@
               "null",
               "string"
             ],
-            "description": "Display name for Guid? LogicConfigurationOutput.ActivatedBy, same contract as string? LogicConfigurationOutput.CreatedByName."
+            "description": "The display name of Guid? LogicConfigurationOutput.ActivatedBy."
           },
           "meta": {
             "oneOf": [
@@ -48371,13 +47618,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -48427,10 +47667,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -48508,14 +47744,7 @@
               "null",
               "string"
             ],
-            "description": "The parent the node keeps or moves to; null makes it a root node. Sent on every update, so a body that\nomits it is refused rather than moving the node to the root.",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
+            "description": "The parent the node keeps or moves to, or null to make it a root node, required so that a body omitting it is\nrefused rather than moving the node to the root.",
             "format": "uuid"
           },
           "name": {
@@ -48538,10 +47767,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -48559,7 +47784,7 @@
               "null",
               "string"
             ],
-            "description": "Null for a root node.",
+            "description": "The parent node, or null for a root node.",
             "format": "uuid"
           },
           "meta": {
@@ -48595,13 +47820,6 @@
               "$ref": "#/components/schemas/NotificationPreferenceCellInput"
             },
             "description": "Every channel the caller switches off, per category; empty for none. A channel left out is on."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -48611,10 +47829,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "categories": {
             "type": "array",
             "items": {
@@ -48638,13 +47852,6 @@
               "null",
               "string"
             ]
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -48664,13 +47871,6 @@
               "string"
             ],
             "description": "Updated description."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for updating a platform service account."
@@ -48689,10 +47889,6 @@
           "platformId": {
             "type": "string",
             "description": "The platform ID (alias for AuthDomainRootScopeId).",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": "string",
             "format": "uuid"
           },
           "id": {
@@ -48739,13 +47935,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -48763,7 +47952,7 @@
               "null",
               "string"
             ],
-            "description": "Single-line display text, not structured postal data. Line breaks and control characters are rejected."
+            "description": "Single-line display text rather than structured postal data, so a line break or other control character is\nrefused."
           },
           "latitude": {
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
@@ -48772,7 +47961,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 latitude, -90..90. Sent together with the longitude or not at all.",
+            "description": "The World Geodetic System 1984 (WGS 84) latitude from -90 to 90, sent together with the longitude or not\nat all.",
             "format": "double"
           },
           "longitude": {
@@ -48782,7 +47971,7 @@
               "number",
               "string"
             ],
-            "description": "WGS 84 longitude, -180..180. Sent together with the latitude or not at all.",
+            "description": "The World Geodetic System 1984 (WGS 84) longitude from -180 to 180, sent together with the latitude or not\nat all.",
             "format": "double"
           }
         }
@@ -48796,10 +47985,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -48809,13 +47994,11 @@
             "format": "uuid"
           },
           "imageVersion": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
               "null",
-              "integer",
-              "string"
+              "integer"
             ],
-            "description": "Read-only. Null means the project has no site photo; otherwise it increases on every photo set, and a\nclient busts its cache of the photo by sending it as the query parameter v.",
+            "description": "The site photo's version, or null without a photo, which a client sends as the photo's query parameter\n`v` so that a replaced photo is never served from its cache.",
             "format": "int32"
           },
           "meta": {
@@ -48845,26 +48028,22 @@
               "null",
               "string"
             ],
-            "description": "Single-line display text, not structured postal data. Line breaks and control characters are rejected."
+            "description": "Single-line display text rather than structured postal data, so a line break or other control character is\nrefused."
           },
           "latitude": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
-            "description": "WGS 84 latitude, -90..90. Sent together with the longitude or not at all.",
+            "description": "The World Geodetic System 1984 (WGS 84) latitude from -90 to 90, sent together with the longitude or not\nat all.",
             "format": "double"
           },
           "longitude": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
-            "description": "WGS 84 longitude, -180..180. Sent together with the latitude or not at all.",
+            "description": "The World Geodetic System 1984 (WGS 84) longitude from -180 to 180, sent together with the latitude or not\nat all.",
             "format": "double"
           }
         }
@@ -48877,37 +48056,25 @@
         "properties": {
           "status": {
             "$ref": "#/components/schemas/RegistrationStatus"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
       "UpdateRuleInput": {
         "required": [
           "name",
-          "description",
           "condition",
           "actions"
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "condition": {
             "$ref": "#/components/schemas/AutomationCondition"
@@ -48927,16 +48094,11 @@
           "projectId",
           "edgeGatewayId",
           "name",
-          "description",
           "condition",
           "actions"
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -48967,7 +48129,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "condition": {
             "$ref": "#/components/schemas/AutomationCondition"
@@ -48983,24 +48148,19 @@
       "UpdateScheduleInput": {
         "required": [
           "name",
-          "description",
           "schedules",
           "actions"
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "schedules": {
             "type": "array",
@@ -49023,16 +48183,11 @@
           "projectId",
           "edgeGatewayId",
           "name",
-          "description",
           "schedules",
           "actions"
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -49063,7 +48218,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "schedules": {
             "type": "array",
@@ -49086,13 +48244,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -49125,10 +48276,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -49186,13 +48333,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -49216,10 +48356,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -49291,13 +48427,6 @@
               "format": "uuid"
             },
             "description": "Updated member principal IDs."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for updating a tenant group."
@@ -49316,10 +48445,6 @@
           "tenantId": {
             "type": "string",
             "description": "The tenant ID (alias for AuthDomainRootScopeId).",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": "string",
             "format": "uuid"
           },
           "id": {
@@ -49379,13 +48504,6 @@
           },
           "slug": {
             "type": "string"
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -49399,10 +48517,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -49451,13 +48565,6 @@
               "string"
             ],
             "description": "Updated description."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "Input for updating a tenant service account."
@@ -49476,10 +48583,6 @@
           "tenantId": {
             "type": "string",
             "description": "The tenant ID (alias for AuthDomainRootScopeId).",
-            "format": "uuid"
-          },
-          "correlationId": {
-            "type": "string",
             "format": "uuid"
           },
           "id": {
@@ -49528,13 +48631,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -49582,10 +48678,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -49670,13 +48762,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -49724,10 +48809,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -49806,13 +48887,6 @@
       "UpsertArrangementInput": {
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "order": {
             "type": "array",
             "items": {
@@ -49839,10 +48913,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "scopeKind": {
             "$ref": "#/components/schemas/ArrangementScopeKind"
           },
@@ -49904,16 +48974,8 @@
             "items": {
               "$ref": "#/components/schemas/LogicBlockTranslationCellInput"
             }
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
-        },
-        "description": "Bulk upsert of matrix cells. Last-write-wins; the audit trail is the row's UpdatedAt/UpdatedBy pair."
+        }
       },
       "UpsertLogicBlockTranslationsOutput": {
         "required": [
@@ -49924,19 +48986,11 @@
         "type": "object",
         "properties": {
           "inserted": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int32"
           },
           "updated": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int32"
           },
           "rows": {
@@ -49944,24 +48998,13 @@
             "items": {
               "$ref": "#/components/schemas/LogicBlockTranslationMatrixRowOutput"
             },
-            "description": "Every touched matrix row in the same shape the matrix GET returns, so the editor can replace what it\njust edited instead of refetching. Complete rows, not just the written cells: a row's other locales\nride along because their derived `isOutdated` is part of the row the UI renders."
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
+            "description": "Every matrix row a written translation belongs to, with its other locales, in the shape the matrix read\nreturns."
           }
         }
       },
       "UpsertOwnOverviewCompositionInput": {
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "cards": {
             "type": [
               "null",
@@ -49994,10 +49037,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "origins": {
             "description": "Which layer supplied each resolved section.",
             "$ref": "#/components/schemas/CompositionSectionOrigins"
@@ -50040,13 +49079,6 @@
               "string"
             ],
             "description": "The language platform speech is rendered in for this person, `de` or `en`."
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },
@@ -50059,23 +49091,12 @@
           "locale": {
             "type": "string",
             "description": "The language platform speech is rendered in for this person."
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
           }
         }
       },
       "UpsertTenantOverviewCompositionInput": {
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "cards": {
             "type": [
               "null",
@@ -50101,13 +49122,6 @@
       "UpsertTenantOverviewCompositionLayerInput": {
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
           "cards": {
             "type": [
               "null",
@@ -50138,10 +49152,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "tenantId": {
             "type": "string",
             "format": "uuid"
@@ -50189,10 +49199,6 @@
         ],
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "cards": {
             "type": "array",
             "items": {
@@ -50259,13 +49265,6 @@
               "null",
               "boolean"
             ]
-          },
-          "correlationId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "description": "A full upsert of one scope's theme: the document replaces what is stored, so a field left null clears it\nback to inherited and an all-null document takes the level out of the fallback chain."
@@ -50273,10 +49272,6 @@
       "UpsertWhiteLabelThemeOutput": {
         "type": "object",
         "properties": {
-          "correlationId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "brandName": {
             "type": [
               "null",

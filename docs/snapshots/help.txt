@@ -2219,15 +2219,15 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all Projects for a tenant
-  create  Create a new Project for a tenant
-  update  Update an existing Project for a tenant
-  delete  Delete a Project for a tenant.
+  list    Get the projects of a tenant that the caller may read.
+  create  Create a new project for a tenant.
+  update  Update an existing project of a tenant.
+  delete  Delete a project of a tenant.
 
 ---
 ## vion tenant project list
 Description:
-  Get all Projects for a tenant
+  Get the projects of a tenant that the caller may read.
 
 Usage:
   vion tenant project list [options]
@@ -2257,7 +2257,7 @@ Options:
 ---
 ## vion tenant project create
 Description:
-  Create a new Project for a tenant
+  Create a new project for a tenant.
 
 Usage:
   vion tenant project create [options]
@@ -2291,13 +2291,13 @@ Options:
 ---
 ## vion tenant project update
 Description:
-  Update an existing Project for a tenant
+  Update an existing project of a tenant.
 
 Usage:
   vion tenant project update [options]
 
 Options:
-  --id <uuid>                  The project's id.
+  --id <uuid>                  The project to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -2326,13 +2326,13 @@ Options:
 ---
 ## vion tenant project delete
 Description:
-  Delete a Project for a tenant.
+  Delete a project of a tenant.
 
 Usage:
   vion tenant project delete [options]
 
 Options:
-  --id <uuid>               The project's id.
+  --id <uuid>               The project to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -2385,14 +2385,15 @@ Options:
                             then exits 3.
 
 Commands:
-  get     Get the site photo of a Project as raw bytes. 404 when the project has no photo.
-  set     Set or replace the site photo of a Project. JPEG and PNG only, proven by content.
-  delete  Remove the site photo of a Project. Removing a photo that is not there succeeds.
+  get     Get the site photo of a project as raw bytes. A project without a photo answers 404.
+  set     Set or replace the site photo of a project. Only JPEG and PNG are accepted, and the file's content 
+          must match its declared type.
+  delete  Remove the site photo of a project. Removing a photo that is not there succeeds.
 
 ---
 ## vion tenant project-image get
 Description:
-  Get the site photo of a Project as raw bytes. 404 when the project has no photo.
+  Get the site photo of a project as raw bytes. A project without a photo answers 404.
 
 Usage:
   vion tenant project-image get [options]
@@ -2422,7 +2423,8 @@ Options:
 ---
 ## vion tenant project-image set
 Description:
-  Set or replace the site photo of a Project. JPEG and PNG only, proven by content.
+  Set or replace the site photo of a project. Only JPEG and PNG are accepted, and the file's content must 
+  match its declared type.
 
 Usage:
   vion tenant project-image set [options]
@@ -2456,7 +2458,7 @@ Options:
 ---
 ## vion tenant project-image delete
 Description:
-  Remove the site photo of a Project. Removing a photo that is not there succeeds.
+  Remove the site photo of a project. Removing a photo that is not there succeeds.
 
 Usage:
   vion tenant project-image delete [options]
@@ -2659,14 +2661,14 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all NodeAssignments for a tenant
-  create  Create a new NodeAssignment for a tenant
-  delete  Delete a NodeAssignment for a tenant.
+  list    Get the node assignments of a tenant that the caller may read.
+  create  Create a new node assignment for a tenant.
+  delete  Delete a node assignment of a tenant.
 
 ---
 ## vion tenant node-assignment list
 Description:
-  Get all NodeAssignments for a tenant
+  Get the node assignments of a tenant that the caller may read.
 
 Usage:
   vion tenant node-assignment list [options]
@@ -2696,7 +2698,7 @@ Options:
 ---
 ## vion tenant node-assignment create
 Description:
-  Create a new NodeAssignment for a tenant
+  Create a new node assignment for a tenant.
 
 Usage:
   vion tenant node-assignment create [options]
@@ -2730,13 +2732,13 @@ Options:
 ---
 ## vion tenant node-assignment delete
 Description:
-  Delete a NodeAssignment for a tenant.
+  Delete a node assignment of a tenant.
 
 Usage:
   vion tenant node-assignment delete [options]
 
 Options:
-  --id <uuid>               The node assignment's id.
+  --id <uuid>               The node assignment to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -2789,16 +2791,16 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all Nodes for a tenant
-  create  Create a new Node for a tenant
-  update  Update an existing Node for a tenant
-  delete  Delete a Node for a tenant. A node with child nodes is refused; the assignments on the node go with 
-          it.
+  list    Get the nodes of a tenant that the caller may read.
+  create  Create a new node for a tenant.
+  update  Update an existing node of a tenant.
+  delete  Delete a node of a tenant. A node with child nodes is refused with 409, and the assignments on the 
+          node are deleted with it.
 
 ---
 ## vion tenant node list
 Description:
-  Get all Nodes for a tenant
+  Get the nodes of a tenant that the caller may read.
 
 Usage:
   vion tenant node list [options]
@@ -2828,7 +2830,7 @@ Options:
 ---
 ## vion tenant node create
 Description:
-  Create a new Node for a tenant
+  Create a new node for a tenant.
 
 Usage:
   vion tenant node create [options]
@@ -2862,13 +2864,13 @@ Options:
 ---
 ## vion tenant node update
 Description:
-  Update an existing Node for a tenant
+  Update an existing node of a tenant.
 
 Usage:
   vion tenant node update [options]
 
 Options:
-  --id <uuid>                  The node's id.
+  --id <uuid>                  The node to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -2897,13 +2899,14 @@ Options:
 ---
 ## vion tenant node delete
 Description:
-  Delete a Node for a tenant. A node with child nodes is refused; the assignments on the node go with it.
+  Delete a node of a tenant. A node with child nodes is refused with 409, and the assignments on the node are 
+  deleted with it.
 
 Usage:
   vion tenant node delete [options]
 
 Options:
-  --id <uuid>               The node's id.
+  --id <uuid>               The node to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -3188,12 +3191,12 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Browse logic configuration templates available from the tenant's integrator
+  list  Get the logic configuration templates of the tenant's integrator.
 
 ---
 ## vion tenant logic-configuration-template list
 Description:
-  Browse logic configuration templates available from the tenant's integrator
+  Get the logic configuration templates of the tenant's integrator.
 
 Usage:
   vion tenant logic-configuration-template list [options]
@@ -3251,21 +3254,21 @@ Options:
                             then exits 3.
 
 Commands:
-  list      Get all logic configurations for a tenant, maybe add filters, e.g. by edge gateway
-  create    Create a new logic configuration for a tenant
-  update    Update an existing logic configuration for a tenant. While the configuration is the active one 
-            its content is frozen and a change to it fails with 409; the configuration's own name, 
-            description and editor layout stay editable. A logic block instance's name is content, so 
-            renaming one does not.
-  delete    Delete a logic configuration for a tenant. Fails with 409 if the configuration is in use — either 
-            the active one, or still deployed on an edge gateway.
-  activate  Activate a logic configuration for a tenant. All edge gateways are updated if there are changes 
-            to the currently active configuration.
+  list      Get the logic configurations of a tenant that the caller may read.
+  create    Create a new logic configuration in a project of a tenant.
+  update    Update an existing logic configuration of a tenant. While the configuration is the active one, a 
+            change to its content fails with 409, and its name, description and editor layout stay editable. 
+            A logic block instance's name is content, so renaming one fails too.
+  delete    Delete a logic configuration of a tenant. Deleting the active configuration fails with 409.
+  activate  Activate a logic configuration of a tenant in place of its project's current one. Every edge 
+            gateway the configuration reaches is sent its share of it, and an edge gateway the replaced 
+            configuration reached and this one does not is sent an empty configuration. A dry run validates 
+            the configuration and answers the same output and warnings without activating it.
 
 ---
 ## vion tenant logic-configuration list
 Description:
-  Get all logic configurations for a tenant, maybe add filters, e.g. by edge gateway
+  Get the logic configurations of a tenant that the caller may read.
 
 Usage:
   vion tenant logic-configuration list [options]
@@ -3295,7 +3298,7 @@ Options:
 ---
 ## vion tenant logic-configuration create
 Description:
-  Create a new logic configuration for a tenant
+  Create a new logic configuration in a project of a tenant.
 
 Usage:
   vion tenant logic-configuration create [options]
@@ -3329,15 +3332,15 @@ Options:
 ---
 ## vion tenant logic-configuration update
 Description:
-  Update an existing logic configuration for a tenant. While the configuration is the active one its content 
-  is frozen and a change to it fails with 409; the configuration's own name, description and editor layout 
-  stay editable. A logic block instance's name is content, so renaming one does not.
+  Update an existing logic configuration of a tenant. While the configuration is the active one, a change to 
+  its content fails with 409, and its name, description and editor layout stay editable. A logic block 
+  instance's name is content, so renaming one fails too.
 
 Usage:
   vion tenant logic-configuration update [options]
 
 Options:
-  --id <uuid>                  The logic configuration's id.
+  --id <uuid>                  The logic configuration to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -3366,14 +3369,13 @@ Options:
 ---
 ## vion tenant logic-configuration delete
 Description:
-  Delete a logic configuration for a tenant. Fails with 409 if the configuration is in use — either the 
-  active one, or still deployed on an edge gateway.
+  Delete a logic configuration of a tenant. Deleting the active configuration fails with 409.
 
 Usage:
   vion tenant logic-configuration delete [options]
 
 Options:
-  --id <uuid>               The logic configuration's id.
+  --id <uuid>               The logic configuration to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -3398,8 +3400,10 @@ Options:
 ---
 ## vion tenant logic-configuration activate
 Description:
-  Activate a logic configuration for a tenant. All edge gateways are updated if there are changes to the 
-  currently active configuration.
+  Activate a logic configuration of a tenant in place of its project's current one. Every edge gateway the 
+  configuration reaches is sent its share of it, and an edge gateway the replaced configuration reached and 
+  this one does not is sent an empty configuration. A dry run validates the configuration and answers the 
+  same output and warnings without activating it.
 
 Usage:
   vion tenant logic-configuration activate [options]
@@ -3458,16 +3462,16 @@ Options:
                             then exits 3.
 
 Commands:
-  get  The tenant's translation bundle for one locale: a flat `{ key: value }` map, under `translations`, 
-       merged across every library its parent integrator may consume (own ∪ public ∪ granted). Exact-locale 
-       rows only — a key the bundle does not carry renders from the compiled source string on the client.
+  get  Get the translations into one locale of every library the tenant's integrator may use. The libraries 
+       are the integrator's own, the public ones and the ones granted to it. A key with no translation into 
+       exactly the requested locale is absent, and no other locale stands in for it.
 
 ---
 ## vion tenant logic-block-translation-bundle get
 Description:
-  The tenant's translation bundle for one locale: a flat `{ key: value }` map, under `translations`, merged 
-  across every library its parent integrator may consume (own ∪ public ∪ granted). Exact-locale rows only — a 
-  key the bundle does not carry renders from the compiled source string on the client.
+  Get the translations into one locale of every library the tenant's integrator may use. The libraries are 
+  the integrator's own, the public ones and the ones granted to it. A key with no translation into exactly 
+  the requested locale is absent, and no other locale stands in for it.
 
 Usage:
   vion tenant logic-block-translation-bundle get [options]
@@ -3526,12 +3530,14 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Get all logic block definitions a tenant can use (own ∪ public ∪ granted, by its parent integrator).
+  list  Get the logic block definitions a tenant can use, which are those of every library its integrator may 
+        see. The integrator may see its own libraries, the public ones and the ones granted to it.
 
 ---
 ## vion tenant logic-block-definition list
 Description:
-  Get all logic block definitions a tenant can use (own ∪ public ∪ granted, by its parent integrator).
+  Get the logic block definitions a tenant can use, which are those of every library its integrator may see. 
+  The integrator may see its own libraries, the public ones and the ones granted to it.
 
 Usage:
   vion tenant logic-block-definition list [options]
@@ -3821,15 +3827,15 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all AlertRules for a tenant
-  create  Create a new alert rule for a tenant and edge gateway
-  update  Update an existing alert rule for a tenant
-  delete  Delete a alert rule for a tenant
+  list    Get the alert rules of a tenant that the caller may read.
+  create  Create a new alert rule on an edge gateway of a tenant's project.
+  update  Update an existing alert rule of a tenant.
+  delete  Delete an alert rule of a tenant.
 
 ---
 ## vion tenant alert-rule list
 Description:
-  Get all AlertRules for a tenant
+  Get the alert rules of a tenant that the caller may read.
 
 Usage:
   vion tenant alert-rule list [options]
@@ -3862,7 +3868,7 @@ Options:
 ---
 ## vion tenant alert-rule create
 Description:
-  Create a new alert rule for a tenant and edge gateway
+  Create a new alert rule on an edge gateway of a tenant's project.
 
 Usage:
   vion tenant alert-rule create [options]
@@ -3896,13 +3902,13 @@ Options:
 ---
 ## vion tenant alert-rule update
 Description:
-  Update an existing alert rule for a tenant
+  Update an existing alert rule of a tenant.
 
 Usage:
   vion tenant alert-rule update [options]
 
 Options:
-  --id <uuid>                  The alert rule's id.
+  --id <uuid>                  The alert rule to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -3931,13 +3937,13 @@ Options:
 ---
 ## vion tenant alert-rule delete
 Description:
-  Delete a alert rule for a tenant
+  Delete an alert rule of a tenant.
 
 Usage:
   vion tenant alert-rule delete [options]
 
 Options:
-  --id <uuid>               The alert rule's id.
+  --id <uuid>               The alert rule to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -3990,15 +3996,15 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all rules for a tenant
-  create  Create a new rule for a tenant and edge gateway
-  update  Update an existing rule for a tenant
-  delete  Delete a rule for a tenant
+  list    Get the rules of a tenant that the caller may read.
+  create  Create a new rule on an edge gateway of a tenant's project.
+  update  Update an existing rule of a tenant.
+  delete  Delete a rule of a tenant.
 
 ---
 ## vion tenant rule list
 Description:
-  Get all rules for a tenant
+  Get the rules of a tenant that the caller may read.
 
 Usage:
   vion tenant rule list [options]
@@ -4031,7 +4037,7 @@ Options:
 ---
 ## vion tenant rule create
 Description:
-  Create a new rule for a tenant and edge gateway
+  Create a new rule on an edge gateway of a tenant's project.
 
 Usage:
   vion tenant rule create [options]
@@ -4065,13 +4071,13 @@ Options:
 ---
 ## vion tenant rule update
 Description:
-  Update an existing rule for a tenant
+  Update an existing rule of a tenant.
 
 Usage:
   vion tenant rule update [options]
 
 Options:
-  --id <uuid>                  The rule's id.
+  --id <uuid>                  The rule to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -4100,13 +4106,13 @@ Options:
 ---
 ## vion tenant rule delete
 Description:
-  Delete a rule for a tenant
+  Delete a rule of a tenant.
 
 Usage:
   vion tenant rule delete [options]
 
 Options:
-  --id <uuid>               The rule's id.
+  --id <uuid>               The rule to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -4159,15 +4165,15 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all Schedules for a tenant
-  create  Create a new Schedule for a tenant and edge gateway
-  update  Update an existing Schedule for a tenant
-  delete  Delete a Schedule for a tenant
+  list    Get the schedules of a tenant that the caller may read.
+  create  Create a new schedule on an edge gateway of a tenant's project.
+  update  Update an existing schedule of a tenant.
+  delete  Delete a schedule of a tenant.
 
 ---
 ## vion tenant schedule list
 Description:
-  Get all Schedules for a tenant
+  Get the schedules of a tenant that the caller may read.
 
 Usage:
   vion tenant schedule list [options]
@@ -4200,7 +4206,7 @@ Options:
 ---
 ## vion tenant schedule create
 Description:
-  Create a new Schedule for a tenant and edge gateway
+  Create a new schedule on an edge gateway of a tenant's project.
 
 Usage:
   vion tenant schedule create [options]
@@ -4234,13 +4240,13 @@ Options:
 ---
 ## vion tenant schedule update
 Description:
-  Update an existing Schedule for a tenant
+  Update an existing schedule of a tenant.
 
 Usage:
   vion tenant schedule update [options]
 
 Options:
-  --id <uuid>                  The schedule's id.
+  --id <uuid>                  The schedule to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -4269,13 +4275,13 @@ Options:
 ---
 ## vion tenant schedule delete
 Description:
-  Delete a Schedule for a tenant
+  Delete a schedule of a tenant.
 
 Usage:
   vion tenant schedule delete [options]
 
 Options:
-  --id <uuid>               The schedule's id.
+  --id <uuid>               The schedule to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -8930,15 +8936,15 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all logic configuration templates for an integrator
-  create  Create a new logic configuration template
-  update  Update an existing logic configuration template
-  delete  Delete a logic configuration template
+  list    Get the logic configuration templates of an integrator.
+  create  Create a new logic configuration template for an integrator.
+  update  Update an existing logic configuration template of an integrator.
+  delete  Delete a logic configuration template of an integrator.
 
 ---
 ## vion integrator logic-configuration-template list
 Description:
-  Get all logic configuration templates for an integrator
+  Get the logic configuration templates of an integrator.
 
 Usage:
   vion integrator logic-configuration-template list [options]
@@ -8968,7 +8974,7 @@ Options:
 ---
 ## vion integrator logic-configuration-template create
 Description:
-  Create a new logic configuration template
+  Create a new logic configuration template for an integrator.
 
 Usage:
   vion integrator logic-configuration-template create [options]
@@ -9002,13 +9008,13 @@ Options:
 ---
 ## vion integrator logic-configuration-template update
 Description:
-  Update an existing logic configuration template
+  Update an existing logic configuration template of an integrator.
 
 Usage:
   vion integrator logic-configuration-template update [options]
 
 Options:
-  --id <uuid>                  The logic configuration template's id.
+  --id <uuid>                  The template to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -9037,13 +9043,13 @@ Options:
 ---
 ## vion integrator logic-configuration-template delete
 Description:
-  Delete a logic configuration template
+  Delete a logic configuration template of an integrator.
 
 Usage:
   vion integrator logic-configuration-template delete [options]
 
 Options:
-  --id <uuid>               The logic configuration template's id.
+  --id <uuid>               The template to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -9096,30 +9102,32 @@ Options:
                             then exits 3.
 
 Commands:
-  list    The authoring matrix: every catalog row of the library joined with its locale cells. Orphaned rows 
-          are included and flagged — they stay visible so an integrator can copy a translation over after a 
-          rename.
-  upsert  Bulk upsert of matrix cells. Last-write-wins; every written cell re-pins the source digest.
-  delete  Reset-to-default for the listed catalog keys. With `locale` omitted every locale of each key is 
-          cleared. Bulk so the editor can clear a filtered selection — orphaned rows, AI suggestions — in one 
-          request; the keys are listed explicitly rather than re-derived from a server-side filter, because 
-          the editor's view and the server can be out of sync.
-  export  Exports the library's catalog for one locale: columns `key, context, source, target, status, 
-          outdated` , UTF-8 with BOM, semicolon-delimited (German-locale Excel is the audience).
-  import  Imports a translated CSV into one locale. Partial-accept: valid rows are applied, invalid ones are 
-          reported with a line number and a reason.
+  list    Get the translation matrix of a library the integrator owns. A key the latest version no longer 
+          emits stays in the matrix, flagged as orphaned, so its translations can still be copied to the key 
+          that replaced it.
+  upsert  Write translations into the matrix of a library the integrator owns. A translation already stored 
+          for a key and locale is overwritten, the last write winning, and every written translation stops 
+          being outdated. A key that is not in the library's catalog fails the whole request.
+  delete  Delete the translations of the listed keys, so their compiled source strings render again. Without 
+          a `locale`, the translations into every locale of each key are deleted. The catalog rows stay.
+  export  Export the catalog of a library the integrator owns, with its translations into one locale, as a 
+          CSV file. The columns are `key`, `context`, `source`, `target`, `status` and `outdated`, separated 
+          by semicolons, in UTF-8 with a byte-order mark, which is how German-locale Excel reads a CSV file.
+  import  Import a translated CSV file into one locale of a library the integrator owns. Every valid row is 
+          applied and every invalid one is reported with its line number and a reason. Only a file that is 
+          empty or lacks a `key` or a `target` column is refused as a whole.
 
 ---
 ## vion integrator logic-block-library-translation list
 Description:
-  The authoring matrix: every catalog row of the library joined with its locale cells. Orphaned rows are 
-  included and flagged — they stay visible so an integrator can copy a translation over after a rename.
+  Get the translation matrix of a library the integrator owns. A key the latest version no longer emits stays 
+  in the matrix, flagged as orphaned, so its translations can still be copied to the key that replaced it.
 
 Usage:
   vion integrator logic-block-library-translation list [options]
 
 Options:
-  --logic-block-library-id <uuid>  The logic block library's id.
+  --logic-block-library-id <uuid>  The library whose matrix is read.
   -?, -h, --help                   Show help and usage information
   --env <name>                     The environment: production, test, or one defined with `context use`.
   --integrator <id>                The integrator id, filling {integratorId} for this call.
@@ -9144,13 +9152,15 @@ Options:
 ---
 ## vion integrator logic-block-library-translation upsert
 Description:
-  Bulk upsert of matrix cells. Last-write-wins; every written cell re-pins the source digest.
+  Write translations into the matrix of a library the integrator owns. A translation already stored for a key 
+  and locale is overwritten, the last write winning, and every written translation stops being outdated. A 
+  key that is not in the library's catalog fails the whole request.
 
 Usage:
   vion integrator logic-block-library-translation upsert [options]
 
 Options:
-  --logic-block-library-id <uuid>  The logic block library's id.
+  --logic-block-library-id <uuid>  The library whose translations are written.
   --input <file|->                 The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>      A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>          A body member typed as JSON: true, false, null, a number, @file for a 
@@ -9179,16 +9189,14 @@ Options:
 ---
 ## vion integrator logic-block-library-translation delete
 Description:
-  Reset-to-default for the listed catalog keys. With `locale` omitted every locale of each key is cleared. 
-  Bulk so the editor can clear a filtered selection — orphaned rows, AI suggestions — in one request; the 
-  keys are listed explicitly rather than re-derived from a server-side filter, because the editor's view and 
-  the server can be out of sync.
+  Delete the translations of the listed keys, so their compiled source strings render again. Without a 
+  `locale`, the translations into every locale of each key are deleted. The catalog rows stay.
 
 Usage:
   vion integrator logic-block-library-translation delete [options]
 
 Options:
-  --logic-block-library-id <uuid>  The logic block library's id.
+  --logic-block-library-id <uuid>  The library whose translations are deleted.
   --input <file|->                 The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>      A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>          A body member typed as JSON: true, false, null, a number, @file for a 
@@ -9217,8 +9225,9 @@ Options:
 ---
 ## vion integrator logic-block-library-translation export
 Description:
-  Exports the library's catalog for one locale: columns `key, context, source, target, status, outdated` , 
-  UTF-8 with BOM, semicolon-delimited (German-locale Excel is the audience).
+  Export the catalog of a library the integrator owns, with its translations into one locale, as a CSV file. 
+  The columns are `key`, `context`, `source`, `target`, `status` and `outdated`, separated by semicolons, in 
+  UTF-8 with a byte-order mark, which is how German-locale Excel reads a CSV file.
 
 Usage:
   vion integrator logic-block-library-translation export [options]
@@ -9250,8 +9259,9 @@ Options:
 ---
 ## vion integrator logic-block-library-translation import
 Description:
-  Imports a translated CSV into one locale. Partial-accept: valid rows are applied, invalid ones are reported 
-  with a line number and a reason.
+  Import a translated CSV file into one locale of a library the integrator owns. Every valid row is applied 
+  and every invalid one is reported with its line number and a reason. Only a file that is empty or lacks a 
+  `key` or a `target` column is refused as a whole.
 
 Usage:
   vion integrator logic-block-library-translation import [options]
@@ -9313,16 +9323,16 @@ Options:
                             then exits 3.
 
 Commands:
-  get  The integrator's translation bundle for one locale: a flat `{ key: value }` map, under `translations`, 
-       merged across every library the integrator may consume (own ∪ public ∪ granted). Exact-locale rows 
-       only — a key the bundle does not carry renders from the compiled source string on the client.
+  get  Get the translations into one locale of every library the integrator may use. The libraries are the 
+       integrator's own, the public ones and the ones granted to it. A key with no translation into exactly 
+       the requested locale is absent, and no other locale stands in for it.
 
 ---
 ## vion integrator logic-block-translation-bundle get
 Description:
-  The integrator's translation bundle for one locale: a flat `{ key: value }` map, under `translations`, 
-  merged across every library the integrator may consume (own ∪ public ∪ granted). Exact-locale rows only — a 
-  key the bundle does not carry renders from the compiled source string on the client.
+  Get the translations into one locale of every library the integrator may use. The libraries are the 
+  integrator's own, the public ones and the ones granted to it. A key with no translation into exactly the 
+  requested locale is absent, and no other locale stands in for it.
 
 Usage:
   vion integrator logic-block-translation-bundle get [options]
@@ -9381,16 +9391,19 @@ Options:
                             then exits 3.
 
 Commands:
-  list     Get all logic block libraries visible to an integrator — own ∪ public ∪ granted. The UI compares 
-           OwnerIntegratorId against the current integrator to decide whether management actions apply.
-  update   Update logic block library metadata like name and description
-  archive  Archive a logic block library (soft delete)
+  list     Get the logic block libraries an integrator may see, which are its own, the public ones and the 
+           ones granted to it. A library whose integrator id is another integrator's can be read but not 
+           updated, archived or granted.
+  update   Update the name, description and visibility of one of an integrator's own logic block libraries.
+  archive  Archive one of an integrator's own logic block libraries. An archived library is kept and still 
+           listed, and an upload of a new version of it is refused.
 
 ---
 ## vion integrator logic-block-library list
 Description:
-  Get all logic block libraries visible to an integrator — own ∪ public ∪ granted. The UI compares 
-  OwnerIntegratorId against the current integrator to decide whether management actions apply.
+  Get the logic block libraries an integrator may see, which are its own, the public ones and the ones 
+  granted to it. A library whose integrator id is another integrator's can be read but not updated, archived 
+  or granted.
 
 Usage:
   vion integrator logic-block-library list [options]
@@ -9420,13 +9433,13 @@ Options:
 ---
 ## vion integrator logic-block-library update
 Description:
-  Update logic block library metadata like name and description
+  Update the name, description and visibility of one of an integrator's own logic block libraries.
 
 Usage:
   vion integrator logic-block-library update [options]
 
 Options:
-  --id <uuid>                  The logic block library's id.
+  --id <uuid>                  The library to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -9455,13 +9468,14 @@ Options:
 ---
 ## vion integrator logic-block-library archive
 Description:
-  Archive a logic block library (soft delete)
+  Archive one of an integrator's own logic block libraries. An archived library is kept and still listed, and 
+  an upload of a new version of it is refused.
 
 Usage:
   vion integrator logic-block-library archive [options]
 
 Options:
-  --id <uuid>               The logic block library's id.
+  --id <uuid>               The library to archive.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -9514,17 +9528,17 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get the outgoing grants an integrator has made on its own libraries (the libraries it shares with 
-          other integrators). Optionally filtered to a single library.
-  create  Grant one of the integrator's libraries to another integrator.
-  delete  Revoke a grant. Prospective: running configurations keep running, but a configuration that still 
-          references the now-invisible library fails its next activation until those blocks are removed.
+  list    Get the grants an integrator has made on its own logic block libraries.
+  create  Grant one of an integrator's own logic block libraries to another integrator. A grant to the owning 
+          integrator, and a second grant of a library to the same integrator, are refused.
+  delete  Revoke a grant an integrator has made on one of its own logic block libraries. Gateways already 
+          running a configuration that uses the library keep running it. Such a configuration fails its next 
+          activation until the library's blocks are removed from it.
 
 ---
 ## vion integrator logic-block-library-grant list
 Description:
-  Get the outgoing grants an integrator has made on its own libraries (the libraries it shares with other 
-  integrators). Optionally filtered to a single library.
+  Get the grants an integrator has made on its own logic block libraries.
 
 Usage:
   vion integrator logic-block-library-grant list [options]
@@ -9556,7 +9570,8 @@ Options:
 ---
 ## vion integrator logic-block-library-grant create
 Description:
-  Grant one of the integrator's libraries to another integrator.
+  Grant one of an integrator's own logic block libraries to another integrator. A grant to the owning 
+  integrator, and a second grant of a library to the same integrator, are refused.
 
 Usage:
   vion integrator logic-block-library-grant create [options]
@@ -9590,14 +9605,15 @@ Options:
 ---
 ## vion integrator logic-block-library-grant delete
 Description:
-  Revoke a grant. Prospective: running configurations keep running, but a configuration that still references 
-  the now-invisible library fails its next activation until those blocks are removed.
+  Revoke a grant an integrator has made on one of its own logic block libraries. Gateways already running a 
+  configuration that uses the library keep running it. Such a configuration fails its next activation until 
+  the library's blocks are removed from it.
 
 Usage:
   vion integrator logic-block-library-grant delete [options]
 
 Options:
-  --id <uuid>               The logic block library grant's id.
+  --id <uuid>               The grant to revoke.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -9651,10 +9667,11 @@ Options:
 
 Commands:
   list    Get the logic block library versions of an integrator, optionally of a single library.
-  upload  Create a new version of a logic block library by uploading a NuGet package file. The library is 
-          auto-resolved by the packageId embedded in the .nupkg. If no library exists yet, one is 
-          auto-created.
-  update  Update logic block library version metadata like release notes and tags
+  upload  Create a new version of a logic block library by uploading its NuGet package. The version is added 
+          to the integrator's library for the package id the package's .nuspec declares, matched 
+          case-insensitively, and that library is created when the integrator has none. A package id another 
+          integrator has registered is refused, and so is a new version of an archived library.
+  update  Update the release notes and tags of a version of one of an integrator's own logic block libraries.
 
 ---
 ## vion integrator logic-block-library-version list
@@ -9691,8 +9708,10 @@ Options:
 ---
 ## vion integrator logic-block-library-version upload
 Description:
-  Create a new version of a logic block library by uploading a NuGet package file. The library is 
-  auto-resolved by the packageId embedded in the .nupkg. If no library exists yet, one is auto-created.
+  Create a new version of a logic block library by uploading its NuGet package. The version is added to the 
+  integrator's library for the package id the package's .nuspec declares, matched case-insensitively, and 
+  that library is created when the integrator has none. A package id another integrator has registered is 
+  refused, and so is a new version of an archived library.
 
 Usage:
   vion integrator logic-block-library-version upload [options]
@@ -9724,13 +9743,13 @@ Options:
 ---
 ## vion integrator logic-block-library-version update
 Description:
-  Update logic block library version metadata like release notes and tags
+  Update the release notes and tags of a version of one of an integrator's own logic block libraries.
 
 Usage:
   vion integrator logic-block-library-version update [options]
 
 Options:
-  --id <uuid>                  The logic block library version's id.
+  --id <uuid>                  The library version to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -9787,14 +9806,14 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Get all logic block definitions accessible to an integrator (own ∪ public ∪ granted) — used for 
-        template authoring, so it includes public and granted definitions, not only the integrator's own.
+  list  Get the logic block definitions of every library an integrator may see, which are its own, the public 
+        ones and the ones granted to it.
 
 ---
 ## vion integrator logic-block-definition list
 Description:
-  Get all logic block definitions accessible to an integrator (own ∪ public ∪ granted) — used for template 
-  authoring, so it includes public and granted definitions, not only the integrator's own.
+  Get the logic block definitions of every library an integrator may see, which are its own, the public ones 
+  and the ones granted to it.
 
 Usage:
   vion integrator logic-block-definition list [options]
