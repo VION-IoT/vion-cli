@@ -110,9 +110,9 @@ long-running operation, changes what its command prints while the table stays pu
 body names each such operation beside those added, removed and changed. It ships at the next release
 like any change. A release never pulls the snapshot.
 
-A move made for a live-check issue names the issue in its pull request body. Wherever the release
-that ships the move is proposed, the proposal also names the issue to close, with who closes it and
-when as § The live check says.
+A move made for a live-check issue proposes its release in two places: the pull request's Summary,
+and the REPORT or closing message of the session that made it. Both also name the issue, and who
+closes it and when, as § The live check says.
 
 ## The live check
 
@@ -137,11 +137,14 @@ carries the release, each environment's state and exit code, and what `ops --liv
   downloaded or failed its checksum. That points at the host, the network, the release's assets or
   the executable's HTTPS; a red that clears on the next run was the host or the network.
 
-Nothing closes the issue on its own: a maintainer closes it by hand once a run is clean on both
-environments. When a release answers it, that is the maintainer who cuts the release, after a run
-against it: the next daily run, or a `workflow_dispatch` run once its archives are attached. A row
-that differs only because production does not yet serve what test does keeps the issue open until
-production catches up.
+Nothing closes the issue on its own: it is closed by hand once a run is clean on both environments.
+A clean run posts nothing on the issue; `gh run list --workflow live-check.yml` or the Actions tab
+shows it. When a release answers the issue, the maintainer who cuts that release closes it, after a
+run that checks it: the next daily run, or a `workflow_dispatch` run once it is the latest full
+release with its archives attached. A pre-release is never checked. When no release answers it, for
+example a `fails` that clears, the maintainer who sees the clean run closes it. A row that differs
+only because production does not yet serve what test does keeps the issue open until production
+catches up.
 
 `workflow_dispatch` runs it on demand, from the Actions tab or with `gh workflow run live-check.yml`.
 The issue token is the architecture App's (§ Required configuration), minted with Issues: read and
