@@ -30,12 +30,13 @@ namespace Vion.Cli.Commands
 
         /// <summary>
         ///     The value a path carries for each `{parameter}` of the template, by name and unescaped, or null when the path
-        ///     does not match the template.
+        ///     does not match the template. A query is ignored, as in <see cref="Find" />.
         /// </summary>
         public static IReadOnlyDictionary<string, string>? Values(string template, string path)
         {
             var parts = Split(template);
-            var segments = Split(path);
+            var at = path.IndexOf('?', StringComparison.Ordinal);
+            var segments = Split(at >= 0 ? path[..at] : path);
             if (!Matches(parts, segments))
             {
                 return null;

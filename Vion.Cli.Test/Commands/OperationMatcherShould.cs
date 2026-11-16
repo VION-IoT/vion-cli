@@ -43,7 +43,7 @@ namespace Vion.Cli.Test.Commands
             // Arrange
 
             // Act
-            var values = OperationMatcher.Values("/tenant/{tenantId}/logicConfigurations/{id}/apply", "/Tenant/t%20one/LogicConfigurations/c-1/apply");
+            var values = OperationMatcher.Values("/tenant/{tenantId}/logicConfigurations/{id}/apply", "/Tenant/t%20one/LogicConfigurations/c-1/apply?prune=true");
 
             // Assert
             Assert.IsNotNull(values);
