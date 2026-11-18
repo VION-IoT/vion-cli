@@ -56,7 +56,7 @@ namespace Vion.Cli.Test.Commands
         {
             // Arrange
             using var handler = RecordingHandler.Empty(200);
-            var operations = new[] { Synthetic("tenant.thing.list", false), Synthetic("tenant.thing.get", true) };
+            var operations = new[] { SyntheticOperation.Create("tenant.thing.list", false), SyntheticOperation.Create("tenant.thing.get", true) };
 
             // Act
             var help = await Tool.RunAsync(handler, ["tenant", "thing", "--help"], operations: operations);
@@ -80,8 +80,8 @@ namespace Vion.Cli.Test.Commands
             using var handler = RecordingHandler.Empty(200);
             var operations = new[]
                              {
-                                 Synthetic("tenant.thing.list", false),
-                                 Synthetic("tenant.thing.get", true, stable ? Stability.Stable : Stability.Beta, sunset),
+                                 SyntheticOperation.Create("tenant.thing.list", false),
+                                 SyntheticOperation.Create("tenant.thing.get", true, stable ? Stability.Stable : Stability.Beta, sunset),
                              };
 
             // Act
@@ -100,7 +100,7 @@ namespace Vion.Cli.Test.Commands
         {
             // Arrange
             using var handler = RecordingHandler.Empty(200);
-            var operations = new[] { Synthetic("tenant.thing.list", false), Synthetic("tenant.thing.get", false, Stability.Stable) };
+            var operations = new[] { SyntheticOperation.Create("tenant.thing.list", false), SyntheticOperation.Create("tenant.thing.get", false, Stability.Stable) };
 
             // Act
             var stable = await Tool.RunAsync(handler, ["tenant", "thing", "get", "--help"], operations: operations);
@@ -180,43 +180,6 @@ namespace Vion.Cli.Test.Commands
             var help = System.Text.RegularExpressions.Regex.Replace(run.Out, @"\s+", " ");
             StringAssert.Contains(help,
                                   "--timeout <duration> How long to watch once subscribed: 90s, 15m, 1h or seconds; until interrupted when absent. Exits 0 then, 1 if never subscribed.");
-        }
-
-        private static Operation Synthetic(string id, bool deprecated, Stability stability = Stability.Beta, string? sunset = null)
-        {
-            var (domain, aggregate, verb) = (id.Split('.')[0], id.Split('.')[1], id.Split('.')[2]);
-            return new Operation(id,
-                                 domain,
-                                 aggregate,
-                                 verb,
-                                 domain,
-                                 aggregate,
-                                 verb,
-                                 "GET",
-                                 $"/{domain}/{{tenantId}}/{aggregate}",
-                                 $"Does {verb}.",
-                                 [
-                                     new Parameter("tenantId",
-                                                   null,
-                                                   "tenant",
-                                                   ParameterLocation.Path,
-                                                   true,
-                                                   ParameterKind.Uuid,
-                                                   "The tenant's id."),
-                                 ],
-                                 null,
-                                 Effect.Read,
-                                 false,
-                                 false,
-                                 false,
-                                 deprecated,
-                                 stability,
-                                 sunset,
-                                 Completion.Response,
-                                 false,
-                                 new Authorization("Root", ["X"], null, null),
-                                 false,
-                                 null);
         }
     }
 }

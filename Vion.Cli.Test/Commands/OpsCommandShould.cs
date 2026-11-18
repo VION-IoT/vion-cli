@@ -135,6 +135,57 @@ namespace Vion.Cli.Test.Commands
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.1")]
+        public async Task WriteStabilityAndSunsetOfEveryRowInJson()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(500);
+            var operations = new[]
+                             {
+                                 SyntheticOperation.Create("tenant.thing.list", false),
+                                 SyntheticOperation.Create("tenant.thing.get", true, Stability.Stable, "2027-02-01"),
+                             };
+            var channels = new[] { Channels.All.Single(channel => channel.Id == "tenant.alert.state") };
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--json"], operations: operations, channels: channels);
+
+            // Assert
+            var items = JsonNode.Parse(run.Out)!["items"]!.AsArray().Select(item => item!.AsObject()).ToList();
+            var listing = items.Single(i => i["operationId"]!.GetValue<string>() == "tenant.thing.list");
+            Assert.AreEqual("beta", listing["stability"]!.GetValue<string>());
+            Assert.IsTrue(listing.ContainsKey("sunset") && listing["sunset"] == null);
+            var getting = items.Single(i => i["operationId"]!.GetValue<string>() == "tenant.thing.get");
+            Assert.AreEqual("stable", getting["stability"]!.GetValue<string>());
+            Assert.AreEqual("2027-02-01", getting["sunset"]!.GetValue<string>());
+            var watch = items.Single(i => i["protocol"]!.GetValue<string>() == "mqtt");
+            Assert.IsTrue(watch.ContainsKey("stability") && watch["stability"] == null);
+            Assert.IsTrue(watch.ContainsKey("sunset") && watch["sunset"] == null);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.1")]
+        public async Task FlagStableAndDeprecatedWithSunsetInTable()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(500);
+            var operations = new[]
+                             {
+                                 SyntheticOperation.Create("tenant.thing.list", false),
+                                 SyntheticOperation.Create("tenant.thing.get", true, Stability.Stable, "2027-02-01"),
+                             };
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops"], operations: operations, channels: []);
+
+            // Assert
+            var lines = run.Out.Split(Environment.NewLine).Select(line => line.TrimEnd()).ToList();
+            StringAssert.Matches(lines.Single(line => line.Contains("tenant.thing.get", StringComparison.Ordinal)),
+                                 new System.Text.RegularExpressions.Regex(" Response {2,}stable deprecated sunset=2027-02-01$"));
+            StringAssert.EndsWith(lines.Single(line => line.Contains("tenant.thing.list", StringComparison.Ordinal)), " Response");
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-006.2")]
         public async Task DiffLiveDocumentAgainstCommittedOne()
         {

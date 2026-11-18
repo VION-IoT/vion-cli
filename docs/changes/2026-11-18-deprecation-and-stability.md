@@ -217,6 +217,11 @@ renderer (option A of reviewer's question 1).
   Sibling sweep: a command hidden by `cli.json` alone, neither stable nor deprecated, still writes
   no help. No `cli.json` entry hides one today (`cli.json` is `{}`), so that is left alone and named
   here, not fixed in this change.
+- 2026-11-18: `ops` listed its HTTP rows from `Operations.All`, but its watch rows from
+  `tree.Operations`, the list the tree was built from. It now lists both from `tree.Operations`, the
+  same list in production, so that a synthetic deprecated operation reaches its table in a test.
+  Sibling sweep: done. `ops --live` compares against `Operations.All` and is left so, because it
+  diffs the committed document itself.
 
 ---
 

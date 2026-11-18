@@ -53,7 +53,7 @@ namespace Vion.Cli.Commands
         private static int Run(GlobalValues globals, bool includeSystem, CliTree tree, CliServices services)
         {
             var rows = new JsonArray();
-            foreach (var operation in Operations.All.Where(o => o.InTree || includeSystem))
+            foreach (var operation in tree.Operations.Where(o => o.InTree || includeSystem))
             {
                 rows.Add((JsonNode)new JsonObject
                                    {
@@ -68,6 +68,8 @@ namespace Vion.Cli.Commands
                                        ["versioned"] = operation.Versioned,
                                        ["dryRun"] = operation.DryRun,
                                        ["deprecated"] = operation.Deprecated,
+                                       ["stability"] = operation.Stability.ToString().ToLowerInvariant(),
+                                       ["sunset"] = operation.Sunset,
                                        ["hidden"] = operation.Hidden,
                                    });
             }
@@ -91,6 +93,10 @@ namespace Vion.Cli.Commands
                                        ["versioned"] = false,
                                        ["dryRun"] = false,
                                        ["deprecated"] = false,
+
+                                       // The event document publishes no stability; null says so where a beta would claim one.
+                                       ["stability"] = null,
+                                       ["sunset"] = null,
                                        ["hidden"] = false,
                                    });
             }
@@ -121,9 +127,20 @@ namespace Vion.Cli.Commands
                     flags.Add("dry-run");
                 }
 
+                // Beta is the default and promises nothing, so only stable is written: as a flag, it marks the few rows
+                // that do promise something instead of filling a column with the same word.
+                if ((string?)row["stability"] == "stable")
+                {
+                    flags.Add("stable");
+                }
+
                 if ((bool)row["deprecated"]!)
                 {
                     flags.Add("deprecated");
+                    if ((string?)row["sunset"] is { } sunset)
+                    {
+                        flags.Add($"sunset={sunset}");
+                    }
                 }
 
                 if ((bool)row["hidden"]!)
