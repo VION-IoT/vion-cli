@@ -4,11 +4,90 @@ using Vion.Cli.Test.TestHelpers;
 
 namespace Vion.Cli.Test.Commands
 {
-    /// <summary>A derived command on the wire: the request it sends, and the refusals that keep one from leaving.</summary>
+    /// <summary>
+    ///     A derived command on the wire: the request it sends, the refusals that keep one from leaving, and the warning
+    ///     an answer of a deprecated operation adds. No operation is deprecated in the committed document, so the warning
+    ///     is proven on answers that carry the headers cloud-api sends for one.
+    /// </summary>
     [TestClass]
     public class OperationInvokerShould
     {
         private const string Gateway = "33333333-3333-3333-3333-333333333333";
+
+        private const string Warning = "warning: tenant.edgeGateway.list is deprecated, sunset 2027-02-01 — https://api.test.vion.swiss/changelog";
+
+        private static readonly string[] Listing = Tool.OnTest("tenant", "edge-gateway", "list", "--tenant", Tool.Tenant);
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.6")]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task WarnOnceOnStandardErrorAndLeaveAnswerAsIs(bool json)
+        {
+            // Arrange
+            const string body = """{ "items": [ { "id": "g-1", "name": "north" } ] }""";
+            using var deprecated = new RecordingHandler(_ => RecordingHandler.Deprecated(RecordingHandler.Response(200, body)));
+            using var current = RecordingHandler.Json(200, body);
+            string[] args = json ? [.. Listing, "--json"] : Listing;
+
+            // Act
+            var warned = await Tool.RunAsync(deprecated, args, Tool.Token);
+            var plain = await Tool.RunAsync(current, args, Tool.Token);
+
+            // Assert
+            Assert.AreEqual(Warning + System.Environment.NewLine, warned.Error);
+            Assert.AreEqual("", plain.Error);
+            Assert.AreEqual(plain.Out, warned.Out);
+            Assert.AreEqual(plain.ExitCode, warned.ExitCode);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.6")]
+        public async Task WarnBesideRefusalOfDeprecatedOperation()
+        {
+            // Arrange
+            using var handler = new RecordingHandler(_ => RecordingHandler.Deprecated(RecordingHandler.Response(403, """{ "message": "denied" }""")));
+
+            // Act
+            var run = await Tool.RunAsync(handler, Listing, Tool.Token);
+
+            // Assert
+            Assert.AreEqual(1, run.ExitCode);
+            Assert.AreEqual(Warning, run.Error.Split(System.Environment.NewLine)[0]);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.6")]
+        [DataRow("Mon, 01 Feb 2027 00:00:00 GMT", null, "warning: tenant.edgeGateway.list is deprecated, sunset 2027-02-01")]
+        [DataRow("next spring", "</changelog>; rel=\"deprecation\"", "warning: tenant.edgeGateway.list is deprecated, sunset next spring — https://api.test.vion.swiss/changelog")]
+        [DataRow("Sun, 15 Jul 2029 00:00:00 GMT", "</next>; rel=\"next\", </log>; rel=\"alternate deprecation\"", "warning: tenant.edgeGateway.list is deprecated, sunset 2029-07-15 — https://api.test.vion.swiss/log")]
+        public async Task WarnWithWhatAnswerCarries(string sunset, string? link, string warning)
+        {
+            // Arrange
+            using var handler = new RecordingHandler(_ => RecordingHandler.Deprecated(RecordingHandler.Response(200, """{ "items": [] }"""), sunset, link));
+
+            // Act
+            var run = await Tool.RunAsync(handler, Listing, Tool.Token);
+
+            // Assert
+            Assert.AreEqual(warning + System.Environment.NewLine, run.Error);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.6")]
+        public async Task ResolveChangelogAgainstApiUrlOfEnvironment()
+        {
+            // Arrange
+            using var handler = new RecordingHandler(_ => RecordingHandler.Deprecated(RecordingHandler.Response(200, """{ "items": [] }""")));
+            var environment = new Dictionary<string, string?> { ["VION_API_URL"] = "https://api.example.test/base" };
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["tenant", "edge-gateway", "list", "--tenant", Tool.Tenant, "--token", "-"], Tool.Token, environment: environment);
+
+            // Assert
+            Assert.AreEqual("https://api.example.test/base/tenant/" + Tool.Tenant + "/edgeGateways", handler.Requests[0].Uri.ToString());
+            Assert.AreEqual("warning: tenant.edgeGateway.list is deprecated, sunset 2027-02-01 — https://api.example.test/changelog" + System.Environment.NewLine, run.Error);
+        }
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-002.1")]

@@ -37,6 +37,15 @@ namespace Vion.Cli.Http
         /// <summary>How long the host asks the caller to wait before reading again.</summary>
         public TimeSpan? RetryAfter { get; init; }
 
+        /// <summary>The `Deprecation` header as sent: present only on an answer of a deprecated operation.</summary>
+        public string? Deprecation { get; init; }
+
+        /// <summary>The `Sunset` header as sent, an HTTP date.</summary>
+        public string? Sunset { get; init; }
+
+        /// <summary>The target of the `Link` whose relation is `deprecation`, as the host wrote it: a path, normally.</summary>
+        public string? DeprecationLink { get; init; }
+
         public bool IsSuccess
         {
             get => Status is >= 200 and < 300;
@@ -142,8 +151,38 @@ namespace Vion.Cli.Http
                            Headers = headers,
                            OperationLocation = location,
                            RetryAfter = retryAfter,
+                           Deprecation = response.Headers.TryGetValues("Deprecation", out var deprecations) ? deprecations.FirstOrDefault() : null,
+                           Sunset = response.Headers.TryGetValues("Sunset", out var sunsets) ? sunsets.FirstOrDefault() : null,
+                           DeprecationLink = response.Headers.TryGetValues("Link", out var links) ? DeprecationTarget(links) : null,
                        };
             }
+        }
+
+        /// <summary>
+        ///     The target of the first link whose `rel` names `deprecation`. A `Link` header carries comma-separated links,
+        ///     each `&lt;target&gt;` followed by `;`-separated parameters, and a `rel` may name several space-separated
+        ///     relations.
+        /// </summary>
+        private static string? DeprecationTarget(IEnumerable<string> values)
+        {
+            foreach (var link in values.SelectMany(value => value.Split(',')))
+            {
+                var parts = link.Split(';', StringSplitOptions.TrimEntries);
+                if (parts[0] is not ['<', .., '>'])
+                {
+                    continue;
+                }
+
+                var relations = parts.Skip(1)
+                                     .Where(part => part.StartsWith("rel=", StringComparison.OrdinalIgnoreCase))
+                                     .SelectMany(part => part["rel=".Length..].Trim('"').Split(' ', StringSplitOptions.RemoveEmptyEntries));
+                if (relations.Contains("deprecation", StringComparer.OrdinalIgnoreCase))
+                {
+                    return parts[0][1..^1];
+                }
+            }
+
+            return null;
         }
     }
 }

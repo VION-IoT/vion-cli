@@ -47,6 +47,24 @@ namespace Vion.Cli.Test.TestHelpers
             return new HttpResponseMessage((HttpStatusCode)status) { Content = new StringContent(json, new UTF8Encoding(false), "application/json") };
         }
 
+        /// <summary>
+        ///     Marks an answer as a deprecated operation's, with the three headers cloud-api sends: `Deprecation` as `@` and
+        ///     Unix seconds, `Sunset` as an HTTP date, `Link` as a relative reference to the changelog.
+        /// </summary>
+        public static HttpResponseMessage Deprecated(HttpResponseMessage response,
+                                                     string sunset = "Mon, 01 Feb 2027 00:00:00 GMT",
+                                                     string? link = "</changelog>; rel=\"deprecation\"")
+        {
+            response.Headers.TryAddWithoutValidation("Deprecation", "@1767225600");
+            response.Headers.TryAddWithoutValidation("Sunset", sunset);
+            if (link != null)
+            {
+                response.Headers.TryAddWithoutValidation("Link", link);
+            }
+
+            return response;
+        }
+
         /// <summary>The requests sent to a URL containing the text, in order.</summary>
         public IReadOnlyList<RecordedRequest> To(string urlPart)
         {

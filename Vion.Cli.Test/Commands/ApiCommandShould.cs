@@ -290,6 +290,39 @@ namespace Vion.Cli.Test.Commands
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.6")]
+        [DataRow("/me", "me.identity.get")]
+        [DataRow("/nowhere/known", "GET /nowhere/known")]
+        public async Task WarnNamingOperationOrMethodAndPathItMatches(string path, string named)
+        {
+            // Arrange
+            using var handler = new RecordingHandler(_ => RecordingHandler.Deprecated(RecordingHandler.Response(200, "{}")));
+
+            // Act
+            var run = await Tool.RunAsync(handler, Tool.OnTest("api", "GET", path), Tool.Token);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.AreEqual($"warning: {named} is deprecated, sunset 2027-02-01 — https://api.test.vion.swiss/changelog{System.Environment.NewLine}", run.Error);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.6")]
+        public async Task WarnBesideOneDocumentWithIncludeJson()
+        {
+            // Arrange
+            using var handler = new RecordingHandler(_ => RecordingHandler.Deprecated(RecordingHandler.Response(200, """{ "id": "x" }""")));
+
+            // Act
+            var run = await Tool.RunAsync(handler, Tool.OnTest("api", "GET", "/me", "--include", "--json"), Tool.Token);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.AreEqual("@1767225600", JsonNode.Parse(run.Out)!["headers"]!["Deprecation"]!.GetValue<string>());
+            Assert.AreEqual($"warning: me.identity.get is deprecated, sunset 2027-02-01 — https://api.test.vion.swiss/changelog{System.Environment.NewLine}", run.Error);
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-006.7")]
         public async Task RefuseIncludeWithWait()
         {

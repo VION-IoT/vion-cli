@@ -43,6 +43,7 @@ namespace Vion.Cli.Commands
                                                      null,
                                                      []);
             var response = await client.SendAsync(request, token, globals.Verbose, cancellationToken);
+            Renderer.WriteDeprecation(response, operation.Id, context.Environment, services);
             if (globals.Json || !response.IsSuccess || response.Json is not JsonObject me)
             {
                 return Renderer.Render(response, globals, services, operation);

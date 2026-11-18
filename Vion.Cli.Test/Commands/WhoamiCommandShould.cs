@@ -37,6 +37,24 @@ namespace Vion.Cli.Test.Commands
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.6")]
+        public async Task WarnBesideIdentityTableWhenIdentityReadIsDeprecated()
+        {
+            // Arrange
+            using var deprecated = new RecordingHandler(_ => RecordingHandler.Deprecated(RecordingHandler.Response(200, Me)));
+            using var current = RecordingHandler.Json(200, Me);
+
+            // Act
+            var warned = await Tool.RunAsync(deprecated, Tool.OnTest("whoami"), Tool.Token);
+            var plain = await Tool.RunAsync(current, Tool.OnTest("whoami"), Tool.Token);
+
+            // Assert
+            Assert.AreEqual(0, warned.ExitCode, warned.Error);
+            Assert.AreEqual($"warning: me.identity.get is deprecated, sunset 2027-02-01 — https://api.test.vion.swiss/changelog{System.Environment.NewLine}", warned.Error);
+            Assert.AreEqual(plain.Out, warned.Out);
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-006.4")]
         public async Task WriteIdentityDocumentVerbatimInJsonMode()
         {
