@@ -30,12 +30,12 @@ answer to the invoked operation carries `Deprecation`. Cross-repo spec:
 
 ### Spec implications
 
-`cli.md` changes three criteria and gains one. `AC-CLI-001.2` keeps a deprecated command invocable
+`cli.md` changes four criteria and gains one. `AC-CLI-001.2` keeps a deprecated command invocable
 and out of its parent's help, and now states the deprecation and sunset on the command's own help.
 `AC-CLI-001.6` adds a `stable` operation's stability to that same help. `AC-CLI-006.2` adds
 `x-stability-level`, `deprecated` and `x-sunset` to what `ops --live` compares. `AC-CLI-003.6` is
-new: the notice. `AC-CLI-006.1` keeps its text: it says "… and flags" and lists none, and `stable`
-and `sunset=<date>` are flags. The help snapshot moves by one page, `vion me identity get`, the one
+new: the notice. `AC-CLI-006.1` gains one clause: stability and sunset are among a row's flags,
+and a watch has no stability (see Drift checkpoints). The help snapshot moves by one page, `vion me identity get`, the one
 `stable` operation. It can never show a sunset, because it walks visible commands only and a
 deprecated one is hidden; a test carries that half of `AC-CLI-001.2`.
 
@@ -95,8 +95,9 @@ deprecated one is hidden; a test carries that half of `AC-CLI-001.2`.
 3. (b) **Where stability and sunset show** (`D6`, `D7`). The proposal was a stability line on
    every command's own help and a stability column in `ops`. OUTCOME: changed. The default is not
    written where a person reads, so the line appears only on `stable`, and `stable` is a flag rather
-   than a column. Every value is written where a program reads (`ops --json`). The `AC-CLI-006.1`
-   delta line is dropped. Decided by Jonas in amendment 1.
+   than a column. Every value is written where a program reads (`ops --json`). Decided by Jonas in
+   amendment 1. The `AC-CLI-006.1` delta line was dropped there, and it comes back narrower for the
+   reason named in Drift checkpoints. That reason goes to the pull request's human review.
 4. (b) **A deprecated property** (`D8`). `vion` renders a body verbatim and never reads response
    schemas, so no output names a member, and `ops --live` compares operations, not schemas.
    OUTCOME: accepted, amendment 1.
@@ -211,6 +212,12 @@ renderer (option A of reviewer's question 1).
   3) and the notice's form (`D12`). The `AC-CLI-006.1` delta line is dropped, because its text names
   no flag. `Operation.Sunset` is the checked ISO string, not a `DateOnly`: nothing compares or
   computes with it, and the generated table needs no new namespace.
+- 2026-11-18: `AC-CLI-006.1` is modified after all, and the reason is named here, as amendment 1
+  asked. Read against its text, the test citing it for `ops --json` proves two rules the old text
+  does not state: every row carries `stability` and `sunset`, and a watch row's stability is null.
+  The process says a rule a citing test proves joins the criterion as a clause. So the clause
+  "its stability and sunset among them" joins the flags, and "or stability" joins the watch's
+  "no method, path". The table display is as ratified.
 - 2026-11-18: a hidden command's own `--help` wrote nothing at all, because System.CommandLine skips
   a hidden command's help. So a deprecated command's sunset line could not have shown anywhere. The
   help action now also lifts `Hidden` for the length of that one help, beside the description swap.
@@ -230,6 +237,7 @@ renderer (option A of reviewer's question 1).
 - MODIFIED AC-CLI-001.2 -> docs/specs/cli.md : WHERE an operation is `deprecated` THE SYSTEM SHALL keep its command invocable, leave it out of its parent's help, and state in the command's own help that it is deprecated and, where the document gives one, its `x-sunset`.
 - MODIFIED AC-CLI-001.6 -> docs/specs/cli.md : THE SYSTEM SHALL describe each derived command by its operation's description and, in the command's own help, its `x-stability-level` where it is `stable`, and each derived option by its parameter's description in help.
 - ADDED AC-CLI-003.6 -> docs/specs/cli.md : WHEN a derived command, `api` or `whoami` is answered with `Deprecation` on the request it sends for its operation THE SYSTEM SHALL write one notice to standard error naming the operation, or the method and path where `api` matches none, with the `Sunset` date and the `Link` of relation `deprecation` resolved against the environment's API URL where the answer carries them, and SHALL leave standard output and the exit code as they are without it.
+- MODIFIED AC-CLI-006.1 -> docs/specs/cli.md : WHEN `ops` runs THE SYSTEM SHALL list, from the committed documents and without a request, every tree command with its operationId, protocol, method, path, effect, completion and flags, its stability and sunset among them — a watch with the operation of the event document that sends on its channel, the protocol the event document's servers declare, no method, path or stability, the effect of its channel's registration operation where the channel registers and `Read` otherwise, and completion `Stream` — and with `--all` the `system` operations too.
 - MODIFIED AC-CLI-006.2 -> docs/specs/cli.md : WHEN `ops --live` runs THE SYSTEM SHALL read the environment's two documents and print the operations added, removed or changed against the committed ones — in method, path, `x-vion-authorization`, `x-vion-capability`, `x-stability-level`, `deprecated` or `x-sunset` for the OpenAPI document, and in action, channel, parameters, message names, `x-vion-handedOutBy` or `x-vion-registeredBy` for the event document, never in a channel's address — exiting 0 only when none differ.
 
 ---
@@ -243,7 +251,7 @@ renderer (option A of reviewer's question 1).
   deprecated operation's own `--help` names its sunset and its parent's help omits it; a stable
   command's own help names its level and a beta one's names none. The regenerated help snapshot,
   moved by one page, goes in the same commit.
-- `T-003` (`AC-CLI-006.1`, text unchanged): `ops` writes `stable` and `sunset=<date>` as flags in
+- `T-003` (`AC-CLI-006.1`): `ops` writes `stable` and `sunset=<date>` as flags in
   the table, and `stability` and `sunset` in every JSON row.
 - `T-004` (`AC-CLI-006.2`): `ops --live` compares the three facts, with one served-document test
   per fact.

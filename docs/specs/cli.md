@@ -29,11 +29,11 @@ four context values and the dry-run flag are globals, never derived options, so 
 one spelling on every command.
 
 - `AC-CLI-001.1` (Ubiquitous): THE SYSTEM SHALL offer one command `vion <domain> <aggregate> <verb>` for every operation of the committed document whose domain is `tenant`, `integrator`, `platform` or `me`, the aggregate and verb being the operationId's segments in kebab case, and no derived command for any other operation.
-- `AC-CLI-001.2` (Optional): WHERE an operation is `deprecated` THE SYSTEM SHALL keep its command invocable and hide it from help.
+- `AC-CLI-001.2` (Optional): WHERE an operation is `deprecated` THE SYSTEM SHALL keep its command invocable, leave it out of its parent's help, and state in the command's own help that it is deprecated and, where the document gives one, its `x-sunset`.
 - `AC-CLI-001.3` (Ubiquitous): THE SYSTEM SHALL take every path and query parameter of an operation as an option named by the parameter's name in kebab case and typed by its schema, except `tenantId`, `integratorId`, `platformId` and `projectId`, which the context supplies, and `dryRun`, which `--dry-run` carries.
 - `AC-CLI-001.4` (Unwanted): IF a derived option's name equals a global option's name THEN THE SYSTEM SHALL name the derived option with the suffix `-param` and show that name in help.
 - `AC-CLI-001.5` (Unwanted): IF `cli.json` names an operationId the committed document lacks THEN THE SYSTEM SHALL fail the derive step naming the entry.
-- `AC-CLI-001.6` (Ubiquitous): THE SYSTEM SHALL describe each derived command by its operation's description and each derived option by its parameter's description in help.
+- `AC-CLI-001.6` (Ubiquitous): THE SYSTEM SHALL describe each derived command by its operation's description and, in the command's own help, its `x-stability-level` where it is `stable`, and each derived option by its parameter's description in help.
 
 ## A call on the wire
 
@@ -54,13 +54,14 @@ decide which flags apply. A refusal happens before anything is sent.
 
 Two modes. In JSON mode standard output is the API's answer, verbatim, or one error object — nothing
 a script has to strip; a watch's is one such document per line. In table mode a list is rows, anything else is key–value pairs, and a failure
-goes to standard error. Notices — a replayed answer, a next cursor — go to standard error in both.
+goes to standard error. Notices — a replayed answer, a next cursor, a deprecated operation's warning — go to standard error in both.
 
 - `AC-CLI-003.1` (Optional): WHERE `--json` is given THE SYSTEM SHALL write exactly one JSON document to standard output, the response body, an object with an `error` member, or under `api --include` an object with `status`, `headers` and `body`, or, on a watch, one JSON document per line, and every notice to standard error.
 - `AC-CLI-003.2` (Optional): WHERE `--fields` names members THE SYSTEM SHALL project each row of a list and any other object to those members, by dotted path, in table and JSON mode alike.
 - `AC-CLI-003.3` (Ubiquitous): THE SYSTEM SHALL render a list answer as a row table of its items' scalar members and any other object as a key–value table in table mode, and SHALL report a paged answer's `nextCursor` as a notice.
 - `AC-CLI-003.4` (Event-driven): WHEN the API answers an error THE SYSTEM SHALL report its status and message and, where present, each `problems` entry, `requiredPermissions`, `currentVersion` and `exceptionId`, and exit 1.
 - `AC-CLI-003.5` (Ubiquitous): THE SYSTEM SHALL exit 0 on success, 1 on a failed call or sign-in, 2 on a usage error, and 3 when a wait ends at its timeout with the work still running.
+- `AC-CLI-003.6` (Event-driven): WHEN a derived command, `api` or `whoami` is answered with `Deprecation` on the request it sends for its operation THE SYSTEM SHALL write one notice to standard error naming the operation, or the method and path where `api` matches none, with the `Sunset` date and the `Link` of relation `deprecation` resolved against the environment's API URL where the answer carries them, and SHALL leave standard output and the exit code as they are without it.
 
 ## Waiting for the outcome
 
@@ -110,8 +111,8 @@ the roots a call fills in; the flags and the `VION_*` variables override it per 
 environment serves and diffs it against the committed documents; `can-i` joins the environment's catalog with the caller's own
 permissions as the dashboard does; `api` is the raw call for anything the tree does not name.
 
-- `AC-CLI-006.1` (Event-driven): WHEN `ops` runs THE SYSTEM SHALL list, from the committed documents and without a request, every tree command with its operationId, protocol, method, path, effect, completion and flags — a watch with the operation of the event document that sends on its channel, the protocol the event document's servers declare, no method or path, the effect of its channel's registration operation where the channel registers and `Read` otherwise, and completion `Stream` — and with `--all` the `system` operations too.
-- `AC-CLI-006.2` (Event-driven): WHEN `ops --live` runs THE SYSTEM SHALL read the environment's two documents and print the operations added, removed or changed against the committed ones — in method, path, `x-vion-authorization` or `x-vion-capability` for the OpenAPI document, and in action, channel, parameters, message names, `x-vion-handedOutBy` or `x-vion-registeredBy` for the event document, never in a channel's address — exiting 0 only when none differ.
+- `AC-CLI-006.1` (Event-driven): WHEN `ops` runs THE SYSTEM SHALL list, from the committed documents and without a request, every tree command with its operationId, protocol, method, path, effect, completion and flags, its stability and sunset among them — a watch with the operation of the event document that sends on its channel, the protocol the event document's servers declare, no method, path or stability, the effect of its channel's registration operation where the channel registers and `Read` otherwise, and completion `Stream` — and with `--all` the `system` operations too.
+- `AC-CLI-006.2` (Event-driven): WHEN `ops --live` runs THE SYSTEM SHALL read the environment's two documents and print the operations added, removed or changed against the committed ones — in method, path, `x-vion-authorization`, `x-vion-capability`, `x-stability-level`, `deprecated` or `x-sunset` for the OpenAPI document, and in action, channel, parameters, message names, `x-vion-handedOutBy` or `x-vion-registeredBy` for the event document, never in a channel's address — exiting 0 only when none differ.
 - `AC-CLI-006.3` (Event-driven): WHEN `can-i <operationId>` runs THE SYSTEM SHALL decide from the environment's catalog row and the context root's own permissions — a `Root` operation from the root set, a `Filtered` or `Scope` operation at `--project` from the held scope of that project else the root set, any other case allowed, an unlisted operation unknown — and exit 0 when allowed, 1 when denied and 2 when unknown.
 - `AC-CLI-006.4` (Event-driven): WHEN `whoami` runs THE SYSTEM SHALL print the caller's identity and memberships with their ids from `me.identity.get`.
 - `AC-CLI-006.5` (Event-driven): WHEN `api <METHOD> <path>` runs THE SYSTEM SHALL send that request to the environment's API with the resolved token, the `-f` and `-F` pairs as the query on `GET` and as the JSON body otherwise, the write-safety headers and refusals of the operation whose template the path matches, and render the answer as any command's.
