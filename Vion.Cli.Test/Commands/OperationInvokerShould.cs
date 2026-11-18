@@ -63,6 +63,9 @@ namespace Vion.Cli.Test.Commands
         [DataRow("Sun, 15 Jul 2029 00:00:00 GMT",
                  "</next>; rel=\"next\", </log>; rel=\"alternate deprecation\"",
                  "warning: tenant.edgeGateway.list is deprecated, sunset 2029-07-15 — https://api.test.vion.swiss/log")]
+        [DataRow("Mon, 01 Feb 2027 00:00:00 GMT",
+                 "</changelog?from=a,b>; rel=\"deprecation\"",
+                 "warning: tenant.edgeGateway.list is deprecated, sunset 2027-02-01 — https://api.test.vion.swiss/changelog?from=a,b")]
         public async Task WarnWithWhatAnswerCarries(string sunset, string? link, string warning)
         {
             // Arrange

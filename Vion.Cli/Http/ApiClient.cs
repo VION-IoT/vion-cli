@@ -161,24 +161,26 @@ namespace Vion.Cli.Http
         /// <summary>
         ///     The target of the first link whose `rel` names `deprecation`. A `Link` header carries comma-separated links,
         ///     each `&lt;target&gt;` followed by `;`-separated parameters, and a `rel` may name several space-separated
-        ///     relations.
+        ///     relations. A target may itself hold a comma, so each link is found by its angle brackets, and only its
+        ///     parameters end at the next comma.
         /// </summary>
         private static string? DeprecationTarget(IEnumerable<string> values)
         {
-            foreach (var link in values.SelectMany(value => value.Split(',')))
+            foreach (var value in values)
             {
-                var parts = link.Split(';', StringSplitOptions.TrimEntries);
-                if (parts[0] is not ['<', .., '>'])
+                var at = 0;
+                while (value.IndexOf('<', at) is var open and >= 0 && value.IndexOf('>', open) is var close and >= 0)
                 {
-                    continue;
-                }
+                    var next = value.IndexOf(',', close);
+                    var parameters = value[(close + 1)..(next >= 0 ? next : value.Length)].Split(';', StringSplitOptions.TrimEntries);
+                    var relations = parameters.Where(part => part.StartsWith("rel=", StringComparison.OrdinalIgnoreCase))
+                                              .SelectMany(part => part["rel=".Length..].Trim('"').Split(' ', StringSplitOptions.RemoveEmptyEntries));
+                    if (relations.Contains("deprecation", StringComparer.OrdinalIgnoreCase))
+                    {
+                        return value[(open + 1)..close];
+                    }
 
-                var relations = parts.Skip(1)
-                                     .Where(part => part.StartsWith("rel=", StringComparison.OrdinalIgnoreCase))
-                                     .SelectMany(part => part["rel=".Length..].Trim('"').Split(' ', StringSplitOptions.RemoveEmptyEntries));
-                if (relations.Contains("deprecation", StringComparer.OrdinalIgnoreCase))
-                {
-                    return parts[0][1..^1];
+                    at = close + 1;
                 }
             }
 
