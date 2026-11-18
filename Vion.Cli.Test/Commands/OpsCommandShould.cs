@@ -254,6 +254,53 @@ namespace Vion.Cli.Test.Commands
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-006.2")]
+        [DataRow("x-stability-level", "\"stable\"", "x-stability-level")]
+        [DataRow("x-stability-level", null, "x-stability-level")]
+        [DataRow("deprecated", "true", "deprecated")]
+        [DataRow("x-sunset", "\"2027-02-01\"", "x-sunset")]
+        public async Task ReportOperationWhoseStabilityOrDeprecationAloneMoved(string member, string? served, string detail)
+        {
+            // Arrange
+            var live = JsonNode.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "v1.json")))!;
+            var listing = live["paths"]!["/tenant/{tenantId}/edgeGateways"]!["get"]!.AsObject();
+            listing.Remove(member);
+            if (served != null)
+            {
+                listing[member] = JsonNode.Parse(served);
+            }
+
+            using var handler = Documents(live.ToJsonString(), Fixture("asyncapi-v1.json"));
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--live", "--env", "test", "--json"]);
+
+            // Assert
+            Assert.AreEqual(1, run.ExitCode, run.Error);
+            var items = JsonNode.Parse(run.Out)!["items"]!.AsArray()
+                                .Select(i => (i!["change"]!.GetValue<string>(), i["operationId"]!.GetValue<string>(), i["detail"]?.GetValue<string>()))
+                                .ToList();
+            CollectionAssert.AreEqual(new[] { ("changed", "tenant.edgeGateway.list", (string?)detail) }, items);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.2")]
+        public async Task CompareStabilityLevelIgnoringCase()
+        {
+            // Arrange
+            var live = JsonNode.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "v1.json")))!;
+            live["paths"]!["/tenant/{tenantId}/edgeGateways"]!["get"]!["x-stability-level"] = "Beta";
+            using var handler = Documents(live.ToJsonString(), Fixture("asyncapi-v1.json"));
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--live", "--env", "test"]);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            StringAssert.Contains(run.Error, "no differences");
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.2")]
         public async Task ReadMissingCompletionAsResponse()
         {
             // Arrange
