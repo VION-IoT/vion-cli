@@ -1,6 +1,6 @@
 ---
 slug: deprecation-and-stability
-status: proposed           # proposed | in-flight | parked | archived
+status: in-flight          # proposed | in-flight | parked | archived
 blocked-on: none           # for parked docs: what's blocking + ref
 areas: CLI
 author: the api-change-communication session, for Jonas Bertsch
@@ -30,13 +30,14 @@ answer to the invoked operation carries `Deprecation`. Cross-repo spec:
 
 ### Spec implications
 
-`cli.md` changes four criteria and gains one. `AC-CLI-001.2` keeps a deprecated command invocable
+`cli.md` changes three criteria and gains one. `AC-CLI-001.2` keeps a deprecated command invocable
 and out of its parent's help, and now states the deprecation and sunset on the command's own help.
-`AC-CLI-001.6` adds the stability to that same help. `AC-CLI-006.1` adds a stability column and the
-sunset to `ops`. `AC-CLI-006.2` adds `x-stability-level`, `deprecated` and `x-sunset` to what
-`ops --live` compares. `AC-CLI-003.6` is new: the notice. The help snapshot moves: every visible
-derived command's page gains its stability line. It can never show a sunset, because it walks
-visible commands only and a deprecated one is hidden; a test carries that half of `AC-CLI-001.2`.
+`AC-CLI-001.6` adds a `stable` operation's stability to that same help. `AC-CLI-006.2` adds
+`x-stability-level`, `deprecated` and `x-sunset` to what `ops --live` compares. `AC-CLI-003.6` is
+new: the notice. `AC-CLI-006.1` keeps its text: it says "… and flags" and lists none, and `stable`
+and `sunset=<date>` are flags. The help snapshot moves by one page, `vion me identity get`, the one
+`stable` operation. It can never show a sunset, because it walks visible commands only and a
+deprecated one is hidden; a test carries that half of `AC-CLI-001.2`.
 
 ### Decisions
 
@@ -49,81 +50,60 @@ visible commands only and a deprecated one is hidden; a test carries that half o
   and the `If-Match` pre-read. Ratified: brief § Constraints 3.
 - `D4` — The notice is written right after the one send of the invoked operation's request, in
   each of the three commands that send one: `OperationInvoker`, `ApiCommand`, `WhoamiCommand`. One
-  helper writes it, and each site calls it once. **Propose-and-wait**, reviewer's question 1.
-- `D5` — A watch writes no notice. **Propose-and-wait**, reviewer's question 2.
-- `D6` — Stability and sunset show in a derived command's own help only, not in its parent's
-  command list, by the help action's existing per-command swap (`CliTree.cs:131–146`).
-  Decide-and-document: reviewer's question 3.
-- `D7` — `ops` adds a `stability` member and column, and a `sunset` member. In the table, a
-  deprecated operation's flags read `deprecated sunset=2027-02-01`. A watch row has no stability:
-  the event document publishes none. Decide-and-document: reviewer's question 3.
-- `D8` — A deprecated schema *property* reaches no output. Decide-and-document: reviewer's
-  question 4.
+  helper writes it, and each site calls it once. Ratified: amendment 1, Q1 → B.
+- `D5` — A watch writes no notice: its HTTP calls are setup, out of scope by name by the rule the
+  pre-reads follow. Ratified: amendment 1, Q2.
+- `D6` — Stability and sunset show in a derived command's own help only, never in its parent's
+  command list, by the help action's existing per-command swap (`CliTree.cs:131–146`). The default
+  is never written where a person reads: the stability line appears only on a `stable` operation,
+  the deprecation line on every deprecated one, `stable` or `beta`. A `beta` command that is not
+  deprecated shows no new line. Ratified: amendment 1, 3.
+- `D7` — `ops`' table writes `stable` as one more flag, beside `dry-run`, `deprecated` and `hidden`,
+  with no stability column, and a deprecated operation's flags read `deprecated sunset=2027-02-01`.
+  `ops --json` writes every value where a program reads: each row gains `stability` (`stable` or
+  `beta`, null on a watch row, whose event document publishes none) and `sunset` (an ISO date or
+  null), beside its existing `deprecated`. Ratified: amendment 1, 3.
+- `D8` — A deprecated schema *property* reaches no output. Ratified: amendment 1, 4.
 - `D9` — `vion` does not read the `/capabilities` row's new `stability` and `deprecation`. `ops
   --live` compares the document's own three facts, so the `Stable`/`stable` casing and the null
-  `deprecation` never meet code. Decide-and-document, see Full design § `ops --live`.
+  `deprecation` never meet code. Ratified: amendment 1, 4.
 - `D10` — The derive step refuses an operation with no `x-stability-level`, or with one other than
   `stable` or `beta`. It also refuses an `x-sunset` that is not an ISO date. A deprecated operation
-  with no `x-sunset` derives, and shows no date. Decide-and-document: this follows the refusal of a
-  missing `x-vion-capability.effect` (`DocumentReader.cs:96–103`). A level that no one wrote down
-  must not read as a promise.
+  with no `x-sunset` derives, and shows no date. This follows the refusal of a missing
+  `x-vion-capability.effect` (`DocumentReader.cs:96–103`): a level no one wrote down must not read
+  as a promise. Ratified: amendment 1, 4.
 - `D11` — The notice is tested with `RecordingHandler` answering `Deprecation`. It is checked
   against a real host by whoever deprecates the first operation on test: not run, routes to a
-  human. Decide-and-document: reviewer's question 5.
+  human. Ratified: amendment 1 (the (b) decisions stand).
+- `D12` — The notice is one line on standard error, `warning: <operationId> is deprecated, sunset
+  <date> — <changelog url>`, its form mirroring `error: …` (`Guard.cs:65`). No flag silences it, and
+  it is written in `--json` mode and when standard error is not a terminal too, unlike the update
+  notice (`UpdateCheck.cs:16,30`): the owner of a script calling a deprecated operation is the one
+  who has to act before the sunset, and a line on standard error breaks no parser of standard
+  output. Under `--json` it goes to standard error, as `AC-CLI-003.1` says of every notice.
+  Ratified: amendment 1, Q1.
 
 ### Reviewer's questions
 
-1. (c) propose-and-wait — **Where the notice is written** (`D4`). The spec says "the renderer". The
-   renderer alone misses four of the paths that answer an invoked operation. Options:
-   - **A, at the renderer.** It mirrors how the replay notice travels. The notice goes in
-     `Renderer.Render` and in `RenderIncluded`'s JSON branch. `LongRunningWait.FollowAsync` writes
-     it once on its first answer and clears it from every answer it returns, as it already does
-     for `Replayed` (`LongRunningWait.cs:54–59,78,85`). `WhoamiCommand`'s table branch adds a fourth
-     call. Every poll answer must be cleared too, or a deprecated poll operation is announced as
-     if it were the invoked one: the error return at `:116–119` hands back the poll's own answer
-     unchanged.
-   - **B, at the invoked send (recommended).** One call after the one `client.SendAsync` that
-     carries the invoked operation's request: `OperationInvoker.cs:147`, `ApiCommand.cs:140`,
-     `WhoamiCommand.cs:45`. Nothing has to be cleared. A wait left running (exit 3) or interrupted
-     has written the notice already, because the send came before the wait. `--include --json`
-     needs no branch of its own. Polls, the `If-Match` pre-read, `can-i`'s reads and a watch's
-     setup calls never pass these three lines.
-   B departs from the spec's word, not from its intent: one notice per answer of the invoked
-   operation, never on standard output. Under `--wait` the notice comes before the outcome rather
-   than after it, as the replay notice already does.
-2. (c) propose-and-wait — **A watch** (`D5`). A watch's HTTP calls are setup: the hand-out read,
-   `me.subscriber.create`, and the registration, which repeats after every reconnect
-   (`WatchInvoker.cs:170,257,286`). The operation a watch invokes is the event document's, and its
-   answers are messages, not HTTP answers. Options:
-   - **out of scope by name (recommended)**, the same rule as the pre-reads. `ops` already shows
-     each setup operation's sunset, and `ops --live` reports the deprecation.
-   - one notice per distinct deprecated setup operation per run, written at the first answer that
-     carries `Deprecation`. A watch that will stop working at the sunset would then say so, at the
-     cost of a rule of its own.
-3. (b) decide-and-document — **Where stability and sunset show** (`D6`, `D7`). Help: the command's
-   own help ends its description with one line: `Stability: beta — may change without notice.` or
-   `Stability: stable — changes only additively or by a deprecation.`, and on a deprecated command
-   `Deprecated: may be gone from 2027-02-01.` These words are cloud-api's own: the `Stability`
-   schema, and `CapabilityDeprecationOutput.sunset`'s "the first day the operation may be gone". The
-   parent's list keeps the bare description. Otherwise nearly every entry in every list would end in `beta`.
-   `ops`: a `stability` column after `completion`. The JSON row gains `stability`
-   (`stable`|`beta`|null) and `sunset` (ISO date|null), and the table's `deprecated` flag gains
-   `sunset=<date>` beside it. A separate `sunset` column was the alternative, and today it would be
-   empty on every row. OUTCOME: pending ratification.
-4. (b) — **A deprecated property** (`D8`). Today `edgeGatewayIds` on a deployment and `topic` on a
-   service property, sunset 2027-02-01. `vion` renders a body verbatim as `JsonNode` and never reads
-   response schemas: help lists options, never the members of an answer. So no output names a
-   member, and there is nowhere to attach a property's sunset without a new schema walk per
-   answer. `ops --live` compares operations, not schemas: a removed member is not drift there today
-   either. The property's deprecation reaches the operator through cloud-api's changelog. OUTCOME:
-   pending ratification.
-5. (b) — **Testing the notice** (`D11`). No operation is deprecated anywhere, so every notice test
-   is a `RecordingHandler.Json(…, configure)` answer with the three headers. Each path in Full
-   design § The notice gets a test. The negative tests: a poll's `Deprecation` and an `If-Match`
-   pre-read's `Deprecation` write nothing. The real-host check goes in the pull request's
-   Verification as "not run, routes to a human": whoever deprecates the first operation on test
-   runs its command once with `--json` and confirms the notice reaches standard error and nothing
-   reaches standard output beyond the body. OUTCOME: pending ratification.
+1. (c) **Where the notice is written** (`D4`). Option A was the renderer plus the replay-style
+   relay through `LongRunningWait.FollowAsync`, which would also have had to clear every poll's
+   answer. Option B, recommended, writes it after the one send of the invoked operation
+   (`OperationInvoker.cs:147`, `ApiCommand.cs:140`, `WhoamiCommand.cs:45`). OUTCOME: B, with the
+   notice's form and its no-silencing rule as `D12` states. Decided by Jonas in amendment 1.
+2. (c) **A watch** (`D5`). OUTCOME: out of scope by name, as recommended. Decided by Jonas in
+   amendment 1.
+3. (b) **Where stability and sunset show** (`D6`, `D7`). The proposal was a stability line on
+   every command's own help and a stability column in `ops`. OUTCOME: changed. The default is not
+   written where a person reads, so the line appears only on `stable`, and `stable` is a flag rather
+   than a column. Every value is written where a program reads (`ops --json`). The `AC-CLI-006.1`
+   delta line is dropped. Decided by Jonas in amendment 1.
+4. (b) **A deprecated property** (`D8`). `vion` renders a body verbatim and never reads response
+   schemas, so no output names a member, and `ops --live` compares operations, not schemas.
+   OUTCOME: accepted, amendment 1.
+5. (b) **Testing the notice** (`D11`). Every notice test is a `RecordingHandler` answer with the
+   three headers, one per path in Full design § The notice, and the negative tests cover a poll and
+   an `If-Match` pre-read. The real-host check is routed to a human in the pull request. OUTCOME:
+   accepted, amendment 1.
 
 ---
 
@@ -151,25 +131,28 @@ gained the two members, and the two property sunsets). `derive.ps1` changed only
 `DocumentReader.ReadOperation` reads `x-stability-level` and `x-sunset` beside `deprecated`
 (`DocumentReader.cs:130`), into `DerivedOperation.Stability` and `DerivedOperation.Sunset`. The
 emitter writes them into `Operation` as `Stability Stability` (an enum `Beta`, `Stable`, the
-precedent being `Effect` and `Completion`) and `DateOnly? Sunset`. `D10` sets the refusals, written
-as the effect and completion refusals are.
+precedent being `Effect` and `Completion`) and `string? Sunset`, the ISO date as the document
+writes it once derive has checked it. `D10` sets the refusals, written as the effect and completion
+refusals are.
 
 ### Help
 
 `DerivedCommands.Create` registers each derived command with its operation in a map on `CliTree`,
 the precedent being `tree.Watches`. `TreeHelpAction.Invoke` (`CliTree.cs:129`) swaps a derived
-command's description for the description plus the stability line, and the deprecation line where
-there is one, for the length of its own help. The watch branch already swaps the `--timeout`
-description the same way. `__help-snapshot` parses `<path> --help` (`HelpSnapshotCommand.cs:48`), so
-it goes through the same action, and every visible derived command's page in `help.txt` gains its
-line.
+command's description, for the length of its own help, for the description followed by
+`Stability: stable — changes only additively or by a deprecation.` on a `stable` operation and
+`Deprecated: may be gone from <sunset>.` (or `Deprecated.` with no sunset) on a deprecated one. These
+words are cloud-api's own: the `Stability` schema, and `CapabilityDeprecationOutput.sunset`'s "the
+first day the operation may be gone". The watch branch already swaps the `--timeout` description
+the same way. `__help-snapshot` parses `<path> --help` (`HelpSnapshotCommand.cs:48`), so it goes
+through the same action, and the one `stable` page in `help.txt` gains its line.
 
 ### `ops`
 
 `Run` adds `stability` (`operation.Stability`, lowercased) and `sunset` (`yyyy-MM-dd` or null) to
-each JSON row (`OpsCommand.cs:58–72`). On a watch row both are null. The table gains the
-`stability` column (`—` on a watch, as for its method and path), and the flags gain
-`sunset=<date>` after `deprecated`.
+each JSON row (`OpsCommand.cs:58–72`). On a watch row both are null. In the table, the flags gain
+`stable` and, after `deprecated`, `sunset=<date>` (`OpsCommand.cs:108–132`). There is no new
+column.
 
 ### `ops --live`
 
@@ -185,17 +168,17 @@ served string with the committed date as `yyyy-MM-dd`. Under `D9`, neither side 
 What it says, on one line of standard error:
 
 ```
-deprecated: tenant.thing.get may be gone from 2027-02-01; see https://api.vion.swiss/changelog.
+warning: tenant.thing.get is deprecated, sunset 2027-02-01 — https://api.vion.swiss/changelog
 ```
 
 - **The name.** The invoked operation's id. Under `api` with a path no template matches, the
   method and path as given.
 - **The date.** `Sunset` read as an HTTP date and written as `yyyy-MM-dd`. An unparseable value is
-  written as given. With no `Sunset`, the clause is left out.
+  written as given. With no `Sunset`, the `, sunset …` clause is left out.
 - **The pointer.** The `Link` entry whose `rel` includes `deprecation`, resolved against the
   context's API URL with `new Uri(new Uri(apiUrl + "/"), reference)`. `</changelog>` is an absolute
   path, so a path base on a custom API URL is dropped. The built-in URLs have none
-  (`ApiEnvironment.cs:18,22`). With no such link, the clause is left out. The pointer is printed and
+  (`ApiEnvironment.cs:18,22`). With no such link, the ` — …` clause is left out. The pointer is printed and
   never followed, so no origin check applies, unlike `Operation-Location` (`LongRunningWait.cs:139`).
 - **The trigger.** `Deprecation` present, whatever its value, on a success or an error answer.
   cloud-api sends it on a refusal at the authorization check too, and an operator refused by a
@@ -224,16 +207,24 @@ renderer (option A of reviewer's question 1).
 
 ## Drift checkpoints
 
-- _(none yet — append as implementation diverges from Full design)_
+- 2026-11-18: amendment 1 ratified the doc with a simpler display (`D6`, `D7`, reviewer's question
+  3) and the notice's form (`D12`). The `AC-CLI-006.1` delta line is dropped, because its text names
+  no flag. `Operation.Sunset` is the checked ISO string, not a `DateOnly`: nothing compares or
+  computes with it, and the generated table needs no new namespace.
+- 2026-11-18: a hidden command's own `--help` wrote nothing at all, because System.CommandLine skips
+  a hidden command's help. So a deprecated command's sunset line could not have shown anywhere. The
+  help action now also lifts `Hidden` for the length of that one help, beside the description swap.
+  Sibling sweep: a command hidden by `cli.json` alone, neither stable nor deprecated, still writes
+  no help. No `cli.json` entry hides one today (`cli.json` is `{}`), so that is left alone and named
+  here, not fixed in this change.
 
 ---
 
 ## Spec delta (to distill)
 
 - MODIFIED AC-CLI-001.2 -> docs/specs/cli.md : WHERE an operation is `deprecated` THE SYSTEM SHALL keep its command invocable, leave it out of its parent's help, and state in the command's own help that it is deprecated and, where the document gives one, its `x-sunset`.
-- MODIFIED AC-CLI-001.6 -> docs/specs/cli.md : THE SYSTEM SHALL describe each derived command by its operation's description and, in the command's own help, its `x-stability-level`, and each derived option by its parameter's description in help.
+- MODIFIED AC-CLI-001.6 -> docs/specs/cli.md : THE SYSTEM SHALL describe each derived command by its operation's description and, in the command's own help, its `x-stability-level` where it is `stable`, and each derived option by its parameter's description in help.
 - ADDED AC-CLI-003.6 -> docs/specs/cli.md : WHEN a derived command, `api` or `whoami` is answered with `Deprecation` on the request it sends for its operation THE SYSTEM SHALL write one notice to standard error naming the operation, or the method and path where `api` matches none, with the `Sunset` date and the `Link` of relation `deprecation` resolved against the environment's API URL where the answer carries them, and SHALL leave standard output and the exit code as they are without it.
-- MODIFIED AC-CLI-006.1 -> docs/specs/cli.md : WHEN `ops` runs THE SYSTEM SHALL list, from the committed documents and without a request, every tree command with its operationId, protocol, method, path, effect, completion, stability and flags, a deprecated operation's flags carrying its `x-sunset` — a watch with the operation of the event document that sends on its channel, the protocol the event document's servers declare, no method, path or stability, the effect of its channel's registration operation where the channel registers and `Read` otherwise, and completion `Stream` — and with `--all` the `system` operations too.
 - MODIFIED AC-CLI-006.2 -> docs/specs/cli.md : WHEN `ops --live` runs THE SYSTEM SHALL read the environment's two documents and print the operations added, removed or changed against the committed ones — in method, path, `x-vion-authorization`, `x-vion-capability`, `x-stability-level`, `deprecated` or `x-sunset` for the OpenAPI document, and in action, channel, parameters, message names, `x-vion-handedOutBy` or `x-vion-registeredBy` for the event document, never in a channel's address — exiting 0 only when none differ.
 
 ---
@@ -244,10 +235,11 @@ renderer (option A of reviewer's question 1).
   ratification, in its own commit.
 - `T-002` (`AC-CLI-001.2`, `AC-CLI-001.6`): derive reads `x-stability-level` and `x-sunset`.
   `Operation` carries them, and a derived command's own help states them. Tests: a synthetic
-  deprecated operation's own `--help` names its sunset and its parent's help omits it; a beta and
-  a stable command's own help name their level. The regenerated help snapshot goes in the same
-  commit.
-- `T-003` (`AC-CLI-006.1`): `ops` shows stability and sunset, in table and JSON mode.
+  deprecated operation's own `--help` names its sunset and its parent's help omits it; a stable
+  command's own help names its level and a beta one's names none. The regenerated help snapshot,
+  moved by one page, goes in the same commit.
+- `T-003` (`AC-CLI-006.1`, text unchanged): `ops` writes `stable` and `sunset=<date>` as flags in
+  the table, and `stability` and `sunset` in every JSON row.
 - `T-004` (`AC-CLI-006.2`): `ops --live` compares the three facts, with one served-document test
   per fact.
 - `T-005` (`AC-CLI-003.6`): the notice, per the path table, with the negative tests for a poll and

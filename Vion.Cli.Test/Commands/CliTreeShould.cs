@@ -70,6 +70,50 @@ namespace Vion.Cli.Test.Commands
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-001.2")]
+        [DataRow(false, "2027-02-01", "Deprecated: may be gone from 2027-02-01.")]
+        [DataRow(true, "2031-07-15", "Stability: stable — changes only additively or by a deprecation.\n  Deprecated: may be gone from 2031-07-15.")]
+        [DataRow(false, null, "Deprecated.")]
+        public async Task StateDeprecationOnDeprecatedCommandsOwnHelpOnly(bool stable, string? sunset, string line)
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(200);
+            var operations = new[]
+                             {
+                                 Synthetic("tenant.thing.list", false),
+                                 Synthetic("tenant.thing.get", true, stable ? Stability.Stable : Stability.Beta, sunset),
+                             };
+
+            // Act
+            var own = await Tool.RunAsync(handler, ["tenant", "thing", "get", "--help"], operations: operations);
+            var parent = await Tool.RunAsync(handler, ["tenant", "thing", "--help"], operations: operations);
+
+            // Assert
+            Assert.AreEqual(0, own.ExitCode, own.Error);
+            StringAssert.Contains(own.Out.ReplaceLineEndings("\n"), $"  Does get.\n  {line}\n");
+            Assert.IsFalse(parent.Out.Contains("Deprecated", System.StringComparison.Ordinal), parent.Out);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-001.6")]
+        public async Task StateStabilityOnStableCommandsOwnHelpOnly()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(200);
+            var operations = new[] { Synthetic("tenant.thing.list", false), Synthetic("tenant.thing.get", false, Stability.Stable) };
+
+            // Act
+            var stable = await Tool.RunAsync(handler, ["tenant", "thing", "get", "--help"], operations: operations);
+            var beta = await Tool.RunAsync(handler, ["tenant", "thing", "list", "--help"], operations: operations);
+            var parent = await Tool.RunAsync(handler, ["tenant", "thing", "--help"], operations: operations);
+
+            // Assert
+            StringAssert.Contains(stable.Out.ReplaceLineEndings("\n"), "  Does get.\n  Stability: stable — changes only additively or by a deprecation.\n");
+            StringAssert.Contains(beta.Out.ReplaceLineEndings("\n"), "  Does list.\n\nUsage:");
+            Assert.IsFalse(parent.Out.Contains("Stability", System.StringComparison.Ordinal), parent.Out);
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-001.6")]
         public async Task DescribeCommandAndOptionsFromDocument()
         {
@@ -138,7 +182,7 @@ namespace Vion.Cli.Test.Commands
                                   "--timeout <duration> How long to watch once subscribed: 90s, 15m, 1h or seconds; until interrupted when absent. Exits 0 then, 1 if never subscribed.");
         }
 
-        private static Operation Synthetic(string id, bool deprecated)
+        private static Operation Synthetic(string id, bool deprecated, Stability stability = Stability.Beta, string? sunset = null)
         {
             var (domain, aggregate, verb) = (id.Split('.')[0], id.Split('.')[1], id.Split('.')[2]);
             return new Operation(id,
@@ -166,6 +210,8 @@ namespace Vion.Cli.Test.Commands
                                  false,
                                  false,
                                  deprecated,
+                                 stability,
+                                 sunset,
                                  Completion.Response,
                                  false,
                                  new Authorization("Root", ["X"], null, null),

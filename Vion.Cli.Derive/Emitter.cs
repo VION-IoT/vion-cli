@@ -169,6 +169,7 @@ namespace Vion.Cli.Derive
               .Append(", ")
               .Append(Bool(o.Deprecated))
               .Append(",\n");
+            sb.Append("            Stability.").Append(o.Stability).Append(", ").Append(Literal(o.Sunset)).Append(",\n");
             sb.Append("            Completion.").Append(o.Completion).Append(", ").Append(Bool(o.AnswersLongRunningOperation)).Append(",\n");
             sb.Append("            new Authorization(")
               .Append(Literal(o.Authorization.Mode))

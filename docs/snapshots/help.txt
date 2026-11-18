@@ -14385,6 +14385,7 @@ Commands:
 Description:
   Bootstrap endpoint after login. Works for both regular users and service accounts. Returns the caller's 
   identity and their tenant, integrator, and platform memberships.
+  Stability: stable — changes only additively or by a deprecation.
 
 Usage:
   vion me identity get [options]

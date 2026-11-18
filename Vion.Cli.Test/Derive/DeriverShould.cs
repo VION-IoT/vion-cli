@@ -8,9 +8,9 @@ namespace Vion.Cli.Test.Derive
 {
     /// <summary>
     ///     The derive step over the real snapshot and over the synthetic document: which operations become commands, how a
-    ///     parameter becomes an option, and what cli.json may name. Two premise tests cite no id by design: the refusals of
-    ///     an operation without an effect and of a completion outside its two values guard the derivation itself, which
-    ///     no user observes.
+    ///     parameter becomes an option, and what cli.json may name. Three premise tests cite no id by design: the refusals of
+    ///     an operation without an effect, of a completion outside its two values, and of a stability or sunset outside
+    ///     its form guard the derivation itself, which no user observes.
     /// </summary>
     [TestClass]
     public class DeriverShould
@@ -134,6 +134,49 @@ namespace Vion.Cli.Test.Derive
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-001.2")]
+        public void CarrySunsetOfDeprecatedOperation()
+        {
+            // Arrange
+            var synthetic = Fixture("synthetic.json");
+
+            // Act
+            var document = Deriver.Derive(synthetic, "{}");
+
+            // Assert
+            Assert.AreEqual("2027-02-01", document.Operations.Single(o => o.Id == "tenant.thing.get").Sunset);
+            Assert.IsNull(document.Operations.Single(o => o.Id == "tenant.thing.list").Sunset);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-001.6")]
+        public void CarryStabilityOfEveryOperation()
+        {
+            // Arrange
+            var snapshot = Fixture("v1.json");
+            using var json = System.Text.Json.JsonDocument.Parse(snapshot);
+            var published = json.RootElement
+                                .GetProperty("paths")
+                                .EnumerateObject()
+                                .SelectMany(path => path.Value.EnumerateObject())
+                                .Where(method => method.Value.TryGetProperty("operationId", out _))
+                                .ToDictionary(method => method.Value.GetProperty("operationId").GetString()!,
+                                              method => method.Value.GetProperty("x-stability-level").GetString());
+
+            // Act
+            var document = Deriver.Derive(snapshot, "{}");
+
+            // Assert
+            foreach (var operation in document.Operations)
+            {
+                Assert.AreEqual(published[operation.Id], operation.Stability.ToLowerInvariant(), operation.Id);
+            }
+
+            Assert.IsTrue(document.Operations.Any(o => o.Stability == "Stable"));
+            Assert.IsTrue(document.Operations.Any(o => o.Stability == "Beta"));
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-008.1")]
         public void CarryCompletionAndLongRunningAnswerOfEveryOperation()
         {
@@ -222,6 +265,20 @@ namespace Vion.Cli.Test.Derive
             // Act / Assert
             var exception = Assert.ThrowsExactly<DeriveException>(() => Deriver.Derive(synthetic, "{}"));
             StringAssert.Contains(exception.Message, "x-vion-capability.completion 'Eventually'");
+        }
+
+        [TestMethod]
+        [DataRow("\"x-stability-level\": \"stable\",", "", "x-stability-level ''")]
+        [DataRow("\"x-stability-level\": \"stable\",", "\"x-stability-level\": \"alpha\",", "x-stability-level 'alpha'")]
+        [DataRow("\"x-sunset\": \"2027-02-01\",", "\"x-sunset\": \"February 2027\",", "x-sunset 'February 2027'")]
+        public void RefuseStabilityOrSunsetOutsideItsForm(string published, string replacement, string named)
+        {
+            // Arrange
+            var synthetic = Fixture("synthetic.json").Replace(published, replacement, StringComparison.Ordinal);
+
+            // Act / Assert
+            var exception = Assert.ThrowsExactly<DeriveException>(() => Deriver.Derive(synthetic, "{}"));
+            StringAssert.Contains(exception.Message, named);
         }
 
         private static string Fixture(string name)

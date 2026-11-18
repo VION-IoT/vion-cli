@@ -3,13 +3,14 @@
   "info": {
     "title": "Synthetic document for the derive tests",
     "version": "v1",
-    "description": "Mirrors tenant.edgeGateway.list's shape (a tenant list with a filter) and adds what the real document lacks today: a query parameter whose kebab name is a global option's (`json`), a deprecated operation, and a system operation beside them."
+    "description": "Mirrors tenant.edgeGateway.list's shape (a tenant list with a filter) and adds what the real document lacks today: a query parameter whose kebab name is a global option's (`json`), a stable operation, a deprecated beta one with its sunset, and a system operation beside them."
   },
   "paths": {
     "/tenant/{tenantId}/things": {
       "get": {
         "operationId": "tenant.thing.list",
         "description": "Lists the things.",
+        "x-stability-level": "stable",
         "parameters": [
           { "name": "tenantId", "in": "path", "required": true, "description": "The tenant's id.", "schema": { "type": "string", "format": "uuid" } },
           { "name": "json", "in": "query", "description": "A filter whose name collides with the global option.", "schema": { "type": "string" } },
@@ -25,6 +26,8 @@
         "operationId": "tenant.thing.get",
         "description": "Gets one thing; retired.",
         "deprecated": true,
+        "x-sunset": "2027-02-01",
+        "x-stability-level": "beta",
         "parameters": [
           { "name": "tenantId", "in": "path", "required": true, "description": "The tenant's id.", "schema": { "type": "string", "format": "uuid" } },
           { "name": "id", "in": "path", "required": true, "description": "The thing's id.", "schema": { "type": "string", "format": "uuid" } }
@@ -38,6 +41,7 @@
       "get": {
         "operationId": "system.thing.list",
         "description": "A system operation, which has no command.",
+        "x-stability-level": "beta",
         "responses": { "200": { "description": "OK" } },
         "x-vion-authorization": { "mode": "Caller", "permissions": [] },
         "x-vion-capability": { "effect": "Read", "idempotent": false, "versioned": false, "dryRun": false }

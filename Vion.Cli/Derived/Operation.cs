@@ -33,6 +33,17 @@ namespace Vion.Cli.Derived
         Irreversible,
     }
 
+    /// <summary>
+    ///     How an operation may change, as the document's `x-stability-level` states it: a stable one only additively or by
+    ///     a deprecation, a beta one without notice.
+    /// </summary>
+    internal enum Stability
+    {
+        Beta,
+
+        Stable,
+    }
+
     /// <summary>How the caller learns an operation's outcome: the answer itself, or a long-running operation to poll.</summary>
     internal enum Completion
     {
@@ -85,6 +96,8 @@ namespace Vion.Cli.Derived
         bool Versioned,
         bool DryRun,
         bool Deprecated,
+        Stability Stability,
+        string? Sunset,
         Completion Completion,
         bool AnswersLongRunningOperation,
         Authorization Authorization,

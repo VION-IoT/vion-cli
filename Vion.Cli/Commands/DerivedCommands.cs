@@ -74,6 +74,27 @@ namespace Vion.Cli.Commands
             return $"The {aggregate.Replace('-', ' ')} operations.";
         }
 
+        /// <summary>
+        ///     What a command's own help adds below the description, or null for none. The default level, beta, is not
+        ///     written: it promises nothing, and a line on every command would bury the one that does. A deprecation is
+        ///     written at either level, since a beta operation may be deprecated too.
+        /// </summary>
+        public static string? Status(Operation operation)
+        {
+            var lines = new List<string>();
+            if (operation.Stability == Stability.Stable)
+            {
+                lines.Add("Stability: stable — changes only additively or by a deprecation.");
+            }
+
+            if (operation.Deprecated)
+            {
+                lines.Add(operation.Sunset != null ? $"Deprecated: may be gone from {operation.Sunset}." : "Deprecated.");
+            }
+
+            return lines.Count > 0 ? string.Join('\n', lines) : null;
+        }
+
         private static Command Create(Operation operation, CliTree tree, CliServices services)
         {
             var command = new Command(operation.CommandVerb, operation.Description)
@@ -107,6 +128,7 @@ namespace Vion.Cli.Commands
                                                                                           tree,
                                                                                           services,
                                                                                           cancellationToken));
+            tree.DerivedOperations[command] = operation;
             return command;
         }
 
