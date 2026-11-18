@@ -1,6 +1,6 @@
 ---
 slug: deprecation-and-stability
-status: in-flight          # proposed | in-flight | parked | archived
+status: archived
 blocked-on: none           # for parked docs: what's blocking + ref
 areas: CLI
 author: the api-change-communication session, for Jonas Bertsch
