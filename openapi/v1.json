@@ -94,7 +94,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -220,7 +221,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/widgetDefinitions/{id}": {
@@ -392,7 +394,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -527,7 +530,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/whiteLabel": {
@@ -614,7 +618,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/systemHealth": {
@@ -721,7 +726,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/systemEvents": {
@@ -867,7 +873,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/supportAccess/grants": {
@@ -954,7 +961,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -1080,7 +1088,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/supportAccess/grants/{id}/approve": {
@@ -1228,7 +1237,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/supportAccess/grants/{id}/deny": {
@@ -1365,7 +1375,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/supportAccess/grants/{id}": {
@@ -1502,7 +1513,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/supportAccess/sessions": {
@@ -1609,7 +1621,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/logicBlockInstances": {
@@ -1716,7 +1729,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/logicBlockInstances/{id}/displayName": {
@@ -1864,7 +1878,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/services": {
@@ -1972,7 +1987,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/services/subscribeProperties": {
@@ -2101,7 +2117,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/services/{edgeGatewayId}/{serviceProviderIdentifier}/{serviceIdentifier}/property/{propertyIdentifier}": {
@@ -2277,7 +2294,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/serviceProviders": {
@@ -2384,7 +2402,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/serviceProviders/contracts": {
@@ -2491,7 +2510,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/serviceProviders/setups": {
@@ -2598,7 +2618,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/serviceProviders/{edgeGatewayId}/{serviceProviderIdentifier}/setup": {
@@ -2755,7 +2776,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/serviceProviders/{edgeGatewayId}/{serviceProviderIdentifier}/registration": {
@@ -2936,7 +2958,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/serviceProviders/{edgeGatewayId}/{serviceProviderIdentifier}": {
@@ -3082,7 +3105,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/restarts/{id}/{component}": {
@@ -3228,7 +3252,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/internal/remoteAccess/console/join": {
@@ -3307,7 +3332,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/remoteAccess": {
@@ -3414,7 +3440,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/remoteAccess/vpn": {
@@ -3542,7 +3569,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/remoteAccess/console": {
@@ -3670,7 +3698,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/remoteAccess/{id}": {
@@ -3807,7 +3836,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/remoteAccess/{remoteAccessSessionId}/connection": {
@@ -3916,7 +3946,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/remoteAccess/{remoteAccessSessionId}/console": {
@@ -4025,7 +4056,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/projects": {
@@ -4123,7 +4155,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -4249,7 +4282,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/projects/{id}": {
@@ -4421,7 +4455,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -4556,7 +4591,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/projects/{projectId}/image": {
@@ -4670,7 +4706,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "put": {
         "tags": [
@@ -4816,7 +4853,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -4951,7 +4989,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/overviewComposition": {
@@ -5038,7 +5077,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "put": {
         "tags": [
@@ -5188,7 +5228,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -5303,7 +5344,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/nodeAssignments": {
@@ -5401,7 +5443,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -5527,7 +5570,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/nodeAssignments/{id}": {
@@ -5664,7 +5708,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/nodes": {
@@ -5762,7 +5807,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -5888,7 +5934,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/nodes/{id}": {
@@ -6060,7 +6107,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -6195,7 +6243,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/measuringPoints/data": {
@@ -6389,7 +6438,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/logLevels": {
@@ -6496,7 +6546,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/logLevels/{edgeGatewayId}/{component}": {
@@ -6653,7 +6704,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/logicConfigurationTemplates": {
@@ -6740,7 +6792,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/logicConfigurations": {
@@ -6838,7 +6891,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -6964,7 +7018,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/logicConfigurations/{id}": {
@@ -7073,7 +7128,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "put": {
         "tags": [
@@ -7254,7 +7310,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -7389,7 +7446,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/logicConfigurations/{id}/export": {
@@ -7498,7 +7556,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/logicConfigurations/{id}/apply": {
@@ -7697,7 +7756,8 @@
           "versioned": true,
           "dryRun": true,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/logicConfigurations/{id}/activate": {
@@ -7842,7 +7902,8 @@
           "versioned": false,
           "dryRun": true,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/logicBlockTranslations": {
@@ -7937,7 +7998,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/logicBlockDefinitions": {
@@ -8024,7 +8086,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/edgeGateways": {
@@ -8131,7 +8194,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/edgeGateways/{id}": {
@@ -8303,7 +8367,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/dashboardTemplates": {
@@ -8390,7 +8455,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/dashboards": {
@@ -8488,7 +8554,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -8614,7 +8681,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/dashboards/{id}": {
@@ -8797,7 +8865,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -8932,7 +9001,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/alertRules": {
@@ -9039,7 +9109,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -9165,7 +9236,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/alertRules/{id}": {
@@ -9337,7 +9409,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -9472,7 +9545,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/rules": {
@@ -9579,7 +9653,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -9705,7 +9780,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/rules/{id}": {
@@ -9877,7 +9953,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -10012,7 +10089,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/schedules": {
@@ -10119,7 +10197,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -10245,7 +10324,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/schedules/{id}": {
@@ -10417,7 +10497,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -10552,7 +10633,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/scopes/{scopeId}/access": {
@@ -10661,7 +10743,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/principals/{principalId}/access": {
@@ -10770,7 +10853,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/me/access": {
@@ -10857,7 +10941,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/me/permissions": {
@@ -10956,7 +11041,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/groups": {
@@ -11045,7 +11131,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -11171,7 +11258,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/groups/{id}": {
@@ -11343,7 +11431,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -11478,7 +11567,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/invitations/accept": {
@@ -11594,7 +11684,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/roleAssignments": {
@@ -11683,7 +11774,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -11809,7 +11901,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/roleAssignments/{id}": {
@@ -11946,7 +12039,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/roles": {
@@ -12035,7 +12129,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/scopes": {
@@ -12124,7 +12219,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/serviceAccounts": {
@@ -12213,7 +12309,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -12311,7 +12408,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/serviceAccounts/{id}": {
@@ -12483,7 +12581,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -12618,7 +12717,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/serviceAccounts/{serviceAccountId}/rotate": {
@@ -12727,7 +12827,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/users": {
@@ -12816,7 +12917,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -12942,7 +13044,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/users/{userId}/resend": {
@@ -13079,7 +13182,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/access/users/{id}": {
@@ -13216,7 +13320,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/arrangements/{collection}": {
@@ -13322,7 +13427,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "put": {
         "tags": [
@@ -13491,7 +13597,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -13625,7 +13732,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/arrangements/projects": {
@@ -13723,7 +13831,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/arrangements/dashboards/{projectId}": {
@@ -13895,7 +14004,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -14030,7 +14140,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/arrangements/assetTree/{projectId}": {
@@ -14202,7 +14313,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -14337,7 +14449,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/alerts": {
@@ -14491,7 +14604,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/aiGeneration/generate": {
@@ -14617,7 +14731,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/tenant/{tenantId}/syncStatus": {
@@ -14724,7 +14839,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/certificateApproval": {
@@ -14789,7 +14905,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/certificateApproval/token": {
@@ -14855,7 +14972,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/supportAccess/grants": {
@@ -14944,7 +15062,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -15070,7 +15189,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/supportAccess/tenants": {
@@ -15159,7 +15279,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/supportAccess/tenants/{tenantId}/scopes": {
@@ -15268,7 +15389,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/supportSessions": {
@@ -15357,7 +15479,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -15483,7 +15606,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/supportSessions/{id}": {
@@ -15620,7 +15744,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/supportSessions/{supportSessionId}/console": {
@@ -15729,7 +15854,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/supportSessions/{supportSessionId}/connection": {
@@ -15838,7 +15964,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/supportSessions/{supportSessionId}/twincat": {
@@ -15947,7 +16074,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/rabbitMq/adminUsers": {
@@ -16036,7 +16164,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -16162,7 +16291,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/rabbitMq/adminUsers/{id}": {
@@ -16299,7 +16429,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/rabbitMq/permissions/recreate": {
@@ -16416,7 +16547,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/onboardingSessions": {
@@ -16505,7 +16637,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/onboardingSessions/{id}": {
@@ -16642,7 +16775,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/observability/grafanaMaintenance/provisionDashboards": {
@@ -16770,7 +16904,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/integrators": {
@@ -16859,7 +16994,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -16985,7 +17121,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/integrators/{id}": {
@@ -17157,7 +17294,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -17292,7 +17430,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/integrators/{integratorId}/owners": {
@@ -17440,7 +17579,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/integrators/{integratorId}/owners/{userId}/resend": {
@@ -17587,7 +17727,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/integrators/{integratorId}/owners/{id}": {
@@ -17727,7 +17868,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/integrators/{integratorId}/owners/serviceaccounts": {
@@ -17847,7 +17989,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "get": {
         "tags": [
@@ -17954,7 +18097,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/integrators/{integratorId}/owners/serviceaccounts/{id}": {
@@ -18101,7 +18245,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/bootstrap": {
@@ -18206,7 +18351,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/access/scopes/{scopeId}/access": {
@@ -18315,7 +18461,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/access/principals/{principalId}/access": {
@@ -18424,7 +18571,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/access/me/access": {
@@ -18511,7 +18659,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/access/me/permissions": {
@@ -18610,7 +18759,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/invitations/accept": {
@@ -18726,7 +18876,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/access/roleAssignments": {
@@ -18815,7 +18966,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -18941,7 +19093,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/access/roleAssignments/{id}": {
@@ -19078,7 +19231,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/access/roles": {
@@ -19167,7 +19321,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/access/scopes": {
@@ -19256,7 +19411,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/access/serviceAccounts": {
@@ -19345,7 +19501,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -19443,7 +19600,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/access/serviceAccounts/{id}": {
@@ -19615,7 +19773,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -19750,7 +19909,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/access/serviceAccounts/{serviceAccountId}/rotate": {
@@ -19859,7 +20019,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/access/users": {
@@ -19948,7 +20109,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -20074,7 +20236,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/access/users/{userId}/resend": {
@@ -20211,7 +20374,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/platform/{platformId}/access/users/{id}": {
@@ -20348,7 +20512,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/onboarding/provision": {
@@ -20477,6 +20642,7 @@
           "dryRun": false,
           "completion": "LongRunningOperation"
         },
+        "x-stability-level": "beta",
         "x-vion-longRunningOperationResult": {
           "$ref": "#/components/schemas/ProvisionOutput"
         }
@@ -20566,7 +20732,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "put": {
         "tags": [
@@ -20690,7 +20857,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/me/notifications": {
@@ -20823,7 +20991,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/me/notifications/{id}": {
@@ -20930,7 +21099,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/me/notifications/read": {
@@ -21054,7 +21224,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/me/longRunningOperations": {
@@ -21162,7 +21333,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/me/longRunningOperations/{id}": {
@@ -21269,7 +21441,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/widgetDefinitions": {
@@ -21358,7 +21531,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -21484,7 +21658,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/widgetDefinitions/{id}": {
@@ -21656,7 +21831,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -21791,7 +21967,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/tenants/whiteLabel": {
@@ -21880,7 +22057,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/tenants/{tenantId}/whiteLabel": {
@@ -22052,7 +22230,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/whiteLabel": {
@@ -22139,7 +22318,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "put": {
         "tags": [
@@ -22289,7 +22469,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/tenants": {
@@ -22378,7 +22559,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -22504,7 +22686,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/tenants/{id}": {
@@ -22676,7 +22859,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -22811,7 +22995,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/tenants/{tenantId}/owners": {
@@ -22959,7 +23144,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/tenants/{tenantId}/owners/{userId}/resend": {
@@ -23106,7 +23292,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/tenants/{tenantId}/owners/{id}": {
@@ -23246,7 +23433,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/tenants/{tenantId}/owners/serviceaccounts": {
@@ -23366,7 +23554,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "get": {
         "tags": [
@@ -23473,7 +23662,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/tenants/{tenantId}/owners/serviceaccounts/{id}": {
@@ -23620,7 +23810,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/tenantOverviewComposition": {
@@ -23707,7 +23898,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "put": {
         "tags": [
@@ -23857,7 +24049,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/tenants/overviewComposition": {
@@ -23946,7 +24139,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/tenants/{tenantId}/overviewComposition": {
@@ -24118,7 +24312,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -24253,7 +24448,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/tenantDashboardTemplates": {
@@ -24342,7 +24538,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -24468,7 +24665,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/tenantDashboardTemplates/{id}": {
@@ -24640,7 +24838,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -24775,7 +24974,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/systemHealth": {
@@ -24864,7 +25064,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/supportAccess/grants": {
@@ -24953,7 +25154,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -25079,7 +25281,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/supportAccess/tenants/{tenantId}/scopes": {
@@ -25188,7 +25391,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/supportSessions": {
@@ -25277,7 +25481,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -25403,7 +25608,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/supportSessions/{id}": {
@@ -25540,7 +25746,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/supportSessions/{supportSessionId}/console": {
@@ -25649,7 +25856,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/supportSessions/{supportSessionId}/connection": {
@@ -25758,7 +25966,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/supportSessions/{supportSessionId}/twincat": {
@@ -25867,7 +26076,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/softwareDeployments": {
@@ -26003,7 +26213,8 @@
           "versioned": false,
           "dryRun": true,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "get": {
         "tags": [
@@ -26090,7 +26301,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/softwareReleases": {
@@ -26179,7 +26391,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/softwareProfiles": {
@@ -26268,7 +26481,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -26394,7 +26608,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/softwareProfiles/{id}": {
@@ -26566,7 +26781,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -26701,7 +26917,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/restarts/{id}/{component}": {
@@ -26847,7 +27064,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/longRunningOperations": {
@@ -26965,7 +27183,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/longRunningOperations/{id}": {
@@ -27082,7 +27301,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/logicConfigurationTemplates": {
@@ -27171,7 +27391,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -27297,7 +27518,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/logicConfigurationTemplates/{id}": {
@@ -27469,7 +27691,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -27604,7 +27827,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/logicBlockLibraries/{logicBlockLibraryId}/translations": {
@@ -27713,7 +27937,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "put": {
         "tags": [
@@ -27859,7 +28084,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -28005,7 +28231,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/logicBlockLibraries/{logicBlockLibraryId}/translations/csv": {
@@ -28122,7 +28349,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -28281,7 +28509,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/logicBlockTranslations": {
@@ -28376,7 +28605,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/logicBlockLibraries": {
@@ -28465,7 +28695,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/logicBlockLibraries/{id}": {
@@ -28637,7 +28868,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -28772,7 +29004,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/logicBlockLibraryGrants": {
@@ -28870,7 +29103,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -28996,7 +29230,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/logicBlockLibraryGrants/{id}": {
@@ -29133,7 +29368,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/logicBlockLibraryVersions": {
@@ -29230,7 +29466,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -29385,7 +29622,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/logicBlockLibraryVersions/{id}": {
@@ -29557,7 +29795,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/logicBlockDefinitions": {
@@ -29646,7 +29885,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/edgeGateways": {
@@ -29735,7 +29975,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -29882,6 +30123,7 @@
           "dryRun": true,
           "completion": "LongRunningOperation"
         },
+        "x-stability-level": "beta",
         "x-vion-longRunningOperationResult": {
           "$ref": "#/components/schemas/CreateEdgeGatewayOutput"
         }
@@ -30056,7 +30298,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -30191,7 +30434,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/edgeGateways/pendingCertificateRequest/{id}": {
@@ -30339,7 +30583,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/edgeGateways/{id}/recommission": {
@@ -30487,7 +30732,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/edgeGateways/{edgeGatewayId}/updateSimulation": {
@@ -30637,6 +30883,7 @@
           "dryRun": false,
           "completion": "LongRunningOperation"
         },
+        "x-stability-level": "beta",
         "x-vion-longRunningOperationResult": {
           "$ref": "#/components/schemas/CreateEdgeGatewayOutput"
         }
@@ -30748,7 +30995,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/access/principals/{principalId}/access": {
@@ -30857,7 +31105,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/access/me/access": {
@@ -30944,7 +31193,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/access/me/permissions": {
@@ -31043,7 +31293,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/invitations/accept": {
@@ -31159,7 +31410,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/access/roleAssignments": {
@@ -31248,7 +31500,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -31374,7 +31627,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/access/roleAssignments/{id}": {
@@ -31511,7 +31765,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/access/roles": {
@@ -31600,7 +31855,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/access/scopes": {
@@ -31689,7 +31945,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/access/serviceAccounts": {
@@ -31778,7 +32035,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -31876,7 +32134,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/access/serviceAccounts/{id}": {
@@ -32048,7 +32307,8 @@
           "versioned": true,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "delete": {
         "tags": [
@@ -32183,7 +32443,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/access/serviceAccounts/{serviceAccountId}/rotate": {
@@ -32292,7 +32553,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/access/users": {
@@ -32381,7 +32643,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       },
       "post": {
         "tags": [
@@ -32507,7 +32770,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/access/users/{userId}/resend": {
@@ -32644,7 +32908,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/access/users/{id}": {
@@ -32781,7 +33046,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/integrator/{integratorId}/aiGeneration/generate": {
@@ -32909,7 +33175,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/me": {
@@ -32986,7 +33253,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "stable"
       }
     },
     "/me/subscribers": {
@@ -33063,7 +33331,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/me/profile": {
@@ -33181,7 +33450,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/capabilities": {
@@ -33258,7 +33528,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     },
     "/me/invitations/{id}/accept": {
@@ -33385,7 +33656,8 @@
           "versioned": false,
           "dryRun": false,
           "completion": "Response"
-        }
+        },
+        "x-stability-level": "beta"
       }
     }
   },
@@ -34601,6 +34873,33 @@
         "type": "object",
         "additionalProperties": false
       },
+      "CapabilityDeprecationOutput": {
+        "required": [
+          "since",
+          "sunset"
+        ],
+        "type": "object",
+        "properties": {
+          "since": {
+            "type": "string",
+            "description": "The day the deprecation began.",
+            "format": "date"
+          },
+          "sunset": {
+            "type": "string",
+            "description": "The first day the operation may be gone.",
+            "format": "date"
+          },
+          "replacedBy": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The operationId of the operation to call instead, or null where the deprecation names none."
+          }
+        },
+        "description": "When a deprecated operation ends and what to call instead."
+      },
       "CapabilityOutput": {
         "required": [
           "id",
@@ -34611,6 +34910,7 @@
           "versioned",
           "dryRun",
           "completion",
+          "stability",
           "authorization"
         ],
         "type": "object",
@@ -34646,6 +34946,21 @@
           "completion": {
             "description": "How the caller learns the outcome: the response itself, or a long-running operation to poll until it ends.",
             "$ref": "#/components/schemas/Completion"
+          },
+          "stability": {
+            "description": "Whether the operation changes only additively or by a deprecation, or without notice.",
+            "$ref": "#/components/schemas/Stability"
+          },
+          "deprecation": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "When the operation ends, or null for an operation that is not deprecated.",
+                "$ref": "#/components/schemas/CapabilityDeprecationOutput"
+              }
+            ]
           },
           "authorization": {
             "description": "What the operation requires of its caller.",
@@ -37958,7 +38273,8 @@
               "type": "string",
               "format": "uuid"
             },
-            "deprecated": true
+            "deprecated": true,
+            "x-sunset": "2027-02-01"
           },
           "edgeGateways": {
             "type": "array",
@@ -45434,7 +45750,8 @@
           "runtime": {},
           "topic": {
             "type": "string",
-            "deprecated": true
+            "deprecated": true,
+            "x-sunset": "2027-02-01"
           }
         }
       },
@@ -46019,6 +46336,14 @@
             ]
           }
         }
+      },
+      "Stability": {
+        "enum": [
+          "Beta",
+          "Stable"
+        ],
+        "type": "string",
+        "description": "How an operation may change, a closed set published whole."
       },
       "Stream": {
         "type": "string",
