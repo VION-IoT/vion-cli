@@ -2,7 +2,8 @@
 # issue in VION-IoT/architecture open while either differs or fails (docs/releasing.md § The live check).
 #
 #   schedule 04:17 UTC, workflow_dispatch
-#     -> the latest release's vion-<v>-linux-musl-x64.tar.gz, refused unless it matches its .sha256
+#     -> wait for the latest release's vion-<v>-linux-musl-x64.tar.gz and its .sha256 to be attached
+#     -> that archive, refused unless it matches its .sha256
 #     -> `vion ops --live --env test --json` and `… --env production --json`, tokenless and read-only
 #     -> both clean: nothing. Either not: a comment on the open `live-check` issue in architecture, or
 #        a new one when none is open; the run then goes red.
@@ -12,6 +13,11 @@
 # European working day has deployed and before the next one starts; off the hour, because GitHub
 # delays scheduled runs that start on it. The latest release, not main's build: the release is what
 # users run, and derive.ps1 -Verify already proves main's snapshot on every pull request.
+#
+# The release is published by `gh release create` before ci-cd.yml has built anything, and GitHub
+# can start a scheduled run hours late, so a run can land between the two with no archive to download.
+# The download step polls for the archive and its .sha256 first, up to twenty minutes, as winget.yml
+# polls for the zip; a wait that runs out is a failure like any other.
 #
 # Exit 1 is both "differs" and "failed" (AC-CLI-006.2 and Guard), so the run passes --json and reads
 # the one document AC-CLI-003.1 puts on standard output: `items` for a diff, `error` for a failure;
@@ -40,7 +46,8 @@ concurrency:
 jobs:
   live-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # The archive wait's twenty minutes, and the check's own few.
+    timeout-minutes: 30
     steps:
       - name: The latest release
         id: release
@@ -51,8 +58,8 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "archive=vion-${tag#v}-linux-musl-x64.tar.gz" >> "$GITHUB_OUTPUT"
 
-      # A missing archive or a checksum mismatch does not stop the job: the next step records it as
-      # both environments failing, so it reaches the issue as any failure does.
+      # An archive still missing after the wait, or a checksum mismatch, does not stop the job: the
+      # next step records it as both environments failing, so it reaches the issue as any failure does.
       - name: Download and verify its Linux x64 archive
         id: download
         continue-on-error: true
@@ -61,6 +68,21 @@ jobs:
           TAG: ${{ steps.release.outputs.tag }}
           ARCHIVE: ${{ steps.release.outputs.archive }}
         run: |
+          # Both names must be uploaded: `gh release download` exits 1 on a pattern that matches nothing.
+          deadline=$(( $(date +%s) + 20 * 60 ))
+          while :; do
+            names=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[] | select(.state == "uploaded") | .name')
+            if grep -qxF "$ARCHIVE" <<< "$names" && grep -qxF "$ARCHIVE.sha256" <<< "$names"; then
+              echo "attached: $ARCHIVE and $ARCHIVE.sha256"
+              break
+            fi
+            if [ "$(date +%s)" -gt "$deadline" ]; then
+              echo "::error::$ARCHIVE or its .sha256 is not on $TAG after twenty minutes; re-run this job once both are attached"
+              exit 1
+            fi
+            echo "$ARCHIVE and its .sha256 not yet both on $TAG; waiting"
+            sleep 30
+          done
           mkdir -p "$RUNNER_TEMP/download" "$RUNNER_TEMP/vion"
           cd "$RUNNER_TEMP/download"
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$ARCHIVE" --pattern "$ARCHIVE.sha256"
