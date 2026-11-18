@@ -71,7 +71,8 @@ jobs:
           # Both names must be uploaded: `gh release download` exits 1 on a pattern that matches nothing.
           deadline=$(( $(date +%s) + 20 * 60 ))
           while :; do
-            names=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[] | select(.state == "uploaded") | .name')
+            # A refused read is one more poll, not a failure: GitHub refuses API reads at random.
+            names=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[] | select(.state == "uploaded") | .name') || names=
             if grep -qxF "$ARCHIVE" <<< "$names" && grep -qxF "$ARCHIVE.sha256" <<< "$names"; then
               echo "attached: $ARCHIVE and $ARCHIVE.sha256"
               break
