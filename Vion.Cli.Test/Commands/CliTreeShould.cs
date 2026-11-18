@@ -95,6 +95,31 @@ namespace Vion.Cli.Test.Commands
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-001.7")]
+        [DataRow(false, true)]
+        [DataRow(true, false)]
+        public async Task PrintHiddenCommandsOwnHelp(bool deprecated, bool hidden)
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(200);
+            var operations = new[]
+                             {
+                                 SyntheticOperation.Create("tenant.thing.list", false),
+                                 SyntheticOperation.Create("tenant.thing.get", deprecated, hidden: hidden),
+                             };
+
+            // Act
+            var own = await Tool.RunAsync(handler, ["tenant", "thing", "get", "--help"], operations: operations);
+            var parent = await Tool.RunAsync(handler, ["tenant", "thing", "--help"], operations: operations);
+
+            // Assert
+            Assert.AreEqual(0, own.ExitCode, own.Error);
+            StringAssert.Contains(own.Out.ReplaceLineEndings("\n"), "Description:\n  Does get.");
+            StringAssert.Contains(own.Out, "vion tenant thing get [options]");
+            Assert.IsFalse(parent.Out.Contains("  get  ", System.StringComparison.Ordinal), parent.Out);
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-001.6")]
         public async Task StateStabilityOnStableCommandsOwnHelpOnly()
         {

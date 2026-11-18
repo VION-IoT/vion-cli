@@ -34,6 +34,7 @@ one spelling on every command.
 - `AC-CLI-001.4` (Unwanted): IF a derived option's name equals a global option's name THEN THE SYSTEM SHALL name the derived option with the suffix `-param` and show that name in help.
 - `AC-CLI-001.5` (Unwanted): IF `cli.json` names an operationId the committed document lacks THEN THE SYSTEM SHALL fail the derive step naming the entry.
 - `AC-CLI-001.6` (Ubiquitous): THE SYSTEM SHALL describe each derived command by its operation's description and, in the command's own help, its `x-stability-level` where it is `stable`, and each derived option by its parameter's description in help.
+- `AC-CLI-001.7` (Optional): WHERE a derived command is hidden, by `cli.json` or because its operation is `deprecated`, THE SYSTEM SHALL still print its own help when it is asked for.
 
 ## A call on the wire
 

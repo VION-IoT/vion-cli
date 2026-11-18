@@ -134,13 +134,14 @@ namespace Vion.Cli.Commands
             {
                 var command = parseResult.CommandResult.Command;
 
-                // The library writes nothing for a hidden command's own help, and a deprecated command is hidden from
-                // its parent's: it is shown for the length of its own help, which is the one place its sunset is stated.
-                if (tree.DerivedOperations.TryGetValue(command, out var operation) && DerivedCommands.Status(operation) is { } status)
+                // The library writes nothing for a hidden command's own help. A derived command is hidden from its
+                // parent's help by deprecation or by cli.json, and still answers its own: it is shown for the length of
+                // that help, which is also the one place its sunset is stated.
+                if (tree.DerivedOperations.TryGetValue(command, out var operation))
                 {
                     var bare = command.Description;
                     var hidden = command.Hidden;
-                    command.Description = $"{bare}\n{status}";
+                    command.Description = DerivedCommands.Status(operation) is { } status ? $"{bare}\n{status}" : bare;
                     command.Hidden = false;
                     try
                     {
