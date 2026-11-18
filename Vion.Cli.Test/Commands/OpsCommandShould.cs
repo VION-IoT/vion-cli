@@ -135,6 +135,57 @@ namespace Vion.Cli.Test.Commands
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.1")]
+        public async Task WriteStabilityAndSunsetOfEveryRowInJson()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(500);
+            var operations = new[]
+                             {
+                                 SyntheticOperation.Create("tenant.thing.list", false),
+                                 SyntheticOperation.Create("tenant.thing.get", true, Stability.Stable, "2027-02-01"),
+                             };
+            var channels = new[] { Channels.All.Single(channel => channel.Id == "tenant.alert.state") };
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--json"], operations: operations, channels: channels);
+
+            // Assert
+            var items = JsonNode.Parse(run.Out)!["items"]!.AsArray().Select(item => item!.AsObject()).ToList();
+            var listing = items.Single(i => i["operationId"]!.GetValue<string>() == "tenant.thing.list");
+            Assert.AreEqual("beta", listing["stability"]!.GetValue<string>());
+            Assert.IsTrue(listing.ContainsKey("sunset") && listing["sunset"] == null);
+            var getting = items.Single(i => i["operationId"]!.GetValue<string>() == "tenant.thing.get");
+            Assert.AreEqual("stable", getting["stability"]!.GetValue<string>());
+            Assert.AreEqual("2027-02-01", getting["sunset"]!.GetValue<string>());
+            var watch = items.Single(i => i["protocol"]!.GetValue<string>() == "mqtt");
+            Assert.IsTrue(watch.ContainsKey("stability") && watch["stability"] == null);
+            Assert.IsTrue(watch.ContainsKey("sunset") && watch["sunset"] == null);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.1")]
+        public async Task FlagStableAndDeprecatedWithSunsetInTable()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Empty(500);
+            var operations = new[]
+                             {
+                                 SyntheticOperation.Create("tenant.thing.list", false),
+                                 SyntheticOperation.Create("tenant.thing.get", true, Stability.Stable, "2027-02-01"),
+                             };
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops"], operations: operations, channels: []);
+
+            // Assert
+            var lines = run.Out.Split(Environment.NewLine).Select(line => line.TrimEnd()).ToList();
+            StringAssert.Matches(lines.Single(line => line.Contains("tenant.thing.get", StringComparison.Ordinal)),
+                                 new System.Text.RegularExpressions.Regex(" Response {2,}stable deprecated sunset=2027-02-01$"));
+            StringAssert.EndsWith(lines.Single(line => line.Contains("tenant.thing.list", StringComparison.Ordinal)), " Response");
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-006.2")]
         public async Task DiffLiveDocumentAgainstCommittedOne()
         {
@@ -199,6 +250,53 @@ namespace Vion.Cli.Test.Commands
                                 .Select(i => (i!["change"]!.GetValue<string>(), i["operationId"]!.GetValue<string>(), i["detail"]?.GetValue<string>()))
                                 .ToList();
             CollectionAssert.AreEqual(new[] { ("changed", "integrator.edgeGateway.create", (string?)"x-vion-capability") }, items);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.2")]
+        [DataRow("x-stability-level", "\"stable\"", "x-stability-level")]
+        [DataRow("x-stability-level", null, "x-stability-level")]
+        [DataRow("deprecated", "true", "deprecated")]
+        [DataRow("x-sunset", "\"2027-02-01\"", "x-sunset")]
+        public async Task ReportOperationWhoseStabilityOrDeprecationAloneMoved(string member, string? served, string detail)
+        {
+            // Arrange
+            var live = JsonNode.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "v1.json")))!;
+            var listing = live["paths"]!["/tenant/{tenantId}/edgeGateways"]!["get"]!.AsObject();
+            listing.Remove(member);
+            if (served != null)
+            {
+                listing[member] = JsonNode.Parse(served);
+            }
+
+            using var handler = Documents(live.ToJsonString(), Fixture("asyncapi-v1.json"));
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--live", "--env", "test", "--json"]);
+
+            // Assert
+            Assert.AreEqual(1, run.ExitCode, run.Error);
+            var items = JsonNode.Parse(run.Out)!["items"]!.AsArray()
+                                .Select(i => (i!["change"]!.GetValue<string>(), i["operationId"]!.GetValue<string>(), i["detail"]?.GetValue<string>()))
+                                .ToList();
+            CollectionAssert.AreEqual(new[] { ("changed", "tenant.edgeGateway.list", (string?)detail) }, items);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-006.2")]
+        public async Task CompareStabilityLevelIgnoringCase()
+        {
+            // Arrange
+            var live = JsonNode.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "v1.json")))!;
+            live["paths"]!["/tenant/{tenantId}/edgeGateways"]!["get"]!["x-stability-level"] = "Beta";
+            using var handler = Documents(live.ToJsonString(), Fixture("asyncapi-v1.json"));
+
+            // Act
+            var run = await Tool.RunAsync(handler, ["ops", "--live", "--env", "test"]);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            StringAssert.Contains(run.Error, "no differences");
         }
 
         [TestMethod]

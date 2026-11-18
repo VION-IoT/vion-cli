@@ -53,7 +53,7 @@ namespace Vion.Cli.Commands
         private static int Run(GlobalValues globals, bool includeSystem, CliTree tree, CliServices services)
         {
             var rows = new JsonArray();
-            foreach (var operation in Operations.All.Where(o => o.InTree || includeSystem))
+            foreach (var operation in tree.Operations.Where(o => o.InTree || includeSystem))
             {
                 rows.Add((JsonNode)new JsonObject
                                    {
@@ -68,6 +68,8 @@ namespace Vion.Cli.Commands
                                        ["versioned"] = operation.Versioned,
                                        ["dryRun"] = operation.DryRun,
                                        ["deprecated"] = operation.Deprecated,
+                                       ["stability"] = operation.Stability.ToString().ToLowerInvariant(),
+                                       ["sunset"] = operation.Sunset,
                                        ["hidden"] = operation.Hidden,
                                    });
             }
@@ -91,6 +93,10 @@ namespace Vion.Cli.Commands
                                        ["versioned"] = false,
                                        ["dryRun"] = false,
                                        ["deprecated"] = false,
+
+                                       // The event document publishes no stability; null says so where a beta would claim one.
+                                       ["stability"] = null,
+                                       ["sunset"] = null,
                                        ["hidden"] = false,
                                    });
             }
@@ -121,9 +127,20 @@ namespace Vion.Cli.Commands
                     flags.Add("dry-run");
                 }
 
+                // Beta is the default and promises nothing, so only stable is written: as a flag, it marks the few rows
+                // that do promise something instead of filling a column with the same word.
+                if ((string?)row["stability"] == "stable")
+                {
+                    flags.Add("stable");
+                }
+
                 if ((bool)row["deprecated"]!)
                 {
                     flags.Add("deprecated");
+                    if ((string?)row["sunset"] is { } sunset)
+                    {
+                        flags.Add($"sunset={sunset}");
+                    }
                 }
 
                 if ((bool)row["hidden"]!)
@@ -151,7 +168,8 @@ namespace Vion.Cli.Commands
 
         /// <summary>
         ///     The environment's documents against the committed ones, by operation id. The OpenAPI document's operations:
-        ///     added, removed, or changed in method, path, `x-vion-authorization` or `x-vion-capability`. The event document's:
+        ///     added, removed, or changed in method, path, `x-vion-authorization`, `x-vion-capability`, `x-stability-level`,
+        ///     `deprecated` or `x-sunset`. The event document's:
         ///     added, removed, or changed in action, channel, or what the watch derive reads of the channel — never its
         ///     address, which names the environment. Exit 0 only when nothing differs, so a smoke check can use it.
         /// </summary>
@@ -200,6 +218,22 @@ namespace Vion.Cli.Commands
                 if (!SameCapability(served.Capability, operation))
                 {
                     differences.Add("x-vion-capability");
+                }
+
+                // A served document without a level differs from any committed one: the derive step refuses it.
+                if (!string.Equals(served.Stability, operation.Stability.ToString(), StringComparison.OrdinalIgnoreCase))
+                {
+                    differences.Add("x-stability-level");
+                }
+
+                if (served.Deprecated != operation.Deprecated)
+                {
+                    differences.Add("deprecated");
+                }
+
+                if (served.Sunset != operation.Sunset)
+                {
+                    differences.Add("x-sunset");
                 }
 
                 if (differences.Count > 0)
@@ -335,7 +369,10 @@ namespace Vion.Cli.Commands
                                                                method.ToUpperInvariant(),
                                                                path,
                                                                operation["x-vion-authorization"] as JsonObject,
-                                                               operation["x-vion-capability"] as JsonObject);
+                                                               operation["x-vion-capability"] as JsonObject,
+                                                               operation["x-stability-level"]?.ToString(),
+                                                               Flag(operation, "deprecated"),
+                                                               operation["x-sunset"]?.ToString());
                         }
                     }
                 }
@@ -461,6 +498,14 @@ namespace Vion.Cli.Commands
             return node[member] is JsonValue value && value.TryGetValue<bool>(out var flag) && flag;
         }
 
-        private sealed record LiveOperation(string Id, string Method, string Path, JsonObject? Authorization, JsonObject? Capability);
+        private sealed record LiveOperation(
+            string Id,
+            string Method,
+            string Path,
+            JsonObject? Authorization,
+            JsonObject? Capability,
+            string? Stability,
+            bool Deprecated,
+            string? Sunset);
     }
 }

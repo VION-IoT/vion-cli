@@ -145,6 +145,7 @@ namespace Vion.Cli.Commands
                                                      content,
                                                      headers);
             var response = await client.SendAsync(request, token, globals.Verbose, cancellationToken);
+            Renderer.WriteDeprecation(response, operation.Id, context.Environment, services);
             if (globals.Wait && LongRunningWait.Follows(operation, operation.Method, response))
             {
                 response = await LongRunningWait.FollowAsync(response,

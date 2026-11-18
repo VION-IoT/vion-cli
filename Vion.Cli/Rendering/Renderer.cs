@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 using Vion.Cli.Commands;
+using Vion.Cli.Context;
 using Vion.Cli.Derived;
 using Vion.Cli.Http;
 using Vion.Cli.Infrastructure;
@@ -21,6 +24,33 @@ namespace Vion.Cli.Rendering
         public const string ReplayedNotice = "replayed: the first answer under this idempotency key.";
 
         private static readonly JsonSerializerOptions Indented = new() { WriteIndented = true };
+
+        /// <summary>
+        ///     One warning on standard error when the answer to the operation a command invoked says the operation is
+        ///     deprecated: in JSON mode and off a terminal too, and never silenced, since whoever runs the call is the one
+        ///     who has to move off it before the sunset, and standard output stays the answer. The caller passes only the
+        ///     answer to its own request, so a poll or a read made before the request never reaches it.
+        /// </summary>
+        public static void WriteDeprecation(ApiResponse response, string operation, ApiEnvironment environment, CliServices services)
+        {
+            if (response.Deprecation == null)
+            {
+                return;
+            }
+
+            var sunset = response.Sunset == null ?
+                             null :
+                             DateTimeOffset.TryParseExact(response.Sunset, "r", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var date) ?
+                                 date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) :
+                                 response.Sunset;
+
+            // The link is a reference resolved against the API's URL, so a relative `/changelog` names this
+            // environment's changelog. It is printed and never followed, so no origin is checked.
+            var changelog = response.DeprecationLink == null ? null :
+                            Uri.TryCreate(new Uri(environment.ApiUrl.TrimEnd('/') + "/"), response.DeprecationLink, out var resolved) ? resolved.ToString() :
+                            response.DeprecationLink;
+            services.Error.WriteLine($"warning: {operation} is deprecated{(sunset != null ? $", sunset {sunset}" : "")}{(changelog != null ? $" — {changelog}" : "")}");
+        }
 
         public static int Render(ApiResponse response, GlobalValues globals, CliServices services, Operation? operation)
         {

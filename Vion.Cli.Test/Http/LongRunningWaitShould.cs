@@ -568,6 +568,70 @@ namespace Vion.Cli.Test.Http
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.6")]
+        [DataRow("Succeeded", 0)]
+        [DataRow("Failed", 1)]
+        public async Task WarnOnceForDeprecatedStartWhateverWaitEndsIn(string ending, int exitCode)
+        {
+            // Arrange
+            var time = new FakeTimeProvider();
+            var answers = new Queue<HttpResponseMessage>([
+                RecordingHandler.Deprecated(Answer(202, State("Queued"), Location, null)),
+                Answer(200,
+                       ending == "Failed" ? """{ "id": "h", "state": "Failed", "error": { "statusCode": "Conflict", "message": "busy" } }""" : State(ending, "{}"),
+                       null,
+                       null),
+            ]);
+            using var handler = new RecordingHandler(_ => answers.Dequeue());
+
+            // Act
+            var run = await Tool.RunAdvancingAsync(time, () => Tool.RunAsync(handler, Tool.OnTest([.. Start, "--wait"]), Tool.Token, time: time));
+
+            // Assert
+            Assert.AreEqual(exitCode, run.ExitCode, run.Error);
+            Assert.HasCount(1, run.Error.Split('\n').Where(line => line.StartsWith("warning: ", StringComparison.Ordinal)).ToList(), run.Error);
+            StringAssert.StartsWith(run.Error, "warning: integrator.edgeGatewaySimulation.update is deprecated, sunset 2027-02-01 — https://api.test.vion.swiss/changelog");
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.6")]
+        public async Task WarnForDeprecatedStartWhenWaitTimesOut()
+        {
+            // Arrange
+            var time = new FakeTimeProvider();
+            using var handler = new RecordingHandler(request => request.Method == HttpMethod.Post ? RecordingHandler.Deprecated(Answer(202, State("Running"), Location, 2)) :
+                                                                    Answer(200, State("Running"), null, 2));
+
+            // Act
+            var run = await Tool.RunAdvancingAsync(time, () => Tool.RunAsync(handler, Tool.OnTest([.. Start, "--wait", "--timeout", "5s"]), Tool.Token, time: time));
+
+            // Assert
+            Assert.AreEqual(3, run.ExitCode, run.Error);
+            StringAssert.StartsWith(run.Error, "warning: integrator.edgeGatewaySimulation.update is deprecated");
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.6")]
+        public async Task WriteNoWarningWhenOnlyPollAnswersDeprecated()
+        {
+            // Arrange
+            var time = new FakeTimeProvider();
+            var answers = new Queue<HttpResponseMessage>([
+                Answer(202, State("Queued"), Location, null),
+                RecordingHandler.Deprecated(Answer(200, State("Succeeded", "{}"), null, null)),
+            ]);
+            using var handler = new RecordingHandler(_ => answers.Dequeue());
+
+            // Act
+            var run = await Tool.RunAdvancingAsync(time, () => Tool.RunAsync(handler, Tool.OnTest([.. Start, "--wait"]), Tool.Token, time: time));
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.HasCount(2, handler.Requests);
+            Assert.DoesNotContain("warning:", run.Error);
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-008.7")]
         public async Task RefuseOperationLocationOnOtherOrigin()
         {

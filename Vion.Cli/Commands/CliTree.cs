@@ -40,6 +40,9 @@ namespace Vion.Cli.Commands
         /// <summary>The watch commands, which take `--timeout` on its own where every other command takes it beside `--wait`.</summary>
         public HashSet<Command> Watches { get; } = [];
 
+        /// <summary>Each derived command's operation, which its own help reads the stability and the sunset from.</summary>
+        public Dictionary<Command, Operation> DerivedOperations { get; } = [];
+
         private CliTree(Command root,
                         GlobalOptions globals,
                         BodyOptions body,
@@ -116,7 +119,8 @@ namespace Vion.Cli.Commands
         /// <summary>
         ///     Help as System.CommandLine writes it, but with `--timeout` described as what it does on a watch where the
         ///     command is one: the option is one recursive global, and the library keeps its per-command customisation
-        ///     internal, so the watch's description stands in for the length of that one help.
+        ///     internal, so the watch's description stands in for the length of that one help. A derived command's own
+        ///     help states its stability and sunset the same way, so that its parent's list keeps the bare description.
         /// </summary>
         private sealed class TreeHelpAction(CliTree tree, HelpAction help) : SynchronousCommandLineAction
         {
@@ -128,7 +132,29 @@ namespace Vion.Cli.Commands
 
             public override int Invoke(ParseResult parseResult)
             {
-                if (!tree.Watches.Contains(parseResult.CommandResult.Command))
+                var command = parseResult.CommandResult.Command;
+
+                // The library writes nothing for a hidden command's own help. A derived command is hidden from its
+                // parent's help by deprecation or by cli.json, and still answers its own: it is shown for the length of
+                // that help, which is also the one place its sunset is stated.
+                if (tree.DerivedOperations.TryGetValue(command, out var operation))
+                {
+                    var bare = command.Description;
+                    var hidden = command.Hidden;
+                    command.Description = DerivedCommands.Status(operation) is { } status ? $"{bare}\n{status}" : bare;
+                    command.Hidden = false;
+                    try
+                    {
+                        return help.Invoke(parseResult);
+                    }
+                    finally
+                    {
+                        command.Description = bare;
+                        command.Hidden = hidden;
+                    }
+                }
+
+                if (!tree.Watches.Contains(command))
                 {
                     return help.Invoke(parseResult);
                 }

@@ -182,6 +182,32 @@ namespace Vion.Cli.Test.Http
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.6")]
+        public async Task WriteNoWarningWhenOnlyVersionReadAnswersDeprecated()
+        {
+            // Arrange
+            using var handler = new RecordingHandler(request => request.Method == HttpMethod.Get ?
+                                                                    RecordingHandler.Deprecated(Json(200, """{ "sections": [], "meta": { "version": 5, "permissions": [] } }""")) :
+                                                                    Json(200, "{}"));
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("tenant",
+                                                      "overview-composition",
+                                                      "upsert",
+                                                      "--tenant",
+                                                      Tool.Tenant,
+                                                      "-F",
+                                                      "sections=[]"),
+                                          Tool.Token);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.HasCount(2, handler.Requests);
+            Assert.DoesNotContain("warning:", run.Error);
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-002.4")]
         public async Task FetchIfMatchFromAggregateGetWhereOwnPathHasNone()
         {

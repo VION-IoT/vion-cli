@@ -60,6 +60,8 @@ namespace Vion.Cli.Derive
         bool Versioned,
         bool DryRun,
         bool Deprecated,
+        string Stability,
+        string? Sunset,
         string Completion,
         bool AnswersLongRunningOperation,
         DerivedAuthorization Authorization,

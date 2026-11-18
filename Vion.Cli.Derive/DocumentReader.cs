@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -102,6 +103,20 @@ namespace Vion.Cli.Derive
                 throw new DeriveException($"{id} carries x-vion-capability.completion '{completion}', neither Response nor LongRunningOperation.");
             }
 
+            // No default either: help and `ops` call a stable operation stable, and a level the document never stated
+            // would read there as a promise of compatibility nobody made.
+            var stability = TryString(operation, "x-stability-level") switch
+            {
+                "stable" => "Stable",
+                "beta" => "Beta",
+                var other => throw new DeriveException($"{id} carries x-stability-level '{other}', neither stable nor beta."),
+            };
+            var sunset = TryString(operation, "x-sunset");
+            if (sunset != null && !DateOnly.TryParseExact(sunset, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+            {
+                throw new DeriveException($"{id} carries x-sunset '{sunset}', which is not an ISO date.");
+            }
+
             var authorizationElement = operation.TryGetProperty("x-vion-authorization", out var auth) ? auth : default;
             var authorization = authorizationElement.ValueKind == JsonValueKind.Object ?
                                     new DerivedAuthorization(TryString(authorizationElement, "mode") ?? "",
@@ -128,6 +143,8 @@ namespace Vion.Cli.Derive
                                         TryBool(capability, "versioned"),
                                         TryBool(capability, "dryRun"),
                                         TryBool(operation, "deprecated"),
+                                        stability,
+                                        sunset,
                                         completion,
                                         AnswersLongRunningOperation(operation),
                                         authorization,

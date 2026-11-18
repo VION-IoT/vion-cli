@@ -37,6 +37,15 @@ namespace Vion.Cli.Http
         /// <summary>How long the host asks the caller to wait before reading again.</summary>
         public TimeSpan? RetryAfter { get; init; }
 
+        /// <summary>The `Deprecation` header as sent: present only on an answer of a deprecated operation.</summary>
+        public string? Deprecation { get; init; }
+
+        /// <summary>The `Sunset` header as sent, an HTTP date.</summary>
+        public string? Sunset { get; init; }
+
+        /// <summary>The target of the `Link` whose relation is `deprecation`, as the host wrote it: a path, normally.</summary>
+        public string? DeprecationLink { get; init; }
+
         public bool IsSuccess
         {
             get => Status is >= 200 and < 300;
@@ -142,8 +151,40 @@ namespace Vion.Cli.Http
                            Headers = headers,
                            OperationLocation = location,
                            RetryAfter = retryAfter,
+                           Deprecation = response.Headers.TryGetValues("Deprecation", out var deprecations) ? deprecations.FirstOrDefault() : null,
+                           Sunset = response.Headers.TryGetValues("Sunset", out var sunsets) ? sunsets.FirstOrDefault() : null,
+                           DeprecationLink = response.Headers.TryGetValues("Link", out var links) ? DeprecationTarget(links) : null,
                        };
             }
+        }
+
+        /// <summary>
+        ///     The target of the first link whose `rel` names `deprecation`. A `Link` header carries comma-separated links,
+        ///     each `&lt;target&gt;` followed by `;`-separated parameters, and a `rel` may name several space-separated
+        ///     relations. A target may itself hold a comma, so each link is found by its angle brackets, and only its
+        ///     parameters end at the next comma.
+        /// </summary>
+        private static string? DeprecationTarget(IEnumerable<string> values)
+        {
+            foreach (var value in values)
+            {
+                var at = 0;
+                while (value.IndexOf('<', at) is var open and >= 0 && value.IndexOf('>', open) is var close and >= 0)
+                {
+                    var next = value.IndexOf(',', close);
+                    var parameters = value[(close + 1)..(next >= 0 ? next : value.Length)].Split(';', StringSplitOptions.TrimEntries);
+                    var relations = parameters.Where(part => part.StartsWith("rel=", StringComparison.OrdinalIgnoreCase))
+                                              .SelectMany(part => part["rel=".Length..].Trim('"').Split(' ', StringSplitOptions.RemoveEmptyEntries));
+                    if (relations.Contains("deprecation", StringComparer.OrdinalIgnoreCase))
+                    {
+                        return value[(open + 1)..close];
+                    }
+
+                    at = close + 1;
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -138,6 +138,7 @@ namespace Vion.Cli.Commands
                                                      document != null ? BodyInput.JsonContent(document) : null,
                                                      headers);
             var response = await client.SendAsync(request, token, globals.Verbose, cancellationToken);
+            Renderer.WriteDeprecation(response, operation?.Id ?? $"{upper} {path}", context.Environment, services);
             if (mode.Include)
             {
                 return Renderer.RenderIncluded(response, globals, services, operation);
