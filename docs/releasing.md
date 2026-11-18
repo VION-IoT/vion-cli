@@ -116,11 +116,13 @@ closes it and when, as § The live check says.
 
 ## The live check
 
-[`live-check.yml`](../.github/workflows/live-check.yml) runs every day at 04:17 UTC: it downloads
-the latest release's `vion-<v>-linux-musl-x64.tar.gz`, refuses it unless it matches its `.sha256`,
-and runs `vion ops --live --env test --json` and `… --env production --json`, tokenless. It covers
-what the pull request gates do not: the released snapshot against what each host serves today, and
-the static Linux executable's HTTPS over a real network. It sees only what `ops --live` compares,
+[`live-check.yml`](../.github/workflows/live-check.yml) runs every day at 04:17 UTC: it waits up to
+twenty minutes for the latest release's `vion-<v>-linux-musl-x64.tar.gz` and its `.sha256` to be
+attached (`gh release create` publishes before anything is built, and a scheduled run can start hours
+late), downloads them, refuses the archive unless it matches its `.sha256`, and runs
+`vion ops --live --env test --json` and `… --env production --json`, tokenless. It covers what the
+pull request gates do not: the released snapshot against what each host serves today, and the static
+Linux executable's HTTPS over a real network. It sees only what `ops --live` compares,
 the derived tables' members: a host that changes no more than what an operation answers, a
 member of `x-vion-capability` the table does not carry, a channel's address or description, or
 its servers' protocol, leaves it green.
@@ -133,9 +135,11 @@ carries the release, each environment's state and exit code, and what `ops --liv
 - **differs**: the release is stale against that host. Pull the snapshot the rows' `protocol` names
   (`http`: `scripts/snapshot-pull.ps1`; `mqtt`: `scripts/asyncapi-pull.ps1`), derive, release
   (§ The snapshot is not a release).
-- **fails**: the executable could not read one of the host's documents, or the archive could not be
-  downloaded or failed its checksum. That points at the host, the network, the release's assets or
-  the executable's HTTPS; a red that clears on the next run was the host or the network.
+- **fails**: the executable could not read one of the host's documents, or the archive was not
+  attached within twenty minutes, could not be downloaded or failed its checksum. That points at the
+  host, the network, the release's build or assets, or the executable's HTTPS; the download step's
+  log says which. A red that clears on the next run was the host, the network, or a release build
+  that outran the wait.
 
 Nothing closes the issue on its own: it is closed by hand once a run is clean on both environments.
 A clean run posts nothing on the issue; `gh run list --workflow live-check.yml` or the Actions tab
