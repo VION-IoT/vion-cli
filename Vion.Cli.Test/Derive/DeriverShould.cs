@@ -160,8 +160,7 @@ namespace Vion.Cli.Test.Derive
                                 .EnumerateObject()
                                 .SelectMany(path => path.Value.EnumerateObject())
                                 .Where(method => method.Value.TryGetProperty("operationId", out _))
-                                .ToDictionary(method => method.Value.GetProperty("operationId").GetString()!,
-                                              method => method.Value.GetProperty("x-stability-level").GetString());
+                                .ToDictionary(method => method.Value.GetProperty("operationId").GetString()!, method => method.Value.GetProperty("x-stability-level").GetString());
 
             // Act
             var document = Deriver.Derive(snapshot, "{}");

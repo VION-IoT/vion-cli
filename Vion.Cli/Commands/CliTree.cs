@@ -133,6 +133,7 @@ namespace Vion.Cli.Commands
             public override int Invoke(ParseResult parseResult)
             {
                 var command = parseResult.CommandResult.Command;
+
                 // The library writes nothing for a hidden command's own help, and a deprecated command is hidden from
                 // its parent's: it is shown for the length of its own help, which is the one place its sunset is stated.
                 if (tree.DerivedOperations.TryGetValue(command, out var operation) && DerivedCommands.Status(operation) is { } status)

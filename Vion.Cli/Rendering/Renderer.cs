@@ -38,9 +38,11 @@ namespace Vion.Cli.Rendering
                 return;
             }
 
-            var sunset = response.Sunset == null ? null :
-                         DateTimeOffset.TryParseExact(response.Sunset, "r", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var date) ?
-                             date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : response.Sunset;
+            var sunset = response.Sunset == null ?
+                             null :
+                             DateTimeOffset.TryParseExact(response.Sunset, "r", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var date) ?
+                                 date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) :
+                                 response.Sunset;
 
             // The link is a reference resolved against the API's URL, so a relative `/changelog` names this
             // environment's changelog. It is printed and never followed, so no origin is checked.

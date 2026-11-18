@@ -191,7 +191,15 @@ namespace Vion.Cli.Test.Http
                                                                     Json(200, "{}"));
 
             // Act
-            var run = await Tool.RunAsync(handler, Tool.OnTest("tenant", "overview-composition", "upsert", "--tenant", Tool.Tenant, "-F", "sections=[]"), Tool.Token);
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("tenant",
+                                                      "overview-composition",
+                                                      "upsert",
+                                                      "--tenant",
+                                                      Tool.Tenant,
+                                                      "-F",
+                                                      "sections=[]"),
+                                          Tool.Token);
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);

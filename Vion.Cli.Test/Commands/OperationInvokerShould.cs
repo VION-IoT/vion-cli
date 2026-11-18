@@ -28,7 +28,7 @@ namespace Vion.Cli.Test.Commands
             const string body = """{ "items": [ { "id": "g-1", "name": "north" } ] }""";
             using var deprecated = new RecordingHandler(_ => RecordingHandler.Deprecated(RecordingHandler.Response(200, body)));
             using var current = RecordingHandler.Json(200, body);
-            string[] args = json ? [.. Listing, "--json"] : Listing;
+            var args = json ? [.. Listing, "--json"] : Listing;
 
             // Act
             var warned = await Tool.RunAsync(deprecated, args, Tool.Token);
@@ -60,7 +60,9 @@ namespace Vion.Cli.Test.Commands
         [TestProperty("spec", "AC-CLI-003.6")]
         [DataRow("Mon, 01 Feb 2027 00:00:00 GMT", null, "warning: tenant.edgeGateway.list is deprecated, sunset 2027-02-01")]
         [DataRow("next spring", "</changelog>; rel=\"deprecation\"", "warning: tenant.edgeGateway.list is deprecated, sunset next spring — https://api.test.vion.swiss/changelog")]
-        [DataRow("Sun, 15 Jul 2029 00:00:00 GMT", "</next>; rel=\"next\", </log>; rel=\"alternate deprecation\"", "warning: tenant.edgeGateway.list is deprecated, sunset 2029-07-15 — https://api.test.vion.swiss/log")]
+        [DataRow("Sun, 15 Jul 2029 00:00:00 GMT",
+                 "</next>; rel=\"next\", </log>; rel=\"alternate deprecation\"",
+                 "warning: tenant.edgeGateway.list is deprecated, sunset 2029-07-15 — https://api.test.vion.swiss/log")]
         public async Task WarnWithWhatAnswerCarries(string sunset, string? link, string warning)
         {
             // Arrange

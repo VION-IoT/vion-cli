@@ -577,7 +577,10 @@ namespace Vion.Cli.Test.Http
             var time = new FakeTimeProvider();
             var answers = new Queue<HttpResponseMessage>([
                 RecordingHandler.Deprecated(Answer(202, State("Queued"), Location, null)),
-                Answer(200, ending == "Failed" ? """{ "id": "h", "state": "Failed", "error": { "statusCode": "Conflict", "message": "busy" } }""" : State(ending, "{}"), null, null),
+                Answer(200,
+                       ending == "Failed" ? """{ "id": "h", "state": "Failed", "error": { "statusCode": "Conflict", "message": "busy" } }""" : State(ending, "{}"),
+                       null,
+                       null),
             ]);
             using var handler = new RecordingHandler(_ => answers.Dequeue());
 
@@ -587,8 +590,7 @@ namespace Vion.Cli.Test.Http
             // Assert
             Assert.AreEqual(exitCode, run.ExitCode, run.Error);
             Assert.HasCount(1, run.Error.Split('\n').Where(line => line.StartsWith("warning: ", StringComparison.Ordinal)).ToList(), run.Error);
-            StringAssert.StartsWith(run.Error,
-                                    "warning: integrator.edgeGatewaySimulation.update is deprecated, sunset 2027-02-01 — https://api.test.vion.swiss/changelog");
+            StringAssert.StartsWith(run.Error, "warning: integrator.edgeGatewaySimulation.update is deprecated, sunset 2027-02-01 — https://api.test.vion.swiss/changelog");
         }
 
         [TestMethod]
@@ -597,8 +599,7 @@ namespace Vion.Cli.Test.Http
         {
             // Arrange
             var time = new FakeTimeProvider();
-            using var handler = new RecordingHandler(request => request.Method == HttpMethod.Post ?
-                                                                    RecordingHandler.Deprecated(Answer(202, State("Running"), Location, 2)) :
+            using var handler = new RecordingHandler(request => request.Method == HttpMethod.Post ? RecordingHandler.Deprecated(Answer(202, State("Running"), Location, 2)) :
                                                                     Answer(200, State("Running"), null, 2));
 
             // Act
