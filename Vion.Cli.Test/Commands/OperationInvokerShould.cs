@@ -12,6 +12,9 @@ namespace Vion.Cli.Test.Commands
     [TestClass]
     public class OperationInvokerShould
     {
+        /// <summary>The line end a multipart body puts between a part's headers and its content, and after it.</summary>
+        private const string CrLf = "\r\n";
+
         private const string Gateway = "33333333-3333-3333-3333-333333333333";
 
         private const string Warning = "warning: tenant.edgeGateway.list is deprecated, sunset 2027-02-01 — https://api.test.vion.swiss/changelog";
@@ -393,9 +396,7 @@ namespace Vion.Cli.Test.Commands
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
-            var body = handler.Requests[0].Body;
-            StringAssert.Contains(body, "name=releaseNotes");
-            StringAssert.Contains(body, "## 1.1.0 - the notes from a file");
+            StringAssert.Contains(handler.Requests[0].Body, "name=releaseNotes" + CrLf + CrLf + "## 1.1.0 - the notes from a file" + CrLf);
         }
 
         [TestMethod]
@@ -423,9 +424,7 @@ namespace Vion.Cli.Test.Commands
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
-            var body = handler.Requests[0].Body;
-            StringAssert.Contains(body, "name=releaseNotes");
-            StringAssert.Contains(body, "the notes from a pipe");
+            StringAssert.Contains(handler.Requests[0].Body, "name=releaseNotes" + CrLf + CrLf + "the notes from a pipe" + CrLf);
         }
 
         [TestMethod]
@@ -453,7 +452,7 @@ namespace Vion.Cli.Test.Commands
 
             // Assert
             Assert.AreEqual(0, run.ExitCode, run.Error);
-            StringAssert.Contains(handler.Requests[0].Body, "\r\n\r\n1.50\r\n");
+            StringAssert.Contains(handler.Requests[0].Body, "name=releaseNotes" + CrLf + CrLf + "1.50" + CrLf);
         }
 
         [TestMethod]
