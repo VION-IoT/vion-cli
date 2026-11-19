@@ -368,6 +368,95 @@ namespace Vion.Cli.Test.Commands
         }
 
         [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.7")]
+        public async Task SendFieldFileAsMultipartTextPart()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, "{}");
+            using var home = new TemporaryHome();
+            var package = home.Write("Library.1.1.0.nupkg", "not really a package");
+            var notes = home.Write("notes.md", "## 1.1.0 - the notes from a file");
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("integrator",
+                                                      "logic-block-library-version",
+                                                      "upload",
+                                                      "--integrator",
+                                                      Tool.Tenant,
+                                                      "--file",
+                                                      package,
+                                                      "-F",
+                                                      $"releaseNotes=@{notes}",
+                                                      "--yes"),
+                                          Tool.Token);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            var body = handler.Requests[0].Body;
+            StringAssert.Contains(body, "name=releaseNotes");
+            StringAssert.Contains(body, "## 1.1.0 - the notes from a file");
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.7")]
+        public async Task SendFieldStandardInputAsMultipartTextPart()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, "{}");
+            using var home = new TemporaryHome();
+            var package = home.Write("Library.1.1.0.nupkg", "not really a package");
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("integrator",
+                                                      "logic-block-library-version",
+                                                      "upload",
+                                                      "--integrator",
+                                                      Tool.Tenant,
+                                                      "--file",
+                                                      package,
+                                                      "-F",
+                                                      "releaseNotes=@-",
+                                                      "--yes"),
+                                          Tool.Token + "\n" + "the notes from a pipe");
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            var body = handler.Requests[0].Body;
+            StringAssert.Contains(body, "name=releaseNotes");
+            StringAssert.Contains(body, "the notes from a pipe");
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.7")]
+        public async Task SendFieldUntypedAsMultipartTextPart()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, "{}");
+            using var home = new TemporaryHome();
+            var package = home.Write("Library.1.1.0.nupkg", "not really a package");
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("integrator",
+                                                      "logic-block-library-version",
+                                                      "upload",
+                                                      "--integrator",
+                                                      Tool.Tenant,
+                                                      "--file",
+                                                      package,
+                                                      "-F",
+                                                      "releaseNotes=1.50",
+                                                      "--yes"),
+                                          Tool.Token);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            StringAssert.Contains(handler.Requests[0].Body, "\r\n\r\n1.50\r\n");
+        }
+
+        [TestMethod]
         [TestProperty("spec", "AC-CLI-002.8")]
         public async Task ExplainBodilessNotFoundAsOperationAbsentFromEnvironment()
         {

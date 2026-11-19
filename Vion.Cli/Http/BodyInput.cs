@@ -17,7 +17,7 @@ namespace Vion.Cli.Http
     /// <summary>
     ///     The body of a call from what the user gave: `--input` as the document, `-f` pairs as strings, `-F` pairs typed,
     ///     dotted keys nesting — `gh api`'s shape. A multipart body is the file part from `--file` and the text parts from
-    ///     `-f`.
+    ///     `-f` and `-F`, `-F` untyped since a part is text.
     /// </summary>
     internal static class BodyInput
     {
@@ -77,7 +77,7 @@ namespace Vion.Cli.Http
             return new StringContent(node.ToJsonString(), new UTF8Encoding(false), "application/json");
         }
 
-        public static HttpContent BuildMultipart(Body body, BodyValues values)
+        public static HttpContent BuildMultipart(Body body, BodyValues values, CliServices services)
         {
             if (values.File == null)
             {
@@ -99,6 +99,13 @@ namespace Vion.Cli.Http
             {
                 var (key, value) = SplitPair(pair);
                 content.Add(new StringContent(value, new UTF8Encoding(false)), key);
+            }
+
+            foreach (var pair in values.Fields)
+            {
+                var (key, value) = SplitPair(pair);
+                var text = value.StartsWith('@') ? Referenced(value, services) : value;
+                content.Add(new StringContent(text, new UTF8Encoding(false)), key);
             }
 #pragma warning restore CA2000
 
@@ -129,6 +136,13 @@ namespace Vion.Cli.Http
             }
         }
 
+        /// <summary>`-F`'s `@` value: `@-` standard input, `@file` the file's text.</summary>
+        private static string Referenced(string value, CliServices services)
+        {
+            var path = value[1..];
+            return path == "-" ? services.In.ReadToEnd() : ReadFile("-F", path);
+        }
+
         /// <summary>
         ///     `-F`'s typing: the JSON literals and numbers as themselves, `@file` as the file's text, everything else a
         ///     string.
@@ -156,8 +170,7 @@ namespace Vion.Cli.Http
 
                     if (value.StartsWith('@'))
                     {
-                        var path = value[1..];
-                        return JsonValue.Create(path == "-" ? services.In.ReadToEnd() : ReadFile("-F", path));
+                        return JsonValue.Create(Referenced(value, services));
                     }
 
                     return JsonValue.Create(value);

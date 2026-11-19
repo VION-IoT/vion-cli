@@ -193,7 +193,7 @@ namespace Vion.Cli.Commands
 
     /// <summary>
     ///     The body options, added to each command that takes a body and to `api`; `--file` only where the body is
-    ///     multipart.
+    ///     multipart, and there `-F` its own instance, whose help says a part is never typed.
     /// </summary>
     internal sealed class BodyOptions
     {
@@ -207,6 +207,12 @@ namespace Vion.Cli.Commands
                                                          "A body member typed as JSON: true, false, null, a number, @file for a file's content, else a string.",
                                                      HelpName = "key=value",
                                                  };
+
+        public Option<string[]> PartField { get; } = new("--field", "-F")
+                                                     {
+                                                         Description = "A text part, untyped: key=value; @file for a file, @- for standard input.",
+                                                         HelpName = "key=value",
+                                                     };
 
         public Option<string> File { get; } = new("--file") { Description = "The file to upload as the multipart body's file part.", HelpName = "path" };
 
@@ -226,12 +232,15 @@ namespace Vion.Cli.Commands
             {
                 yield return File;
                 yield return RawField;
+                yield return PartField;
             }
         }
 
         public BodyValues Read(ParseResult result)
         {
-            return new BodyValues(result.GetValue(Input), result.GetValue(RawField) ?? [], result.GetValue(Field) ?? [], result.GetValue(File));
+            // A command carries one of the two `-F` instances, so at most one of them holds values.
+            string[] fields = [.. result.GetValue(Field) ?? [], .. result.GetValue(PartField) ?? []];
+            return new BodyValues(result.GetValue(Input), result.GetValue(RawField) ?? [], fields, result.GetValue(File));
         }
     }
 }

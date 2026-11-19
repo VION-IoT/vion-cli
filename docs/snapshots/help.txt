@@ -9403,6 +9403,7 @@ Options:
   --locale <value>                 The language imported, a BCP 47 plain-language tag such as `de`.
   --file <path>                    The file to upload as the multipart body's file part.
   -f, --raw-field <key=value>      A body member as a string: key=value; a dotted key nests.
+  -F, --field <key=value>          A text part, untyped: key=value; @file for a file, @- for standard input.
   -?, -h, --help                   Show help and usage information
   --env <name>                     The environment: production, test, or one defined with `context use`.
   --integrator <id>                The integrator id, filling {integratorId} for this call.
@@ -9851,6 +9852,7 @@ Usage:
 Options:
   --file <path>                The file to upload as the multipart body's file part.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
+  -F, --field <key=value>      A text part, untyped: key=value; @file for a file, @- for standard input.
   -?, -h, --help               Show help and usage information
   --env <name>                 The environment: production, test, or one defined with `context use`.
   --integrator <id>            The integrator id, filling {integratorId} for this call.
