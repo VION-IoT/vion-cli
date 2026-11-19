@@ -115,7 +115,7 @@ namespace Vion.Cli.Commands
                 var body = tree.Body.Read(result);
                 if (operation.Body.IsMultipart)
                 {
-                    content = BodyInput.BuildMultipart(operation.Body, body);
+                    content = BodyInput.BuildMultipart(operation.Body, body, services);
                 }
                 else
                 {

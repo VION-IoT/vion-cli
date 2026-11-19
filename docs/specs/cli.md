@@ -48,7 +48,7 @@ decide which flags apply. A refusal happens before anything is sent.
 - `AC-CLI-002.4` (Optional): WHERE the operation is `versioned` THE SYSTEM SHALL send `If-Match` from `--if-match`, else from the `--input` document's `meta.version`, else from the version a `GET` on the operation's own path answers where the committed document has one, else from the version the aggregate's `get` answers for the row the operation's path addresses where the committed document has one, and SHALL otherwise refuse before sending with exit 2.
 - `AC-CLI-002.5` (Optional): WHERE the operation's effect is `Irreversible` THE SYSTEM SHALL ask for confirmation on a terminal unless `--yes` is given, and SHALL refuse with exit 2 when standard input is not a terminal and `--yes` is absent.
 - `AC-CLI-002.6` (Event-driven): WHEN `--dry-run` is given THE SYSTEM SHALL send `dryRun=true` on an operation flagged `dryRun` and refuse with exit 2 on any other operation and on a watch.
-- `AC-CLI-002.7` (Optional): WHERE the operation takes `multipart/form-data` THE SYSTEM SHALL send `--file` as the schema's file part and each `-f` pair as a text part.
+- `AC-CLI-002.7` (Optional): WHERE the operation takes `multipart/form-data` THE SYSTEM SHALL send `--file` as the schema's file part and each `-f` and `-F` pair as a text part, `-F`'s `@file` as the file's text, `@-` as standard input and any other value untyped, as given.
 - `AC-CLI-002.8` (Unwanted): IF the environment answers a derived command with a 404 carrying no error body THEN THE SYSTEM SHALL say the operation is not in that environment's document and name `ops --live`.
 
 ## What comes back

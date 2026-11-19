@@ -12,6 +12,9 @@ namespace Vion.Cli.Test.Commands
     [TestClass]
     public class OperationInvokerShould
     {
+        /// <summary>The line end a multipart body puts between a part's headers and its content, and after it.</summary>
+        private const string CrLf = "\r\n";
+
         private const string Gateway = "33333333-3333-3333-3333-333333333333";
 
         private const string Warning = "warning: tenant.edgeGateway.list is deprecated, sunset 2027-02-01 — https://api.test.vion.swiss/changelog";
@@ -365,6 +368,91 @@ namespace Vion.Cli.Test.Commands
             StringAssert.Contains(request.Body, "not really a package");
             StringAssert.Contains(request.Body, "name=releaseNotes");
             StringAssert.Contains(request.Body, "first");
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.7")]
+        public async Task SendFieldFileAsMultipartTextPart()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, "{}");
+            using var home = new TemporaryHome();
+            var package = home.Write("Library.1.1.0.nupkg", "not really a package");
+            var notes = home.Write("notes.md", "## 1.1.0 - the notes from a file");
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("integrator",
+                                                      "logic-block-library-version",
+                                                      "upload",
+                                                      "--integrator",
+                                                      Tool.Tenant,
+                                                      "--file",
+                                                      package,
+                                                      "-F",
+                                                      $"releaseNotes=@{notes}",
+                                                      "--yes"),
+                                          Tool.Token);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            StringAssert.Contains(handler.Requests[0].Body, "name=releaseNotes" + CrLf + CrLf + "## 1.1.0 - the notes from a file" + CrLf);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.7")]
+        public async Task SendFieldStandardInputAsMultipartTextPart()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, "{}");
+            using var home = new TemporaryHome();
+            var package = home.Write("Library.1.1.0.nupkg", "not really a package");
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("integrator",
+                                                      "logic-block-library-version",
+                                                      "upload",
+                                                      "--integrator",
+                                                      Tool.Tenant,
+                                                      "--file",
+                                                      package,
+                                                      "-F",
+                                                      "releaseNotes=@-",
+                                                      "--yes"),
+                                          Tool.Token + "\n" + "the notes from a pipe");
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            StringAssert.Contains(handler.Requests[0].Body, "name=releaseNotes" + CrLf + CrLf + "the notes from a pipe" + CrLf);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-002.7")]
+        public async Task SendFieldUntypedAsMultipartTextPart()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, "{}");
+            using var home = new TemporaryHome();
+            var package = home.Write("Library.1.1.0.nupkg", "not really a package");
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          Tool.OnTest("integrator",
+                                                      "logic-block-library-version",
+                                                      "upload",
+                                                      "--integrator",
+                                                      Tool.Tenant,
+                                                      "--file",
+                                                      package,
+                                                      "-F",
+                                                      "releaseNotes=1.50",
+                                                      "--yes"),
+                                          Tool.Token);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            StringAssert.Contains(handler.Requests[0].Body, "name=releaseNotes" + CrLf + CrLf + "1.50" + CrLf);
         }
 
         [TestMethod]
