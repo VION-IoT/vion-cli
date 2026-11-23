@@ -15,13 +15,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Browse widget definitions available to this tenant (integrator + tenant-owned)",
+        "description": "Returns the widget definitions the tenant may use.\n\nThese are its integrator's, its own and those with no owner, and none of another integrator or tenant.",
         "operationId": "tenant.widgetDefinition.list",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant whose usable widget definitions are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -31,7 +31,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The widget definitions the tenant may use.",
             "content": {
               "application/json": {
                 "schema": {
@@ -101,13 +101,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Create a new tenant-owned widget definition",
+        "description": "Creates a widget definition owned by the tenant.\n\nThe name, the description and the icon are stored trimmed, an empty icon as null. An invalid definition\nis refused with 400 and nothing is stored.",
         "operationId": "tenant.widgetDefinition.create",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the definition is created under.",
             "required": true,
             "schema": {
               "type": "string",
@@ -138,7 +138,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created definition as stored.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -230,13 +230,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Update an existing tenant-owned widget definition",
+        "description": "Replaces a widget definition of the tenant.\n\nA definition the tenant does not own, its integrator's included, is answered 404 whatever the body, and a\nstale version 412.",
         "operationId": "tenant.widgetDefinition.update",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the definition belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -246,7 +246,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The widget definition's id.",
+            "description": "The widget definition to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -285,7 +285,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The updated definition as stored.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -349,8 +349,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -359,8 +359,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -401,13 +401,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Delete a tenant-owned widget definition",
+        "description": "Deletes a widget definition of the tenant.\n\nThe compositions and dashboards that name it keep its id. A definition the tenant does not own, its\nintegrator's included, is answered 404.",
         "operationId": "tenant.widgetDefinition.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the definition belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -417,7 +417,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The widget definition's id.",
+            "description": "The widget definition to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -437,7 +437,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -539,13 +539,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "        The theme to render a tenant context with: per field, the tenant's value or else its owning\n        integrator's. Only fields actually set at those two levels come back — the deployment and VION layers\n        underneath are the client's, so a tenant with nothing set anywhere is a 200 with every field null.\n        This is the resolved document, not the tenant's stored overrides; the overrides are authoring data\nand are read by the integrator that owns them, on the integrator route.",
+        "description": "Returns the tenant's white-label theme merged per member with its integrator's.\n\nEach member is the tenant's value, else its integrator's, else null, and the logo's bytes and type come\nfrom one level. `meta.version` is null, since the answer merges two rows.",
         "operationId": "tenant.whiteLabelTheme.get",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant whose theme is read.",
             "required": true,
             "schema": {
               "type": "string",
@@ -555,7 +555,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The merged theme, the logo as a `data:` URI.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1988,7 +1988,7 @@
           "dryRun": false,
           "completion": "Response"
         },
-        "x-stability-level": "beta"
+        "x-stability-level": "stable"
       }
     },
     "/tenant/{tenantId}/services/subscribeProperties": {
@@ -1996,13 +1996,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "        Start notification of property value changes. The actual property values are sent via MQTT to the topic provided in\n        the configuration of the service property.\n        The flow is: call this endpoint with the properties to watch and a subscriberId, then connect to the\nMQTT broker with the same bearer token and read the values from the topics this call returns.\nsubscriberId is not free-form: it must equal the MQTT client id used on that connection, which\nme.subscriber.create mints as {identityProviderUserId}_{exactly 6 alphanumeric characters}_,\ntrailing underscore included; an id that is not the caller's in this form is refused with 400. The\nsubscription must be made at QoS 0, which RabbitMQ enforces silently: CONNECT succeeds, SUBSCRIBE is\nrefused, the connection closes, nothing names a reason.\nThe subscription is kept alive by the MQTT connection, so the client must register the last will topic\ncloud/subscriber/lastWill/{identityProviderUserId}/{subscriberId} - the cloud tears the subscription\ndown when that last will fires.\n        Worked examples: https://docs.vion.swiss/cloud-api/minimal-client",
+        "description": "Registers a subscriber for the values of the named service properties with their edge gateways.\n\n        The values arrive on the topics each service row of the services list hands out in meta.topics. A\nclient connects to the MQTT broker with the same bearer token, subscribes to those topics, waits for the\nbroker's acknowledgement and only then calls this operation, since the values a gateway publishes on\nregistration find no subscription to arrive on otherwise.\n        subscriberId is not free-form: it must equal the MQTT client id used on that connection, which\nme.subscriber.create mints as {identityProviderUserId}_{exactly 6 alphanumeric characters}_,\ntrailing underscore included; an id that is not the caller's in this form is refused with 400. The\nsubscription must be made at QoS 0, which RabbitMQ enforces silently: CONNECT succeeds, SUBSCRIBE is\nrefused, the connection closes, nothing names a reason.\n        The gateway keeps the registration until the subscriber's last will is published, so the client must\nregister the last will topic cloud/subscriber/lastWill/{identityProviderUserId}/{subscriberId}. The\nbroker publishes the will when the connection ends without a clean disconnect, and the client publishes it\nitself, empty, before a clean one. After a reconnect the client subscribes and calls this operation again,\nunder a new Idempotency-Key or none.\n        A named property that is not the tenant's, or that the caller does not read, is left out without a refusal.\n        Worked examples: https://docs.vion.swiss/cloud-api/minimal-client",
         "operationId": "tenant.serviceProperty.subscribe",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant whose service properties are subscribed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2033,7 +2033,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "An empty object, the same whichever named properties were left out.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -2126,13 +2126,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Set the value of a service property.",
+        "description": "Sends a new value of a service property to the edge gateway the property's service runs on.\n\n        The answer is given once the value is recorded to be sent to the gateway, not once the gateway has applied\nit, and no answer of the gateway is awaited. The answer does not say whether the gateway applied the value; a\nclient follows the property's state through a subscription that tenant.serviceProperty.subscribe\nregisters.\n        A property with no schema, one whose schema cannot be read, a read-only one and an instantiation parameter are\nrefused with 409, whatever the value. Otherwise a value the property's schema refuses is answered 400. A\nproperty of a service provider that is not accepted is answered as missing.",
         "operationId": "tenant.serviceProperty.set",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the property belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2142,7 +2142,7 @@
           {
             "name": "edgeGatewayId",
             "in": "path",
-            "description": "The edge gateway's id.",
+            "description": "The edge gateway the property's service runs on.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2152,7 +2152,7 @@
           {
             "name": "serviceProviderIdentifier",
             "in": "path",
-            "description": "The service provider identifier.",
+            "description": "The service provider of the property's service, `dale` for a logic\nblock's.",
             "required": true,
             "schema": {
               "type": "string"
@@ -2161,7 +2161,7 @@
           {
             "name": "serviceIdentifier",
             "in": "path",
-            "description": "The service identifier.",
+            "description": "The service the property belongs to.",
             "required": true,
             "schema": {
               "type": "string"
@@ -2170,7 +2170,7 @@
           {
             "name": "propertyIdentifier",
             "in": "path",
-            "description": "The property identifier.",
+            "description": "The property to set.",
             "required": true,
             "schema": {
               "type": "string"
@@ -2200,7 +2200,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "An empty object, given before the gateway has applied the value.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -2403,7 +2403,7 @@
           "dryRun": false,
           "completion": "Response"
         },
-        "x-stability-level": "beta"
+        "x-stability-level": "stable"
       }
     },
     "/tenant/{tenantId}/serviceProviders/contracts": {
@@ -2627,7 +2627,7 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Submit setup selection for a service provider. Sends selection to the SP via MQTT.",
+        "description": "Submit setup selection for a service provider.",
         "operationId": "tenant.serviceProviderSetup.submit",
         "parameters": [
           {
@@ -2785,13 +2785,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Approve or deny a pending service provider registration.",
+        "description": "Accepts or denies the pending registration of a service provider with an edge gateway.\n\nAn accepted provider is placed below its gateway, a denied one nowhere, and the decision is sent to the gateway. A\n`status` other than `Accepted` or `Denied` is refused with 400, and a provider that is not pending\nwith 409. An `If-Match` naming another version than the provider's is refused with 412 first, a version a\ngateway's report moved since it was read included.",
         "operationId": "tenant.serviceProviderRegistration.update",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the gateway belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2801,7 +2801,7 @@
           {
             "name": "edgeGatewayId",
             "in": "path",
-            "description": "The edge gateway's id.",
+            "description": "The edge gateway the provider registered with.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2811,7 +2811,7 @@
           {
             "name": "serviceProviderIdentifier",
             "in": "path",
-            "description": "The service provider identifier.",
+            "description": "The provider whose registration is decided.",
             "required": true,
             "schema": {
               "type": "string"
@@ -2849,7 +2849,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The provider's setup row after the decision.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -2913,8 +2913,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2923,8 +2923,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2967,13 +2967,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Delete a service provider and notify the edge gateway.",
+        "description": "Deletes a service provider of an edge gateway, whatever its registration status.\n\nThe deletion is sent to the gateway. The provider's services, properties and measuring points are no longer\nanswered, and its measuring-point values are kept. Deleting the `dale` provider keeps the services of the\nlogic blocks the gateway runs.",
         "operationId": "tenant.serviceProvider.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the gateway belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2983,7 +2983,7 @@
           {
             "name": "edgeGatewayId",
             "in": "path",
-            "description": "The edge gateway's id.",
+            "description": "The edge gateway the provider is registered with.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2993,7 +2993,7 @@
           {
             "name": "serviceProviderIdentifier",
             "in": "path",
-            "description": "The service provider identifier.",
+            "description": "The provider to delete.",
             "required": true,
             "schema": {
               "type": "string"
@@ -3012,7 +3012,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "An empty object.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -3310,6 +3310,16 @@
           },
           "500": {
             "description": "An unexpected server-side error. The exceptionId correlates the response with the server logs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3880,6 +3890,16 @@
               }
             }
           },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
           "400": {
             "description": "The request was malformed or failed input validation.",
             "content": {
@@ -3986,6 +4006,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RemoteAccessConsoleConnectionOutput"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
                 }
               }
             }
@@ -4410,8 +4440,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4420,8 +4450,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4998,13 +5028,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "        The composition to render this tenant's overview page with: per section, the tenant's own if it\n        authored one, else its integrator's row for this tenant, else its integrator's default. A tenant whose\n        integrator has composed nothing is a 200 with two empty sections, not a 404.\n        origins says which layer supplied each section and own is the tenant's stored row, so\nan authoring form can tell \"I set this\" from \"I inherited this\" without a second request. It cannot\nsee further: an inherited section looks the same whether the integrator aimed it at this tenant or\nships it to all of them.",
+        "description": "Returns the tenant's overview composition resolved per section.\n\nEach section is the tenant's own, else its integrator's layer for it, else its integrator's default, else\nempty; a section authored empty hides those beneath it. `origins` names the layer each section came\nfrom, `own` is the tenant's layer as stored, and `meta.version` is that layer's version or null.",
         "operationId": "tenant.overviewComposition.get",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant whose composition is read.",
             "required": true,
             "schema": {
               "type": "string",
@@ -5014,7 +5044,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The resolved composition.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5084,13 +5114,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Replaces the tenant's own composition layer. A full upsert: a section left null is cleared back to\ninherited, and a section set to an empty list is deliberately empty and hides whatever it inherits.\nAnswers with the resolved document, so the caller sees what a cleared section fell back to.",
+        "description": "Replaces the tenant's own overview composition layer.\n\nA section sent null inherits, and one sent empty hides what it would inherit. The answer is the resolved\ncomposition, as a read after the write answers it.",
         "operationId": "tenant.overviewComposition.upsert",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant whose own layer is replaced.",
             "required": true,
             "schema": {
               "type": "string",
@@ -5129,7 +5159,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The resolved composition after the write.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -5193,8 +5223,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5203,8 +5233,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5235,13 +5265,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Drops the tenant's own layer entirely, so every section falls back to what it inherits. Resetting a\ntenant that has authored nothing is a success.",
+        "description": "Removes the tenant's own overview composition layer.\n\nThe integrator's layer for the tenant stays, and removing a layer that is not stored succeeds.",
         "operationId": "tenant.overviewComposition.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant whose own layer is removed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -5261,7 +5291,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The reset's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -6062,8 +6092,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6072,8 +6102,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7255,16 +7285,6 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiExceptionDto"
-                }
-              }
-            }
-          },
           "412": {
             "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
@@ -7277,6 +7297,16 @@
           },
           "428": {
             "description": "The request carries no If-Match header, which this replace of the whole row requires; send the ETag header or meta.version in double quotes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7486,6 +7516,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ExportLogicConfigurationOutput"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
                 }
               }
             }
@@ -7701,16 +7741,6 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiExceptionDto"
-                }
-              }
-            }
-          },
           "412": {
             "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
@@ -7723,6 +7753,16 @@
           },
           "428": {
             "description": "The request carries no If-Match header, which this replace of the whole row requires; send the ETag header or meta.version in double quotes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7940,6 +7980,102 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/LogicBlockTranslationBundleOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was malformed or failed input validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server-side error. The exceptionId correlates the response with the server logs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated, but the caller lacks the required permission at the requested scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated. The response has no body by design; the WWW-Authenticate header carries the reason.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer challenge naming the error and, when the token was rejected rather than missing, why.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "x-vion-authorization": {
+          "mode": "Membership",
+          "permissions": [],
+          "scopeType": "Tenant",
+          "scopeFrom": "tenantId"
+        },
+        "x-vion-capability": {
+          "effect": "Read",
+          "idempotent": false,
+          "versioned": false,
+          "dryRun": false,
+          "completion": "Response"
+        },
+        "x-stability-level": "beta"
+      }
+    },
+    "/tenant/{tenantId}/logicBlockLibraryVersions": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "description": "Get the versions of every logic block library a tenant's integrator may see, optionally of a single library.\n\nThe integrator may see its own libraries, the public ones and the ones granted to it, archived ones included.",
+        "operationId": "tenant.logicBlockLibraryVersion.list",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "description": "The tenant whose integrator's visible library versions are listed.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "packageId",
+            "in": "query",
+            "description": "The NuGet package id of the library to list the versions of, matched whatever its case, every library the\nintegrator may see when omitted.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The versions of the libraries the tenant's integrator may see.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListOutputOfLogicBlockLibraryVersionOutput"
                 }
               }
             }
@@ -8322,8 +8458,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8332,8 +8468,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8376,13 +8512,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "The dashboard templates this tenant renders: its integrator\\'s, or the platform\\'s where its integrator\nhas authored none. Read-only — a template is never instantiated into a tenant-owned dashboard.",
+        "description": "Returns the dashboard templates the tenant renders.\n\nThese are its integrator's, or those with no owner where its integrator has authored none.",
         "operationId": "tenant.dashboardTemplate.list",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant whose templates are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -8392,7 +8528,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The templates the tenant renders.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8464,7 +8600,7 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Get all Dashboards for a tenant",
+        "description": "Returns the dashboards of the tenant's projects that the caller may read.",
         "operationId": "tenant.dashboard.list",
         "parameters": [
           {
@@ -8561,13 +8697,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Create a new Dashboard for a tenant",
+        "description": "Creates a dashboard in a project of the tenant.\n\nThe name and the description are stored trimmed, and the widgets as sent.",
         "operationId": "tenant.dashboard.create",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the dashboard is created under.",
             "required": true,
             "schema": {
               "type": "string",
@@ -8598,7 +8734,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created dashboard as stored.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -8690,13 +8826,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Update an existing Dashboard for a tenant",
+        "description": "Replaces the name, the description and the widgets of a dashboard of the tenant.\n\nThe dashboard keeps its project. The update requires `If-Match`, and a stale version is answered\n412. A dashboard that is not the tenant's is answered 404.",
         "operationId": "tenant.dashboard.update",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the dashboard belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -8706,7 +8842,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The dashboard's id.",
+            "description": "The dashboard to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -8746,7 +8882,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The updated dashboard as stored.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -8810,16 +8946,6 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiExceptionDto"
-                }
-              }
-            }
-          },
           "412": {
             "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
@@ -8832,6 +8958,16 @@
           },
           "428": {
             "description": "The request carries no If-Match header, which this replace of the whole row requires; send the ETag header or meta.version in double quotes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8872,13 +9008,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Delete a Dashboard for a tenant.",
+        "description": "Deletes a dashboard of the tenant.\n\nA dashboard that is not the tenant's is answered 404.",
         "operationId": "tenant.dashboard.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the dashboard belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -8888,7 +9024,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The dashboard's id.",
+            "description": "The dashboard to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -8908,7 +9044,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -9364,8 +9500,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9374,8 +9510,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9908,8 +10044,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9918,8 +10054,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10452,8 +10588,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10462,8 +10598,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11386,8 +11522,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11396,8 +11532,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12392,6 +12528,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
           }
         },
         "x-vion-authorization": {
@@ -12536,8 +12682,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12546,8 +12692,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12798,6 +12944,16 @@
                 "description": "Bearer challenge naming the error and, when the token was rejected rather than missing, why.",
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
                 }
               }
             }
@@ -13329,13 +13485,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "The tenant's arrangement of a tenant-scoped collection.",
+        "description": "Returns the tenant's arrangement of its overview sections.",
         "operationId": "tenant.overviewSectionArrangement.get",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant.",
+            "description": "The tenant whose arrangement is read.",
             "required": true,
             "schema": {
               "type": "string",
@@ -13345,7 +13501,7 @@
           {
             "name": "collection",
             "in": "path",
-            "description": "The name of a tenant-scoped collection, today only ArrangementCollection.OverviewSections; an\nunknown name answers 404.",
+            "description": "The collection's name, exactly `OverviewSections`; any other name is answered 404.",
             "required": true,
             "schema": {
               "type": "string"
@@ -13434,13 +13590,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Replaces a tenant-scoped collection's arrangement.",
+        "description": "Replaces the tenant's arrangement of its overview sections.\n\nAn entry may stand in both lists. A body the arrangement refuses is answered 400 whatever the version the\nwrite names.",
         "operationId": "tenant.overviewSectionArrangement.upsert",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant.",
+            "description": "The tenant whose arrangement is replaced.",
             "required": true,
             "schema": {
               "type": "string",
@@ -13450,7 +13606,7 @@
           {
             "name": "collection",
             "in": "path",
-            "description": "The name of a tenant-scoped collection, today only ArrangementCollection.OverviewSections; an\nunknown name answers 404.",
+            "description": "The collection's name, exactly `OverviewSections`; any other name is answered 404.",
             "required": true,
             "schema": {
               "type": "string"
@@ -13552,8 +13708,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13562,8 +13718,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13604,13 +13760,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Resets a tenant-scoped collection's arrangement.",
+        "description": "Resets the tenant's arrangement of its overview sections.",
         "operationId": "tenant.overviewSectionArrangement.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant.",
+            "description": "The tenant whose arrangement is reset.",
             "required": true,
             "schema": {
               "type": "string",
@@ -13620,7 +13776,7 @@
           {
             "name": "collection",
             "in": "path",
-            "description": "The name of a tenant-scoped collection, today only ArrangementCollection.OverviewSections; an\nunknown name answers 404.",
+            "description": "The collection's name, exactly `OverviewSections`; any other name is answered 404.",
             "required": true,
             "schema": {
               "type": "string"
@@ -13741,13 +13897,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Every arrangement of the projects within this tenant the caller may read.",
+        "description": "Returns the arrangements of the tenant's projects that the caller may read.",
         "operationId": "tenant.projectArrangement.list",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant.",
+            "description": "The tenant whose projects' arrangements are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -13840,13 +13996,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Replaces a project's arrangement of its dashboards.",
+        "description": "Replaces a project's arrangement of its dashboards.\n\nA project that is not the tenant's is answered 404 and nothing is written.",
         "operationId": "tenant.dashboardArrangement.upsert",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the project belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -13856,7 +14012,7 @@
           {
             "name": "projectId",
             "in": "path",
-            "description": "The project's id.",
+            "description": "The project whose dashboards are arranged.",
             "required": true,
             "schema": {
               "type": "string",
@@ -13895,7 +14051,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The stored arrangement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -13959,8 +14115,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13969,8 +14125,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14011,13 +14167,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Resets a project's arrangement of its dashboards. Resetting one that is already reset is a success.",
+        "description": "Resets a project's arrangement of its dashboards.\n\nA project that is not the tenant's is answered 404.",
         "operationId": "tenant.dashboardArrangement.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the project belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -14027,7 +14183,7 @@
           {
             "name": "projectId",
             "in": "path",
-            "description": "The project's id.",
+            "description": "The project whose dashboards' arrangement is reset.",
             "required": true,
             "schema": {
               "type": "string",
@@ -14047,7 +14203,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The reset's acknowledgement; resetting an arrangement that is already reset succeeds.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -14149,13 +14305,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Replaces a project's arrangement of its assets tree.",
+        "description": "Replaces a project's arrangement of its asset tree.\n\nA project that is not the tenant's is answered 404 and nothing is written.",
         "operationId": "tenant.assetTreeArrangement.upsert",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the project belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -14165,7 +14321,7 @@
           {
             "name": "projectId",
             "in": "path",
-            "description": "The project's id.",
+            "description": "The project whose asset tree is arranged.",
             "required": true,
             "schema": {
               "type": "string",
@@ -14204,7 +14360,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The stored arrangement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -14268,8 +14424,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14278,8 +14434,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14320,13 +14476,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Resets a project's arrangement of its assets tree. Resetting one that is already reset is a success.",
+        "description": "Resets a project's arrangement of its asset tree.\n\nA project that is not the tenant's is answered 404.",
         "operationId": "tenant.assetTreeArrangement.delete",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the project belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -14336,7 +14492,7 @@
           {
             "name": "projectId",
             "in": "path",
-            "description": "The project's id.",
+            "description": "The project whose asset tree's arrangement is reset.",
             "required": true,
             "schema": {
               "type": "string",
@@ -14356,7 +14512,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The reset's acknowledgement; resetting an arrangement that is already reset succeeds.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -14613,13 +14769,13 @@
         "tags": [
           "Tenant"
         ],
-        "description": "Generate AI content for dashboard widget creation",
+        "description": "Generates text with a language model from the prompt of a domain, a context and the caller's prompt.\n\nNothing of the tenant is read. `domain` names one of the service's prompts, `widget` where none is\nsent, and any other is refused with 400. `model` names the model to call, the configured default where none\nis sent. A failed call is answered 200 with `error` a fixed text naming no cause, `rawText` null and\nzero cost.",
         "operationId": "tenant.chart.generate",
         "parameters": [
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the caller is a member of.",
             "required": true,
             "schema": {
               "type": "string",
@@ -14650,7 +14806,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The generated text with the call's timing and estimated cost, or the error of a failed call.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -14890,6 +15046,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
           }
         },
         "security": [],
@@ -14950,6 +15116,16 @@
           },
           "500": {
             "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
             "content": {
               "application/json": {
                 "schema": {
@@ -15788,6 +15964,16 @@
               }
             }
           },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
           "400": {
             "description": "The request was malformed or failed input validation.",
             "content": {
@@ -15894,6 +16080,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RemoteAccessConnectionInfoOutput"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
                 }
               }
             }
@@ -16008,6 +16204,16 @@
               }
             }
           },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
           "400": {
             "description": "The request was malformed or failed input validation.",
             "content": {
@@ -16083,7 +16289,7 @@
         "tags": [
           "Platform"
         ],
-        "description": "Returns all RabbitMQ users with the 'administrator' tag",
+        "description": "Returns every RabbitMQ user carrying the administrator tag.",
         "operationId": "platform.rabbitMqAdminUser.list",
         "parameters": [
           {
@@ -16099,7 +16305,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The RabbitMQ administrators.",
             "content": {
               "application/json": {
                 "schema": {
@@ -16171,7 +16377,7 @@
         "tags": [
           "Platform"
         ],
-        "description": "Creates a new RabbitMQ admin user with the 'administrator' tag",
+        "description": "Creates a RabbitMQ administrator.\n\nThe administrator's RabbitMQ user is named by the email trimmed and lower-cased, and tagged administrator and\nmanagement. A name that any RabbitMQ user already holds is refused.",
         "operationId": "platform.rabbitMqAdminUser.create",
         "parameters": [
           {
@@ -16208,7 +16414,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created administrator.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -16300,7 +16506,7 @@
         "tags": [
           "Platform"
         ],
-        "description": "Deletes a RabbitMQ admin user including all associated permissions.",
+        "description": "Deletes a RabbitMQ administrator with its permissions.\n\nA RabbitMQ user without the administrator tag is answered as unknown.",
         "operationId": "platform.rabbitMqAdminUser.delete",
         "parameters": [
           {
@@ -16316,7 +16522,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The rabbit mq admin user's id.",
+            "description": "The administrator to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -16336,7 +16542,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -16784,13 +16990,13 @@
         "tags": [
           "Platform"
         ],
-        "description": "Provisions Grafana dashboard templates for the specified tenants.\nThis is a maintenance operation that can be used to create or update dashboards.",
+        "description": "Creates or replaces Grafana's dashboards for each tenant the body names.\n\nAn id that names no tenant refuses the request with 400 before any tenant is provisioned. A tenant Grafana\nfails for is answered with `success` false and a fixed `errorMessage`, and the others are still\nprovisioned.",
         "operationId": "platform.grafanaDashboard.provision",
         "parameters": [
           {
             "name": "platformId",
             "in": "path",
-            "description": "The platform's id.",
+            "description": "The platform the caller administers.",
             "required": true,
             "schema": {
               "type": "string",
@@ -16821,7 +17027,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "One result per distinct tenant id.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -16913,7 +17119,7 @@
         "tags": [
           "Platform"
         ],
-        "description": "Returns all integrators",
+        "description": "Returns every integrator, each with its owners.",
         "operationId": "platform.integrator.list",
         "parameters": [
           {
@@ -16929,7 +17135,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Every integrator.",
             "content": {
               "application/json": {
                 "schema": {
@@ -17001,7 +17207,7 @@
         "tags": [
           "Platform"
         ],
-        "description": "Creates a new integrator",
+        "description": "Creates an integrator.",
         "operationId": "platform.integrator.create",
         "parameters": [
           {
@@ -17038,7 +17244,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created integrator, which has no owners yet.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -17130,7 +17336,7 @@
         "tags": [
           "Platform"
         ],
-        "description": "Updates an existing integrator",
+        "description": "Replaces the name and the slug of an integrator.",
         "operationId": "platform.integrator.update",
         "parameters": [
           {
@@ -17146,7 +17352,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -17185,7 +17391,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The updated integrator with its owners.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -17249,8 +17455,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -17259,8 +17465,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -17301,7 +17507,7 @@
         "tags": [
           "Platform"
         ],
-        "description": "Deletes an integrator",
+        "description": "Deletes an integrator.\n\nAn integrator that still has a tenant is refused.",
         "operationId": "platform.integrator.delete",
         "parameters": [
           {
@@ -17317,7 +17523,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -17337,7 +17543,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -17960,6 +18166,16 @@
                 "description": "Bearer challenge naming the error and, when the token was rejected rather than missing, why.",
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
                 }
               }
             }
@@ -19584,6 +19800,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
           }
         },
         "x-vion-authorization": {
@@ -19728,8 +19954,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -19738,8 +19964,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -19990,6 +20216,16 @@
                 "description": "Bearer challenge naming the error and, when the token was rejected rather than missing, why.",
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
                 }
               }
             }
@@ -21450,13 +21686,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Get all widget definitions for an integrator",
+        "description": "Returns the widget definitions the integrator owns.\n\nThe definitions of the integrator's tenants are not listed.",
         "operationId": "integrator.widgetDefinition.list",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator whose widget definitions are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -21466,7 +21702,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The integrator's widget definitions.",
             "content": {
               "application/json": {
                 "schema": {
@@ -21538,13 +21774,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Create a new widget definition",
+        "description": "Creates a widget definition owned by the integrator.\n\nThe name, the description and the icon are stored trimmed, an empty icon as null. An invalid definition\nis refused with 400 and nothing is stored.",
         "operationId": "integrator.widgetDefinition.create",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator the definition is created under.",
             "required": true,
             "schema": {
               "type": "string",
@@ -21575,7 +21811,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created definition as stored.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -21667,13 +21903,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Update an existing widget definition",
+        "description": "Replaces a widget definition of the integrator.\n\nA definition that is not the integrator's own is answered 404 whatever the body, and a stale version 412.",
         "operationId": "integrator.widgetDefinition.update",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator the definition belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -21683,7 +21919,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The widget definition's id.",
+            "description": "The widget definition to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -21722,7 +21958,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The updated definition as stored.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -21786,8 +22022,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -21796,8 +22032,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -21838,13 +22074,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Delete a widget definition",
+        "description": "Deletes a widget definition of the integrator.\n\nThe templates, compositions and dashboards that name it keep its id. A definition that is not the\nintegrator's own is answered 404.",
         "operationId": "integrator.widgetDefinition.delete",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator the definition belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -21854,7 +22090,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The widget definition's id.",
+            "description": "The widget definition to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -21874,7 +22110,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -21976,13 +22212,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Every owned tenant's theme exactly as stored — the overrides that tenant sets, not the merged result\nits members render. A tenant with no overrides is absent from the list rather than present and all\nnull: absence is what \"inherits everything\" means, and it keeps the response to the tenants that have\nactually been themed.",
+        "description": "Returns the stored white-label theme of each of the integrator's tenants.\n\nEach theme is the tenant's own as stored, not merged with the integrator's. A tenant never themed is\nabsent, and one reset by an all-null upsert is listed with every member null.",
         "operationId": "integrator.tenantWhiteLabelTheme.list",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator whose tenants' themes are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -21992,7 +22228,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The tenants' themes, each with its `tenantId`.",
             "content": {
               "application/json": {
                 "schema": {
@@ -22066,13 +22302,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Replaces one tenant's overrides. A full upsert: a field left null is cleared back to inheriting the\nintegrator's value, and an all-null body takes the tenant level out of the fallback chain.",
+        "description": "Replaces the white-label theme of one of the integrator's tenants.\n\nA member sent null is cleared, so the tenant inherits the integrator's, and an all-null body keeps a row\nthat reads as none. A tenant that is not the integrator's is answered 404 whatever the body.",
         "operationId": "integrator.tenantWhiteLabelTheme.upsert",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator that owns the tenant.",
             "required": true,
             "schema": {
               "type": "string",
@@ -22082,7 +22318,7 @@
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant whose theme is replaced.",
             "required": true,
             "schema": {
               "type": "string",
@@ -22121,7 +22357,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The tenant's theme as stored after the write, not merged with the integrator's.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -22185,8 +22421,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -22195,8 +22431,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -22239,13 +22475,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "The integrator's theme: the fields it sets, and nothing else — the server never fills a deployment or\nVION default, the client layers those underneath. Serves both the renderer and the authoring form,\nbecause at this level \"as stored\" and \"as resolved\" are the same document. An integrator that has never\nbeen themed is a 200 with every field null, not a 404.",
+        "description": "Returns the integrator's white-label theme as stored.\n\nA member the integrator has not set is null, and the server fills no default. An integrator never themed\nis answered every member null with `meta.version` null.",
         "operationId": "integrator.whiteLabelTheme.get",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator whose theme is read.",
             "required": true,
             "schema": {
               "type": "string",
@@ -22255,7 +22491,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The integrator's theme, the logo as a `data:` URI.",
             "content": {
               "application/json": {
                 "schema": {
@@ -22325,13 +22561,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Replaces the integrator's theme. A full upsert: a field left null is cleared back to inherited, and an\nall-null body takes the integrator level out of the fallback chain.",
+        "description": "Replaces the integrator's white-label theme.\n\nA member sent null is cleared, and an all-null body keeps a row that reads as none. A body the theme\nrefuses is answered 400 whatever the version the write names.",
         "operationId": "integrator.whiteLabelTheme.upsert",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator whose theme is replaced.",
             "required": true,
             "schema": {
               "type": "string",
@@ -22370,7 +22606,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The theme as stored after the write.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -22434,8 +22670,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -22444,8 +22680,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -22478,13 +22714,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Returns all tenants for an integrator",
+        "description": "Returns the tenants of the integrator, each with its owners.",
         "operationId": "integrator.tenant.list",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator whose tenants are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -22494,7 +22730,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The integrator's tenants.",
             "content": {
               "application/json": {
                 "schema": {
@@ -22566,13 +22802,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Creates a tenant for an integrator",
+        "description": "Creates a tenant under the integrator.",
         "operationId": "integrator.tenant.create",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator the tenant is created under.",
             "required": true,
             "schema": {
               "type": "string",
@@ -22603,7 +22839,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created tenant, which has no owners yet.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -22695,13 +22931,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Allows to update a tenant name and slug",
+        "description": "Replaces the name and the slug of a tenant of the integrator.",
         "operationId": "integrator.tenant.update",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator the tenant belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -22711,7 +22947,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -22750,7 +22986,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The updated tenant with its owners.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -22814,8 +23050,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -22824,8 +23060,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -22866,13 +23102,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Deletes a tenant",
+        "description": "Deletes a tenant of the integrator.\n\nThe tenant is deleted with its gateways, users and service accounts. A tenant with a live remote-access session\nis refused.",
         "operationId": "integrator.tenant.delete",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator the tenant belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -22882,7 +23118,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -22902,7 +23138,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -23529,6 +23765,16 @@
               }
             }
           },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
           "404": {
             "description": "A route parameter names a target that does not exist.",
             "content": {
@@ -23819,13 +24065,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "The integrator\\'s composition as it authored it. An integrator that has composed nothing is a 200 with\ntwo empty sections, not a 404.",
+        "description": "Returns the integrator's default overview composition as stored.\n\nA section the integrator has not composed is answered empty, and an integrator that has composed nothing\nis answered two empty sections with `meta.version` null.",
         "operationId": "integrator.tenantOverviewComposition.get",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator whose composition is read.",
             "required": true,
             "schema": {
               "type": "string",
@@ -23835,7 +24081,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The integrator's default composition.",
             "content": {
               "application/json": {
                 "schema": {
@@ -23905,13 +24151,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Replaces the integrator\\'s composition. A full upsert: a section left null is cleared back to inherited,\nand a body with both sections empty stores an empty overview rather than deleting the row.",
+        "description": "Replaces the integrator's default overview composition.\n\nA section sent null is answered empty, and a body of two empty sections keeps the stored row. A card or\nwidget naming a definition the integrator may not use is refused with 400 and nothing is written.",
         "operationId": "integrator.tenantOverviewComposition.upsert",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator whose composition is replaced.",
             "required": true,
             "schema": {
               "type": "string",
@@ -23950,7 +24196,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The composition as stored after the write.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -24014,8 +24260,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -24024,8 +24270,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -24058,13 +24304,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Every tenant-scoped layer of every owned tenant, exactly as stored — what each level authored, not the\nmerged document its members render. A tenant nobody has composed for is absent from the list rather\nthan present and all null: absence is what \"inherits everything\" means.",
+        "description": "Returns every overview composition layer of the integrator's tenants as stored.\n\nThe integrator's layers and the tenants' own are both listed, each with its `tenantId` and\n`author`, and the integrator's default is not. A tenant with no layer is absent.",
         "operationId": "integrator.tenantOverviewCompositionLayer.list",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator whose tenants' layers are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -24074,7 +24320,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The layers of the integrator's tenants.",
             "content": {
               "application/json": {
                 "schema": {
@@ -24148,13 +24394,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Replaces the layer this integrator authored for one tenant. A full upsert: a section left null is\ncleared back to the integrator's default, and an empty list is a deliberate empty section that the\ntenant sees as inherited and empty.",
+        "description": "Replaces the integrator's overview composition layer for one of its tenants.\n\nA section sent null inherits the integrator's default, and one sent empty hides it. A tenant that is not\nthe integrator's is answered 404 whatever the body.",
         "operationId": "integrator.tenantOverviewCompositionLayer.upsert",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator that authors the layer.",
             "required": true,
             "schema": {
               "type": "string",
@@ -24164,7 +24410,7 @@
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the layer is for.",
             "required": true,
             "schema": {
               "type": "string",
@@ -24203,7 +24449,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The layer as stored, its sections as authored.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -24267,8 +24513,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -24277,8 +24523,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -24319,13 +24565,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Drops the layer this integrator authored for one tenant, so it falls back to the integrator default.\nResetting a tenant that has no such layer is a success.",
+        "description": "Removes the integrator's overview composition layer for one of its tenants.\n\nThe tenant's own layer stays, and removing a layer that is not stored succeeds. A tenant that is not the\nintegrator's is answered 404.",
         "operationId": "integrator.tenantOverviewCompositionLayer.delete",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator that authored the layer.",
             "required": true,
             "schema": {
               "type": "string",
@@ -24335,7 +24581,7 @@
           {
             "name": "tenantId",
             "in": "path",
-            "description": "The tenant's id.",
+            "description": "The tenant the layer is for.",
             "required": true,
             "schema": {
               "type": "string",
@@ -24355,7 +24601,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The reset's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -24457,13 +24703,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Get all tenant dashboard templates an integrator has authored.",
+        "description": "Returns the dashboard templates the integrator authored.",
         "operationId": "integrator.tenantDashboardTemplate.list",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator whose templates are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -24473,7 +24719,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The integrator's templates.",
             "content": {
               "application/json": {
                 "schema": {
@@ -24545,13 +24791,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Create a new tenant dashboard template.",
+        "description": "Creates a dashboard template owned by the integrator.\n\nThe name and the description are stored trimmed. A widget naming a definition the integrator may not use,\nor one that no longer exists, is refused with 400 and nothing is stored.",
         "operationId": "integrator.tenantDashboardTemplate.create",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator the template is created under.",
             "required": true,
             "schema": {
               "type": "string",
@@ -24582,7 +24828,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The created template as stored.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -24674,13 +24920,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Update an existing tenant dashboard template.",
+        "description": "Replaces the name, the description and the widgets of a dashboard template of the integrator.\n\nA template that is not the integrator's is answered 404 whatever the body, and a stale version 412.",
         "operationId": "integrator.tenantDashboardTemplate.update",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator the template belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -24690,7 +24936,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The tenant dashboard template's id.",
+            "description": "The template to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -24729,7 +24975,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The updated template as stored.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -24793,8 +25039,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -24803,8 +25049,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -24845,13 +25091,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Delete a tenant dashboard template.",
+        "description": "Deletes a dashboard template of the integrator.\n\nA template that is not the integrator's is answered 404.",
         "operationId": "integrator.tenantDashboardTemplate.delete",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator the template belongs to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -24861,7 +25107,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The tenant dashboard template's id.",
+            "description": "The template to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -24881,7 +25127,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The delete's acknowledgement.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -25790,6 +26036,16 @@
               }
             }
           },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
           "400": {
             "description": "The request was malformed or failed input validation.",
             "content": {
@@ -25900,6 +26156,16 @@
               }
             }
           },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
+          },
           "400": {
             "description": "The request was malformed or failed input validation.",
             "content": {
@@ -26006,6 +26272,16 @@
               "application/zip": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
                 }
               }
             }
@@ -26736,8 +27012,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -26746,8 +27022,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -27646,8 +27922,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -27656,8 +27932,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -28823,8 +29099,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -28833,8 +29109,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -29377,13 +29653,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Get the logic block library versions of an integrator, optionally of a single library.",
+        "description": "Get the versions of every logic block library an integrator may see, optionally of a single library.\n\nThe integrator may see its own libraries, the public ones and the ones granted to it, archived ones included.\nA version's `integratorId` tells the integrator's own versions from another integrator's.",
         "operationId": "integrator.logicBlockLibraryVersion.list",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator whose library versions are listed.",
+            "description": "The integrator whose visible library versions are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -29393,7 +29669,7 @@
           {
             "name": "packageId",
             "in": "query",
-            "description": "The NuGet package id of the library to list the versions of, every library of the integrator\nwhen omitted.",
+            "description": "The NuGet package id of the library to list the versions of, matched whatever its case, every library the\nintegrator may see when omitted.",
             "schema": {
               "type": "string"
             }
@@ -29401,7 +29677,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The versions of the integrator's libraries.",
+            "description": "The versions of the libraries the integrator may see.",
             "content": {
               "application/json": {
                 "schema": {
@@ -29750,8 +30026,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -29760,8 +30036,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -30253,8 +30529,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -30263,8 +30539,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -32118,6 +32394,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
+                }
+              }
+            }
           }
         },
         "x-vion-authorization": {
@@ -32262,8 +32548,8 @@
               }
             }
           },
-          "409": {
-            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
+          "412": {
+            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -32272,8 +32558,8 @@
               }
             }
           },
-          "412": {
-            "description": "The If-Match header names a version the row has moved on from; the body's currentVersion and the ETag header name the current one.",
+          "409": {
+            "description": "A request with the same Idempotency-Key is still running, or the target's state forbids the request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -32524,6 +32810,16 @@
                 "description": "Bearer challenge naming the error and, when the token was rejected rather than missing, why.",
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
                 }
               }
             }
@@ -33055,13 +33351,13 @@
         "tags": [
           "Integrator"
         ],
-        "description": "Generate AI content for widget creation",
+        "description": "Generates text with a language model from the prompt of a domain, a context and the caller's prompt.\n\nThe answer is what a tenant member's generation answers for the same body, and nothing of the integrator is\nread. `domain` names one of the service's prompts, `widget` where none is sent, and any other is\nrefused with 400. A failed call is answered 200 with `error` a fixed text naming no cause.",
         "operationId": "integrator.widgetDefinition.generate",
         "parameters": [
           {
             "name": "integratorId",
             "in": "path",
-            "description": "The integrator's id.",
+            "description": "The integrator the caller manages widget definitions of.",
             "required": true,
             "schema": {
               "type": "string",
@@ -33092,7 +33388,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The generated text with the call's timing and estimated cost, or the error of a failed call.",
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this answer replays the first response to a request under the same Idempotency-Key; absent from a first answer, never false.",
@@ -33268,11 +33564,21 @@
         "operationId": "me.subscriber.create",
         "responses": {
           "200": {
-            "description": "The subscriber id, the broker, the protocol and quality of service to use, and the will to register.",
+            "description": "The subscriber id, the broker, the protocol and quality of service to use, and the will to\nregister.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SubscriberOutput"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The target's state forbids the request, or another request changed it first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiExceptionDto"
                 }
               }
             }
@@ -34634,7 +34940,7 @@
           "OverviewSections"
         ],
         "type": "string",
-        "description": "The collections a user can order and hide entries in. Closed on purpose: each member declares a scope, a\nwrite permission and an id alphabet in `ArrangementCollections`, and a route naming anything else is a\n404. Adding a member is a contract change the dashboard compiles against."
+        "description": "The collections a user can order and hide entries in. Closed on purpose: each member declares a scope and an\nid alphabet in `ArrangementCollections`, and a route naming anything else is a 404. Adding a member is a\ncontract change the dashboard compiles against."
       },
       "ArrangementOutput": {
         "required": [
@@ -34876,7 +35182,8 @@
       "CapabilityDeprecationOutput": {
         "required": [
           "since",
-          "sunset"
+          "sunset",
+          "replacedBy"
         ],
         "type": "object",
         "properties": {
@@ -34911,6 +35218,7 @@
           "dryRun",
           "completion",
           "stability",
+          "deprecation",
           "authorization"
         ],
         "type": "object",
@@ -36011,7 +36319,8 @@
             "type": "string"
           },
           "releaseNotes": {
-            "type": "string"
+            "type": "string",
+            "description": "The version's release notes, as GitHub Flavored Markdown for clients to render."
           },
           "tags": {
             "type": "array",
@@ -41423,7 +41732,8 @@
             "type": "string"
           },
           "releaseNotes": {
-            "type": "string"
+            "type": "string",
+            "description": "The version's release notes, as GitHub Flavored Markdown for clients to render."
           },
           "tags": {
             "type": "array",
@@ -42502,12 +42812,12 @@
               "null",
               "number"
             ],
-            "description": "The measured value captured for the measuring point.",
+            "description": "The average of the values measured within the bucket, or the filled value of a bucket without measurements.",
             "format": "double"
           },
           "dateTime": {
             "type": "string",
-            "description": "The timestamp when the measurement was recorded, formatted as an ISO 8601 date string (e.g.,\n'2025-01-15T14:30:00Z').",
+            "description": "The start of the bucket, formatted as an ISO 8601 date string (e.g.,\n'2025-01-15T14:30:00Z').",
             "format": "date-time"
           },
           "quality": {
@@ -45646,7 +45956,10 @@
             "format": "uuid"
           },
           "projectId": {
-            "type": "string",
+            "type": [
+              "null",
+              "string"
+            ],
             "format": "uuid"
           },
           "edgeGatewayId": {
@@ -45703,7 +46016,7 @@
             "items": {
               "$ref": "#/components/schemas/ServiceRelationOutput"
             },
-            "description": "The relations with this service at one end and a service the caller reads at the other."
+            "description": "The relations with this service at one end and a service the caller reads and the filter keeps at the other."
           },
           "annotations": {
             "type": "object",
@@ -46145,7 +46458,8 @@
         "properties": {
           "values": {
             "type": "object",
-            "additionalProperties": {}
+            "additionalProperties": {},
+            "description": "The submitted value of each setup field, keyed by the field's identifier as submitted."
           },
           "sentAt": {
             "type": "string",
@@ -46927,7 +47241,7 @@
             "description": "One of TemplateBindingKinds."
           }
         },
-        "description": "How one of the referenced definition\\'s parameters is filled in when the template is rendered for a tenant."
+        "description": "How one of the referenced definition's parameters is filled in when the template is rendered for a tenant."
       },
       "TemplateParameter": {
         "required": [
@@ -47021,7 +47335,7 @@
               "null",
               "string"
             ],
-            "description": "Where each stamp\\'s subject lands: a parameter name for a data-driven widget, a config field for a classic\none."
+            "description": "Where each stamp's subject lands: a parameter name for a data-driven widget, a config field for a classic\none."
           },
           "bindings": {
             "type": "array",
@@ -47034,7 +47348,7 @@
               "null",
               "string"
             ],
-            "description": "A classic widget\\'s configuration, or fixed values for a data-driven widget\\'s non-service parameters."
+            "description": "A classic widget's configuration, or fixed values for a data-driven widget's non-service parameters."
           }
         },
         "description": "One placed widget. Close to `DashboardWidget`, but a template is authored against a tenant it cannot\nsee, so int? TemplateWidget.X/int? TemplateWidget.Y are nullable, string? TemplateWidget.DefinitionId can name a data-driven\ndefinition, and string? TemplateWidget.RepeatOver stamps one entry per matching subject."
@@ -47551,7 +47865,7 @@
             "description": "The main area below the cards — the same placed-widget entry a dashboard template carries."
           }
         },
-        "description": "        The tenant overview page, as authored at one level.\n        A null section is not an empty one: null means \"not authored at this level\" and inherits, an empty list\nmeans \"deliberately nothing\" and does not. The distinction is inert while only integrator rows exist."
+        "description": "        The tenant overview page, as authored at one level.\n        A null section is not an empty one: null means \"not authored at this level\" and inherits, an empty list\nmeans \"deliberately nothing\" and does not."
       },
       "TenantOverviewCompositionLayerOutput": {
         "required": [
@@ -48650,7 +48964,8 @@
             "type": "string"
           },
           "releaseNotes": {
-            "type": "string"
+            "type": "string",
+            "description": "The version's release notes, as GitHub Flavored Markdown for clients to render."
           },
           "tags": {
             "type": "array",
@@ -50167,7 +50482,7 @@
             "description": "Entry ids to leave out. Empty means everything the collection holds is shown."
           }
         },
-        "description": "A full upsert of one row: the document replaces what is stored, last write wins on the unique index. Every\npart of the identity is route-bound and JsonIgnoreAttributed, so a body cannot redirect the\nwrite at another scope or collection."
+        "description": "A full upsert of one row: the document replaces what is stored. Every part of the identity is route-bound\nand JsonIgnoreAttributed, so a body cannot redirect the write at another scope or collection."
       },
       "UpsertArrangementOutput": {
         "required": [
