@@ -106,6 +106,7 @@ Commands:
   logic-configuration-template    The logic configuration template operations.
   logic-configuration             The logic configuration operations.
   logic-block-translation-bundle  The logic block translation bundle operations.
+  logic-block-library-version     The logic block library version operations.
   logic-block-definition          The logic block definition operations.
   dashboard-template              The dashboard template operations.
   dashboard                       The dashboard operations.
@@ -164,15 +165,20 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Browse widget definitions available to this tenant (integrator + tenant-owned)
-  create  Create a new tenant-owned widget definition
-  update  Update an existing tenant-owned widget definition
-  delete  Delete a tenant-owned widget definition
+  list    Returns the widget definitions the tenant may use. These are its integrator's, its own and those 
+          with no owner, and none of another integrator or tenant.
+  create  Creates a widget definition owned by the tenant. The name, the description and the icon are stored 
+          trimmed, an empty icon as null. An invalid definition is refused with 400 and nothing is stored.
+  update  Replaces a widget definition of the tenant. A definition the tenant does not own, its integrator's 
+          included, is answered 404 whatever the body, and a stale version 412.
+  delete  Deletes a widget definition of the tenant. The compositions and dashboards that name it keep its 
+          id. A definition the tenant does not own, its integrator's included, is answered 404.
 
 ---
 ## vion tenant widget-definition list
 Description:
-  Browse widget definitions available to this tenant (integrator + tenant-owned)
+  Returns the widget definitions the tenant may use. These are its integrator's, its own and those with no 
+  owner, and none of another integrator or tenant.
 
 Usage:
   vion tenant widget-definition list [options]
@@ -202,7 +208,8 @@ Options:
 ---
 ## vion tenant widget-definition create
 Description:
-  Create a new tenant-owned widget definition
+  Creates a widget definition owned by the tenant. The name, the description and the icon are stored trimmed, 
+  an empty icon as null. An invalid definition is refused with 400 and nothing is stored.
 
 Usage:
   vion tenant widget-definition create [options]
@@ -236,13 +243,14 @@ Options:
 ---
 ## vion tenant widget-definition update
 Description:
-  Update an existing tenant-owned widget definition
+  Replaces a widget definition of the tenant. A definition the tenant does not own, its integrator's 
+  included, is answered 404 whatever the body, and a stale version 412.
 
 Usage:
   vion tenant widget-definition update [options]
 
 Options:
-  --id <uuid>                  The widget definition's id.
+  --id <uuid>                  The widget definition to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -271,13 +279,14 @@ Options:
 ---
 ## vion tenant widget-definition delete
 Description:
-  Delete a tenant-owned widget definition
+  Deletes a widget definition of the tenant. The compositions and dashboards that name it keep its id. A 
+  definition the tenant does not own, its integrator's included, is answered 404.
 
 Usage:
   vion tenant widget-definition delete [options]
 
 Options:
-  --id <uuid>               The widget definition's id.
+  --id <uuid>               The widget definition to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -330,20 +339,16 @@ Options:
                             then exits 3.
 
 Commands:
-  get  The theme to render a tenant context with: per field, the tenant's value or else its owning 
-       integrator's. Only fields actually set at those two levels come back — the deployment and VION layers 
-       underneath are the client's, so a tenant with nothing set anywhere is a 200 with every field null. 
-       This is the resolved document, not the tenant's stored overrides; the overrides are authoring data and 
-       are read by the integrator that owns them, on the integrator route.
+  get  Returns the tenant's white-label theme merged per member with its integrator's. Each member is the 
+       tenant's value, else its integrator's, else null, and the logo's bytes and type come from one level. 
+       `meta.version` is null, since the answer merges two rows.
 
 ---
 ## vion tenant white-label-theme get
 Description:
-  The theme to render a tenant context with: per field, the tenant's value or else its owning integrator's. 
-  Only fields actually set at those two levels come back — the deployment and VION layers underneath are the 
-  client's, so a tenant with nothing set anywhere is a 200 with every field null. This is the resolved 
-  document, not the tenant's stored overrides; the overrides are authoring data and are read by the 
-  integrator that owns them, on the integrator route.
+  Returns the tenant's white-label theme merged per member with its integrator's. Each member is the tenant's 
+  value, else its integrator's, else null, and the logo's bytes and type come from one level. `meta.version` 
+  is null, since the answer merges two rows.
 
 Usage:
   vion tenant white-label-theme get [options]
@@ -1065,6 +1070,7 @@ Commands:
 ## vion tenant service list
 Description:
   Lists the services of the tenant the caller reads, each with its properties, measuring points and relations.
+  Stability: stable — changes only additively or by a deprecation.
 
 Usage:
   vion tenant service list [options]
@@ -1125,37 +1131,52 @@ Options:
                             then exits 3.
 
 Commands:
-  subscribe  Start notification of property value changes. The actual property values are sent via MQTT to 
-             the topic provided in the configuration of the service property. The flow is: call this endpoint 
-             with the properties to watch and a subscriberId, then connect to the MQTT broker with the same 
-             bearer token and read the values from the topics this call returns. subscriberId is not 
-             free-form: it must equal the MQTT client id used on that connection, which me.subscriber.create 
-             mints as {identityProviderUserId}_{exactly 6 alphanumeric characters}_, trailing underscore 
-             included; an id that is not the caller's in this form is refused with 400. The subscription must 
-             be made at QoS 0, which RabbitMQ enforces silently: CONNECT succeeds, SUBSCRIBE is refused, the 
-             connection closes, nothing names a reason. The subscription is kept alive by the MQTT 
-             connection, so the client must register the last will topic 
-             cloud/subscriber/lastWill/{identityProviderUserId}/{subscriberId} - the cloud tears the 
-             subscription down when that last will fires. Worked examples: 
+  subscribe  Registers a subscriber for the values of the named service properties with their edge gateways. 
+             The values arrive on the topics each service row of the services list hands out in meta.topics. 
+             A client connects to the MQTT broker with the same bearer token, subscribes to those topics, 
+             waits for the broker's acknowledgement and only then calls this operation, since the values a 
+             gateway publishes on registration find no subscription to arrive on otherwise. subscriberId is 
+             not free-form: it must equal the MQTT client id used on that connection, which 
+             me.subscriber.create mints as {identityProviderUserId}_{exactly 6 alphanumeric characters}_, 
+             trailing underscore included; an id that is not the caller's in this form is refused with 400. 
+             The subscription must be made at QoS 0, which RabbitMQ enforces silently: CONNECT succeeds, 
+             SUBSCRIBE is refused, the connection closes, nothing names a reason. The gateway keeps the 
+             registration until the subscriber's last will is published, so the client must register the last 
+             will topic cloud/subscriber/lastWill/{identityProviderUserId}/{subscriberId}. The broker 
+             publishes the will when the connection ends without a clean disconnect, and the client publishes 
+             it itself, empty, before a clean one. After a reconnect the client subscribes and calls this 
+             operation again, under a new Idempotency-Key or none. A named property that is not the tenant's, 
+             or that the caller does not read, is left out without a refusal. Worked examples: 
              https://docs.vion.swiss/cloud-api/minimal-client
-  set        Set the value of a service property.
+  set        Sends a new value of a service property to the edge gateway the property's service runs on. The 
+             answer is given once the value is recorded to be sent to the gateway, not once the gateway has 
+             applied it, and no answer of the gateway is awaited. The answer does not say whether the gateway 
+             applied the value; a client follows the property's state through a subscription that 
+             tenant.serviceProperty.subscribe registers. A property with no schema, one whose schema cannot 
+             be read, a read-only one and an instantiation parameter are refused with 409, whatever the 
+             value. Otherwise a value the property's schema refuses is answered 400. A property of a service 
+             provider that is not accepted is answered as missing.
   watch      The values of a service's properties, published by the gateway to the subscribers registered for 
              them: the current values on registration, then each change.
 
 ---
 ## vion tenant service-property subscribe
 Description:
-  Start notification of property value changes. The actual property values are sent via MQTT to the topic 
-  provided in the configuration of the service property. The flow is: call this endpoint with the properties 
-  to watch and a subscriberId, then connect to the MQTT broker with the same bearer token and read the values 
-  from the topics this call returns. subscriberId is not free-form: it must equal the MQTT client id used on 
-  that connection, which me.subscriber.create mints as {identityProviderUserId}_{exactly 6 alphanumeric 
-  characters}_, trailing underscore included; an id that is not the caller's in this form is refused with 
-  400. The subscription must be made at QoS 0, which RabbitMQ enforces silently: CONNECT succeeds, SUBSCRIBE 
-  is refused, the connection closes, nothing names a reason. The subscription is kept alive by the MQTT 
-  connection, so the client must register the last will topic 
-  cloud/subscriber/lastWill/{identityProviderUserId}/{subscriberId} - the cloud tears the subscription down 
-  when that last will fires. Worked examples: https://docs.vion.swiss/cloud-api/minimal-client
+  Registers a subscriber for the values of the named service properties with their edge gateways. The values 
+  arrive on the topics each service row of the services list hands out in meta.topics. A client connects to 
+  the MQTT broker with the same bearer token, subscribes to those topics, waits for the broker's 
+  acknowledgement and only then calls this operation, since the values a gateway publishes on registration 
+  find no subscription to arrive on otherwise. subscriberId is not free-form: it must equal the MQTT client 
+  id used on that connection, which me.subscriber.create mints as {identityProviderUserId}_{exactly 6 
+  alphanumeric characters}_, trailing underscore included; an id that is not the caller's in this form is 
+  refused with 400. The subscription must be made at QoS 0, which RabbitMQ enforces silently: CONNECT 
+  succeeds, SUBSCRIBE is refused, the connection closes, nothing names a reason. The gateway keeps the 
+  registration until the subscriber's last will is published, so the client must register the last will topic 
+  cloud/subscriber/lastWill/{identityProviderUserId}/{subscriberId}. The broker publishes the will when the 
+  connection ends without a clean disconnect, and the client publishes it itself, empty, before a clean one. 
+  After a reconnect the client subscribes and calls this operation again, under a new Idempotency-Key or 
+  none. A named property that is not the tenant's, or that the caller does not read, is left out without a 
+  refusal. Worked examples: https://docs.vion.swiss/cloud-api/minimal-client
 
 Usage:
   vion tenant service-property subscribe [options]
@@ -1189,16 +1210,23 @@ Options:
 ---
 ## vion tenant service-property set
 Description:
-  Set the value of a service property.
+  Sends a new value of a service property to the edge gateway the property's service runs on. The answer is 
+  given once the value is recorded to be sent to the gateway, not once the gateway has applied it, and no 
+  answer of the gateway is awaited. The answer does not say whether the gateway applied the value; a client 
+  follows the property's state through a subscription that tenant.serviceProperty.subscribe registers. A 
+  property with no schema, one whose schema cannot be read, a read-only one and an instantiation parameter 
+  are refused with 409, whatever the value. Otherwise a value the property's schema refuses is answered 400. 
+  A property of a service provider that is not accepted is answered as missing.
 
 Usage:
   vion tenant service-property set [options]
 
 Options:
-  --edge-gateway-id <uuid>               The edge gateway's id.
-  --service-provider-identifier <value>  The service provider identifier.
-  --service-identifier <value>           The service identifier.
-  --property-identifier <value>          The property identifier.
+  --edge-gateway-id <uuid>               The edge gateway the property's service runs on.
+  --service-provider-identifier <value>  The service provider of the property's service, `dale` for a logic 
+                                         block's.
+  --service-identifier <value>           The service the property belongs to.
+  --property-identifier <value>          The property to set.
   --input <file|->                       The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>            A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>                A body member typed as JSON: true, false, null, a number, @file for 
@@ -1304,13 +1332,17 @@ Options:
 Commands:
   list    Lists the active service providers of the tenant the caller reads, the dale provider of each 
           gateway included.
-  delete  Delete a service provider and notify the edge gateway.
+  delete  Deletes a service provider of an edge gateway, whatever its registration status. The deletion is 
+          sent to the gateway. The provider's services, properties and measuring points are no longer 
+          answered, and its measuring-point values are kept. Deleting the `dale` provider keeps the services 
+          of the logic blocks the gateway runs.
 
 ---
 ## vion tenant service-provider list
 Description:
   Lists the active service providers of the tenant the caller reads, the dale provider of each gateway 
   included.
+  Stability: stable — changes only additively or by a deprecation.
 
 Usage:
   vion tenant service-provider list [options]
@@ -1343,14 +1375,17 @@ Options:
 ---
 ## vion tenant service-provider delete
 Description:
-  Delete a service provider and notify the edge gateway.
+  Deletes a service provider of an edge gateway, whatever its registration status. The deletion is sent to 
+  the gateway. The provider's services, properties and measuring points are no longer answered, and its 
+  measuring-point values are kept. Deleting the `dale` provider keeps the services of the logic blocks the 
+  gateway runs.
 
 Usage:
   vion tenant service-provider delete [options]
 
 Options:
-  --edge-gateway-id <uuid>               The edge gateway's id.
-  --service-provider-identifier <value>  The service provider identifier.
+  --edge-gateway-id <uuid>               The edge gateway the provider is registered with.
+  --service-provider-identifier <value>  The provider to delete.
   -?, -h, --help                         Show help and usage information
   --env <name>                           The environment: production, test, or one defined with `context use`.
   --integrator <id>                      The integrator id, filling {integratorId} for this call.
@@ -1474,7 +1509,7 @@ Options:
 Commands:
   list    Lists the setup state, schema and selection, of the service providers on the edge gateways the 
           caller reads, narrowed by `projectId` and `edgeGatewayId`.
-  submit  Submit setup selection for a service provider. Sends selection to the SP via MQTT.
+  submit  Submit setup selection for a service provider.
 
 ---
 ## vion tenant service-provider-setup list
@@ -1513,7 +1548,7 @@ Options:
 ---
 ## vion tenant service-provider-setup submit
 Description:
-  Submit setup selection for a service provider. Sends selection to the SP via MQTT.
+  Submit setup selection for a service provider.
 
 Usage:
   vion tenant service-provider-setup submit [options]
@@ -1578,19 +1613,27 @@ Options:
                             then exits 3.
 
 Commands:
-  update  Approve or deny a pending service provider registration.
+  update  Accepts or denies the pending registration of a service provider with an edge gateway. An accepted 
+          provider is placed below its gateway, a denied one nowhere, and the decision is sent to the 
+          gateway. A `status` other than `Accepted` or `Denied` is refused with 400, and a provider that is 
+          not pending with 409. An `If-Match` naming another version than the provider's is refused with 412 
+          first, a version a gateway's report moved since it was read included.
 
 ---
 ## vion tenant service-provider-registration update
 Description:
-  Approve or deny a pending service provider registration.
+  Accepts or denies the pending registration of a service provider with an edge gateway. An accepted provider 
+  is placed below its gateway, a denied one nowhere, and the decision is sent to the gateway. A `status` 
+  other than `Accepted` or `Denied` is refused with 400, and a provider that is not pending with 409. An 
+  `If-Match` naming another version than the provider's is refused with 412 first, a version a gateway's 
+  report moved since it was read included.
 
 Usage:
   vion tenant service-provider-registration update [options]
 
 Options:
-  --edge-gateway-id <uuid>               The edge gateway's id.
-  --service-provider-identifier <value>  The service provider identifier.
+  --edge-gateway-id <uuid>               The edge gateway the provider registered with.
+  --service-provider-identifier <value>  The provider whose registration is decided.
   --input <file|->                       The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>            A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>                A body member typed as JSON: true, false, null, a number, @file for 
@@ -2516,27 +2559,23 @@ Options:
                             then exits 3.
 
 Commands:
-  get     The composition to render this tenant's overview page with: per section, the tenant's own if it 
-          authored one, else its integrator's row for this tenant, else its integrator's default. A tenant 
-          whose integrator has composed nothing is a 200 with two empty sections, not a 404. origins says 
-          which layer supplied each section and own is the tenant's stored row, so an authoring form can tell 
-          "I set this" from "I inherited this" without a second request. It cannot see further: an inherited 
-          section looks the same whether the integrator aimed it at this tenant or ships it to all of them.
-  upsert  Replaces the tenant's own composition layer. A full upsert: a section left null is cleared back to 
-          inherited, and a section set to an empty list is deliberately empty and hides whatever it inherits. 
-          Answers with the resolved document, so the caller sees what a cleared section fell back to.
-  delete  Drops the tenant's own layer entirely, so every section falls back to what it inherits. Resetting a 
-          tenant that has authored nothing is a success.
+  get     Returns the tenant's overview composition resolved per section. Each section is the tenant's own, 
+          else its integrator's layer for it, else its integrator's default, else empty; a section authored 
+          empty hides those beneath it. `origins` names the layer each section came from, `own` is the 
+          tenant's layer as stored, and `meta.version` is that layer's version or null.
+  upsert  Replaces the tenant's own overview composition layer. A section sent null inherits, and one sent 
+          empty hides what it would inherit. The answer is the resolved composition, as a read after the 
+          write answers it.
+  delete  Removes the tenant's own overview composition layer. The integrator's layer for the tenant stays, 
+          and removing a layer that is not stored succeeds.
 
 ---
 ## vion tenant overview-composition get
 Description:
-  The composition to render this tenant's overview page with: per section, the tenant's own if it authored 
-  one, else its integrator's row for this tenant, else its integrator's default. A tenant whose integrator 
-  has composed nothing is a 200 with two empty sections, not a 404. origins says which layer supplied each 
-  section and own is the tenant's stored row, so an authoring form can tell "I set this" from "I inherited 
-  this" without a second request. It cannot see further: an inherited section looks the same whether the 
-  integrator aimed it at this tenant or ships it to all of them.
+  Returns the tenant's overview composition resolved per section. Each section is the tenant's own, else its 
+  integrator's layer for it, else its integrator's default, else empty; a section authored empty hides those 
+  beneath it. `origins` names the layer each section came from, `own` is the tenant's layer as stored, and 
+  `meta.version` is that layer's version or null.
 
 Usage:
   vion tenant overview-composition get [options]
@@ -2566,9 +2605,8 @@ Options:
 ---
 ## vion tenant overview-composition upsert
 Description:
-  Replaces the tenant's own composition layer. A full upsert: a section left null is cleared back to 
-  inherited, and a section set to an empty list is deliberately empty and hides whatever it inherits. Answers 
-  with the resolved document, so the caller sees what a cleared section fell back to.
+  Replaces the tenant's own overview composition layer. A section sent null inherits, and one sent empty 
+  hides what it would inherit. The answer is the resolved composition, as a read after the write answers it.
 
 Usage:
   vion tenant overview-composition upsert [options]
@@ -2602,8 +2640,8 @@ Options:
 ---
 ## vion tenant overview-composition delete
 Description:
-  Drops the tenant's own layer entirely, so every section falls back to what it inherits. Resetting a tenant 
-  that has authored nothing is a success.
+  Removes the tenant's own overview composition layer. The integrator's layer for the tenant stays, and 
+  removing a layer that is not stored succeeds.
 
 Usage:
   vion tenant overview-composition delete [options]
@@ -3632,6 +3670,75 @@ Options:
                             then exits 3.
 
 ---
+## vion tenant logic-block-library-version
+Description:
+  The logic block library version operations.
+
+Usage:
+  vion tenant logic-block-library-version [command] [options]
+
+Options:
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+  --wait                    Wait for a long-running operation to end and exit by its outcome; a command whose 
+                            answer is already the outcome ignores it.
+  --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                            then exits 3.
+
+Commands:
+  list  Get the versions of every logic block library a tenant's integrator may see, optionally of a single 
+        library. The integrator may see its own libraries, the public ones and the ones granted to it, 
+        archived ones included.
+
+---
+## vion tenant logic-block-library-version list
+Description:
+  Get the versions of every logic block library a tenant's integrator may see, optionally of a single 
+  library. The integrator may see its own libraries, the public ones and the ones granted to it, archived 
+  ones included.
+
+Usage:
+  vion tenant logic-block-library-version list [options]
+
+Options:
+  --package-id <value>      The NuGet package id of the library to list the versions of, matched whatever its 
+                            case, every library the integrator may see when omitted.
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+  --wait                    Wait for a long-running operation to end and exit by its outcome; a command whose 
+                            answer is already the outcome ignores it.
+  --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                            then exits 3.
+
+---
 ## vion tenant logic-block-definition
 Description:
   The logic block definition operations.
@@ -3727,15 +3834,14 @@ Options:
                             then exits 3.
 
 Commands:
-  list  The dashboard templates this tenant renders: its integrator\'s, or the platform\'s where its 
-        integrator has authored none. Read-only — a template is never instantiated into a tenant-owned 
-        dashboard.
+  list  Returns the dashboard templates the tenant renders. These are its integrator's, or those with no 
+        owner where its integrator has authored none.
 
 ---
 ## vion tenant dashboard-template list
 Description:
-  The dashboard templates this tenant renders: its integrator\'s, or the platform\'s where its integrator has 
-  authored none. Read-only — a template is never instantiated into a tenant-owned dashboard.
+  Returns the dashboard templates the tenant renders. These are its integrator's, or those with no owner 
+  where its integrator has authored none.
 
 Usage:
   vion tenant dashboard-template list [options]
@@ -3793,15 +3899,18 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all Dashboards for a tenant
-  create  Create a new Dashboard for a tenant
-  update  Update an existing Dashboard for a tenant
-  delete  Delete a Dashboard for a tenant.
+  list    Returns the dashboards of the tenant's projects that the caller may read.
+  create  Creates a dashboard in a project of the tenant. The name and the description are stored trimmed, 
+          and the widgets as sent.
+  update  Replaces the name, the description and the widgets of a dashboard of the tenant. The dashboard 
+          keeps its project. The update requires `If-Match`, and a stale version is answered 412. A dashboard 
+          that is not the tenant's is answered 404.
+  delete  Deletes a dashboard of the tenant. A dashboard that is not the tenant's is answered 404.
 
 ---
 ## vion tenant dashboard list
 Description:
-  Get all Dashboards for a tenant
+  Returns the dashboards of the tenant's projects that the caller may read.
 
 Usage:
   vion tenant dashboard list [options]
@@ -3831,7 +3940,8 @@ Options:
 ---
 ## vion tenant dashboard create
 Description:
-  Create a new Dashboard for a tenant
+  Creates a dashboard in a project of the tenant. The name and the description are stored trimmed, and the 
+  widgets as sent.
 
 Usage:
   vion tenant dashboard create [options]
@@ -3865,13 +3975,15 @@ Options:
 ---
 ## vion tenant dashboard update
 Description:
-  Update an existing Dashboard for a tenant
+  Replaces the name, the description and the widgets of a dashboard of the tenant. The dashboard keeps its 
+  project. The update requires `If-Match`, and a stale version is answered 412. A dashboard that is not the 
+  tenant's is answered 404.
 
 Usage:
   vion tenant dashboard update [options]
 
 Options:
-  --id <uuid>                  The dashboard's id.
+  --id <uuid>                  The dashboard to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -3900,13 +4012,13 @@ Options:
 ---
 ## vion tenant dashboard delete
 Description:
-  Delete a Dashboard for a tenant.
+  Deletes a dashboard of the tenant. A dashboard that is not the tenant's is answered 404.
 
 Usage:
   vion tenant dashboard delete [options]
 
 Options:
-  --id <uuid>               The dashboard's id.
+  --id <uuid>               The dashboard to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -5647,21 +5759,21 @@ Options:
                             then exits 3.
 
 Commands:
-  get     The tenant's arrangement of a tenant-scoped collection.
-  upsert  Replaces a tenant-scoped collection's arrangement.
-  delete  Resets a tenant-scoped collection's arrangement.
+  get     Returns the tenant's arrangement of its overview sections.
+  upsert  Replaces the tenant's arrangement of its overview sections. An entry may stand in both lists. A 
+          body the arrangement refuses is answered 400 whatever the version the write names.
+  delete  Resets the tenant's arrangement of its overview sections.
 
 ---
 ## vion tenant overview-section-arrangement get
 Description:
-  The tenant's arrangement of a tenant-scoped collection.
+  Returns the tenant's arrangement of its overview sections.
 
 Usage:
   vion tenant overview-section-arrangement get [options]
 
 Options:
-  --collection <value>      The name of a tenant-scoped collection, today only 
-                            ArrangementCollection.OverviewSections; an unknown name answers 404.
+  --collection <value>      The collection's name, exactly `OverviewSections`; any other name is answered 404.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -5686,14 +5798,15 @@ Options:
 ---
 ## vion tenant overview-section-arrangement upsert
 Description:
-  Replaces a tenant-scoped collection's arrangement.
+  Replaces the tenant's arrangement of its overview sections. An entry may stand in both lists. A body the 
+  arrangement refuses is answered 400 whatever the version the write names.
 
 Usage:
   vion tenant overview-section-arrangement upsert [options]
 
 Options:
-  --collection <value>         The name of a tenant-scoped collection, today only 
-                               ArrangementCollection.OverviewSections; an unknown name answers 404.
+  --collection <value>         The collection's name, exactly `OverviewSections`; any other name is answered 
+                               404.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -5722,14 +5835,13 @@ Options:
 ---
 ## vion tenant overview-section-arrangement delete
 Description:
-  Resets a tenant-scoped collection's arrangement.
+  Resets the tenant's arrangement of its overview sections.
 
 Usage:
   vion tenant overview-section-arrangement delete [options]
 
 Options:
-  --collection <value>      The name of a tenant-scoped collection, today only 
-                            ArrangementCollection.OverviewSections; an unknown name answers 404.
+  --collection <value>      The collection's name, exactly `OverviewSections`; any other name is answered 404.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -5782,12 +5894,12 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Every arrangement of the projects within this tenant the caller may read.
+  list  Returns the arrangements of the tenant's projects that the caller may read.
 
 ---
 ## vion tenant project-arrangement list
 Description:
-  Every arrangement of the projects within this tenant the caller may read.
+  Returns the arrangements of the tenant's projects that the caller may read.
 
 Usage:
   vion tenant project-arrangement list [options]
@@ -5845,13 +5957,16 @@ Options:
                             then exits 3.
 
 Commands:
-  upsert  Replaces a project's arrangement of its dashboards.
-  delete  Resets a project's arrangement of its dashboards. Resetting one that is already reset is a success.
+  upsert  Replaces a project's arrangement of its dashboards. A project that is not the tenant's is answered 
+          404 and nothing is written.
+  delete  Resets a project's arrangement of its dashboards. A project that is not the tenant's is answered 
+          404.
 
 ---
 ## vion tenant dashboard-arrangement upsert
 Description:
-  Replaces a project's arrangement of its dashboards.
+  Replaces a project's arrangement of its dashboards. A project that is not the tenant's is answered 404 and 
+  nothing is written.
 
 Usage:
   vion tenant dashboard-arrangement upsert [options]
@@ -5885,7 +6000,7 @@ Options:
 ---
 ## vion tenant dashboard-arrangement delete
 Description:
-  Resets a project's arrangement of its dashboards. Resetting one that is already reset is a success.
+  Resets a project's arrangement of its dashboards. A project that is not the tenant's is answered 404.
 
 Usage:
   vion tenant dashboard-arrangement delete [options]
@@ -5943,13 +6058,16 @@ Options:
                             then exits 3.
 
 Commands:
-  upsert  Replaces a project's arrangement of its assets tree.
-  delete  Resets a project's arrangement of its assets tree. Resetting one that is already reset is a success.
+  upsert  Replaces a project's arrangement of its asset tree. A project that is not the tenant's is answered 
+          404 and nothing is written.
+  delete  Resets a project's arrangement of its asset tree. A project that is not the tenant's is answered 
+          404.
 
 ---
 ## vion tenant asset-tree-arrangement upsert
 Description:
-  Replaces a project's arrangement of its assets tree.
+  Replaces a project's arrangement of its asset tree. A project that is not the tenant's is answered 404 and 
+  nothing is written.
 
 Usage:
   vion tenant asset-tree-arrangement upsert [options]
@@ -5983,7 +6101,7 @@ Options:
 ---
 ## vion tenant asset-tree-arrangement delete
 Description:
-  Resets a project's arrangement of its assets tree. Resetting one that is already reset is a success.
+  Resets a project's arrangement of its asset tree. A project that is not the tenant's is answered 404.
 
 Usage:
   vion tenant asset-tree-arrangement delete [options]
@@ -6150,12 +6268,20 @@ Options:
                             then exits 3.
 
 Commands:
-  generate  Generate AI content for dashboard widget creation
+  generate  Generates text with a language model from the prompt of a domain, a context and the caller's 
+            prompt. Nothing of the tenant is read. `domain` names one of the service's prompts, `widget` 
+            where none is sent, and any other is refused with 400. `model` names the model to call, the 
+            configured default where none is sent. A failed call is answered 200 with `error` a fixed text 
+            naming no cause, `rawText` null and zero cost.
 
 ---
 ## vion tenant chart generate
 Description:
-  Generate AI content for dashboard widget creation
+  Generates text with a language model from the prompt of a domain, a context and the caller's prompt. 
+  Nothing of the tenant is read. `domain` names one of the service's prompts, `widget` where none is sent, 
+  and any other is refused with 400. `model` names the model to call, the configured default where none is 
+  sent. A failed call is answered 200 with `error` a fixed text naming no cause, `rawText` null and zero 
+  cost.
 
 Usage:
   vion tenant chart generate [options]
@@ -6392,16 +6518,26 @@ Options:
                             then exits 3.
 
 Commands:
-  list      Get all widget definitions for an integrator
-  create    Create a new widget definition
-  update    Update an existing widget definition
-  delete    Delete a widget definition
-  generate  Generate AI content for widget creation
+  list      Returns the widget definitions the integrator owns. The definitions of the integrator's tenants 
+            are not listed.
+  create    Creates a widget definition owned by the integrator. The name, the description and the icon are 
+            stored trimmed, an empty icon as null. An invalid definition is refused with 400 and nothing is 
+            stored.
+  update    Replaces a widget definition of the integrator. A definition that is not the integrator's own is 
+            answered 404 whatever the body, and a stale version 412.
+  delete    Deletes a widget definition of the integrator. The templates, compositions and dashboards that 
+            name it keep its id. A definition that is not the integrator's own is answered 404.
+  generate  Generates text with a language model from the prompt of a domain, a context and the caller's 
+            prompt. The answer is what a tenant member's generation answers for the same body, and nothing of 
+            the integrator is read. `domain` names one of the service's prompts, `widget` where none is sent, 
+            and any other is refused with 400. A failed call is answered 200 with `error` a fixed text naming 
+            no cause.
 
 ---
 ## vion integrator widget-definition list
 Description:
-  Get all widget definitions for an integrator
+  Returns the widget definitions the integrator owns. The definitions of the integrator's tenants are not 
+  listed.
 
 Usage:
   vion integrator widget-definition list [options]
@@ -6431,7 +6567,8 @@ Options:
 ---
 ## vion integrator widget-definition create
 Description:
-  Create a new widget definition
+  Creates a widget definition owned by the integrator. The name, the description and the icon are stored 
+  trimmed, an empty icon as null. An invalid definition is refused with 400 and nothing is stored.
 
 Usage:
   vion integrator widget-definition create [options]
@@ -6465,13 +6602,14 @@ Options:
 ---
 ## vion integrator widget-definition update
 Description:
-  Update an existing widget definition
+  Replaces a widget definition of the integrator. A definition that is not the integrator's own is answered 
+  404 whatever the body, and a stale version 412.
 
 Usage:
   vion integrator widget-definition update [options]
 
 Options:
-  --id <uuid>                  The widget definition's id.
+  --id <uuid>                  The widget definition to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -6500,13 +6638,14 @@ Options:
 ---
 ## vion integrator widget-definition delete
 Description:
-  Delete a widget definition
+  Deletes a widget definition of the integrator. The templates, compositions and dashboards that name it keep 
+  its id. A definition that is not the integrator's own is answered 404.
 
 Usage:
   vion integrator widget-definition delete [options]
 
 Options:
-  --id <uuid>               The widget definition's id.
+  --id <uuid>               The widget definition to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -6531,7 +6670,10 @@ Options:
 ---
 ## vion integrator widget-definition generate
 Description:
-  Generate AI content for widget creation
+  Generates text with a language model from the prompt of a domain, a context and the caller's prompt. The 
+  answer is what a tenant member's generation answers for the same body, and nothing of the integrator is 
+  read. `domain` names one of the service's prompts, `widget` where none is sent, and any other is refused 
+  with 400. A failed call is answered 200 with `error` a fixed text naming no cause.
 
 Usage:
   vion integrator widget-definition generate [options]
@@ -6593,20 +6735,19 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Every owned tenant's theme exactly as stored — the overrides that tenant sets, not the merged 
-          result its members render. A tenant with no overrides is absent from the list rather than present 
-          and all null: absence is what "inherits everything" means, and it keeps the response to the tenants 
-          that have actually been themed.
-  upsert  Replaces one tenant's overrides. A full upsert: a field left null is cleared back to inheriting the 
-          integrator's value, and an all-null body takes the tenant level out of the fallback chain.
+  list    Returns the stored white-label theme of each of the integrator's tenants. Each theme is the 
+          tenant's own as stored, not merged with the integrator's. A tenant never themed is absent, and one 
+          reset by an all-null upsert is listed with every member null.
+  upsert  Replaces the white-label theme of one of the integrator's tenants. A member sent null is cleared, 
+          so the tenant inherits the integrator's, and an all-null body keeps a row that reads as none. A 
+          tenant that is not the integrator's is answered 404 whatever the body.
 
 ---
 ## vion integrator tenant-white-label-theme list
 Description:
-  Every owned tenant's theme exactly as stored — the overrides that tenant sets, not the merged result its 
-  members render. A tenant with no overrides is absent from the list rather than present and all null: 
-  absence is what "inherits everything" means, and it keeps the response to the tenants that have actually 
-  been themed.
+  Returns the stored white-label theme of each of the integrator's tenants. Each theme is the tenant's own as 
+  stored, not merged with the integrator's. A tenant never themed is absent, and one reset by an all-null 
+  upsert is listed with every member null.
 
 Usage:
   vion integrator tenant-white-label-theme list [options]
@@ -6636,8 +6777,9 @@ Options:
 ---
 ## vion integrator tenant-white-label-theme upsert
 Description:
-  Replaces one tenant's overrides. A full upsert: a field left null is cleared back to inheriting the 
-  integrator's value, and an all-null body takes the tenant level out of the fallback chain.
+  Replaces the white-label theme of one of the integrator's tenants. A member sent null is cleared, so the 
+  tenant inherits the integrator's, and an all-null body keeps a row that reads as none. A tenant that is not 
+  the integrator's is answered 404 whatever the body.
 
 Usage:
   vion integrator tenant-white-label-theme upsert [options]
@@ -6699,20 +6841,18 @@ Options:
                             then exits 3.
 
 Commands:
-  get     The integrator's theme: the fields it sets, and nothing else — the server never fills a deployment 
-          or VION default, the client layers those underneath. Serves both the renderer and the authoring 
-          form, because at this level "as stored" and "as resolved" are the same document. An integrator that 
-          has never been themed is a 200 with every field null, not a 404.
-  upsert  Replaces the integrator's theme. A full upsert: a field left null is cleared back to inherited, and 
-          an all-null body takes the integrator level out of the fallback chain.
+  get     Returns the integrator's white-label theme as stored. A member the integrator has not set is null, 
+          and the server fills no default. An integrator never themed is answered every member null with 
+          `meta.version` null.
+  upsert  Replaces the integrator's white-label theme. A member sent null is cleared, and an all-null body 
+          keeps a row that reads as none. A body the theme refuses is answered 400 whatever the version the 
+          write names.
 
 ---
 ## vion integrator white-label-theme get
 Description:
-  The integrator's theme: the fields it sets, and nothing else — the server never fills a deployment or VION 
-  default, the client layers those underneath. Serves both the renderer and the authoring form, because at 
-  this level "as stored" and "as resolved" are the same document. An integrator that has never been themed is 
-  a 200 with every field null, not a 404.
+  Returns the integrator's white-label theme as stored. A member the integrator has not set is null, and the 
+  server fills no default. An integrator never themed is answered every member null with `meta.version` null.
 
 Usage:
   vion integrator white-label-theme get [options]
@@ -6742,8 +6882,8 @@ Options:
 ---
 ## vion integrator white-label-theme upsert
 Description:
-  Replaces the integrator's theme. A full upsert: a field left null is cleared back to inherited, and an 
-  all-null body takes the integrator level out of the fallback chain.
+  Replaces the integrator's white-label theme. A member sent null is cleared, and an all-null body keeps a 
+  row that reads as none. A body the theme refuses is answered 400 whatever the version the write names.
 
 Usage:
   vion integrator white-label-theme upsert [options]
@@ -6805,15 +6945,16 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Returns all tenants for an integrator
-  create  Creates a tenant for an integrator
-  update  Allows to update a tenant name and slug
-  delete  Deletes a tenant
+  list    Returns the tenants of the integrator, each with its owners.
+  create  Creates a tenant under the integrator.
+  update  Replaces the name and the slug of a tenant of the integrator.
+  delete  Deletes a tenant of the integrator. The tenant is deleted with its gateways, users and service 
+          accounts. A tenant with a live remote-access session is refused.
 
 ---
 ## vion integrator tenant list
 Description:
-  Returns all tenants for an integrator
+  Returns the tenants of the integrator, each with its owners.
 
 Usage:
   vion integrator tenant list [options]
@@ -6843,7 +6984,7 @@ Options:
 ---
 ## vion integrator tenant create
 Description:
-  Creates a tenant for an integrator
+  Creates a tenant under the integrator.
 
 Usage:
   vion integrator tenant create [options]
@@ -6877,13 +7018,13 @@ Options:
 ---
 ## vion integrator tenant update
 Description:
-  Allows to update a tenant name and slug
+  Replaces the name and the slug of a tenant of the integrator.
 
 Usage:
   vion integrator tenant update [options]
 
 Options:
-  --id <uuid>                  The tenant's id.
+  --id <uuid>                  The tenant to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -6912,13 +7053,14 @@ Options:
 ---
 ## vion integrator tenant delete
 Description:
-  Deletes a tenant
+  Deletes a tenant of the integrator. The tenant is deleted with its gateways, users and service accounts. A 
+  tenant with a live remote-access session is refused.
 
 Usage:
   vion integrator tenant delete [options]
 
 Options:
-  --id <uuid>               The tenant's id.
+  --id <uuid>               The tenant to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -7281,17 +7423,19 @@ Options:
                             then exits 3.
 
 Commands:
-  get     The integrator\'s composition as it authored it. An integrator that has composed nothing is a 200 
-          with two empty sections, not a 404.
-  upsert  Replaces the integrator\'s composition. A full upsert: a section left null is cleared back to 
-          inherited, and a body with both sections empty stores an empty overview rather than deleting the 
-          row.
+  get     Returns the integrator's default overview composition as stored. A section the integrator has not 
+          composed is answered empty, and an integrator that has composed nothing is answered two empty 
+          sections with `meta.version` null.
+  upsert  Replaces the integrator's default overview composition. A section sent null is answered empty, and 
+          a body of two empty sections keeps the stored row. A card or widget naming a definition the 
+          integrator may not use is refused with 400 and nothing is written.
 
 ---
 ## vion integrator tenant-overview-composition get
 Description:
-  The integrator\'s composition as it authored it. An integrator that has composed nothing is a 200 with two 
-  empty sections, not a 404.
+  Returns the integrator's default overview composition as stored. A section the integrator has not composed 
+  is answered empty, and an integrator that has composed nothing is answered two empty sections with 
+  `meta.version` null.
 
 Usage:
   vion integrator tenant-overview-composition get [options]
@@ -7321,8 +7465,9 @@ Options:
 ---
 ## vion integrator tenant-overview-composition upsert
 Description:
-  Replaces the integrator\'s composition. A full upsert: a section left null is cleared back to inherited, 
-  and a body with both sections empty stores an empty overview rather than deleting the row.
+  Replaces the integrator's default overview composition. A section sent null is answered empty, and a body 
+  of two empty sections keeps the stored row. A card or widget naming a definition the integrator may not use 
+  is refused with 400 and nothing is written.
 
 Usage:
   vion integrator tenant-overview-composition upsert [options]
@@ -7384,21 +7529,22 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Every tenant-scoped layer of every owned tenant, exactly as stored — what each level authored, not 
-          the merged document its members render. A tenant nobody has composed for is absent from the list 
-          rather than present and all null: absence is what "inherits everything" means.
-  upsert  Replaces the layer this integrator authored for one tenant. A full upsert: a section left null is 
-          cleared back to the integrator's default, and an empty list is a deliberate empty section that the 
-          tenant sees as inherited and empty.
-  delete  Drops the layer this integrator authored for one tenant, so it falls back to the integrator 
-          default. Resetting a tenant that has no such layer is a success.
+  list    Returns every overview composition layer of the integrator's tenants as stored. The integrator's 
+          layers and the tenants' own are both listed, each with its `tenantId` and `author`, and the 
+          integrator's default is not. A tenant with no layer is absent.
+  upsert  Replaces the integrator's overview composition layer for one of its tenants. A section sent null 
+          inherits the integrator's default, and one sent empty hides it. A tenant that is not the 
+          integrator's is answered 404 whatever the body.
+  delete  Removes the integrator's overview composition layer for one of its tenants. The tenant's own layer 
+          stays, and removing a layer that is not stored succeeds. A tenant that is not the integrator's is 
+          answered 404.
 
 ---
 ## vion integrator tenant-overview-composition-layer list
 Description:
-  Every tenant-scoped layer of every owned tenant, exactly as stored — what each level authored, not the 
-  merged document its members render. A tenant nobody has composed for is absent from the list rather than 
-  present and all null: absence is what "inherits everything" means.
+  Returns every overview composition layer of the integrator's tenants as stored. The integrator's layers and 
+  the tenants' own are both listed, each with its `tenantId` and `author`, and the integrator's default is 
+  not. A tenant with no layer is absent.
 
 Usage:
   vion integrator tenant-overview-composition-layer list [options]
@@ -7428,9 +7574,9 @@ Options:
 ---
 ## vion integrator tenant-overview-composition-layer upsert
 Description:
-  Replaces the layer this integrator authored for one tenant. A full upsert: a section left null is cleared 
-  back to the integrator's default, and an empty list is a deliberate empty section that the tenant sees as 
-  inherited and empty.
+  Replaces the integrator's overview composition layer for one of its tenants. A section sent null inherits 
+  the integrator's default, and one sent empty hides it. A tenant that is not the integrator's is answered 
+  404 whatever the body.
 
 Usage:
   vion integrator tenant-overview-composition-layer upsert [options]
@@ -7464,8 +7610,8 @@ Options:
 ---
 ## vion integrator tenant-overview-composition-layer delete
 Description:
-  Drops the layer this integrator authored for one tenant, so it falls back to the integrator default. 
-  Resetting a tenant that has no such layer is a success.
+  Removes the integrator's overview composition layer for one of its tenants. The tenant's own layer stays, 
+  and removing a layer that is not stored succeeds. A tenant that is not the integrator's is answered 404.
 
 Usage:
   vion integrator tenant-overview-composition-layer delete [options]
@@ -7523,15 +7669,19 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all tenant dashboard templates an integrator has authored.
-  create  Create a new tenant dashboard template.
-  update  Update an existing tenant dashboard template.
-  delete  Delete a tenant dashboard template.
+  list    Returns the dashboard templates the integrator authored.
+  create  Creates a dashboard template owned by the integrator. The name and the description are stored 
+          trimmed. A widget naming a definition the integrator may not use, or one that no longer exists, is 
+          refused with 400 and nothing is stored.
+  update  Replaces the name, the description and the widgets of a dashboard template of the integrator. A 
+          template that is not the integrator's is answered 404 whatever the body, and a stale version 412.
+  delete  Deletes a dashboard template of the integrator. A template that is not the integrator's is answered 
+          404.
 
 ---
 ## vion integrator tenant-dashboard-template list
 Description:
-  Get all tenant dashboard templates an integrator has authored.
+  Returns the dashboard templates the integrator authored.
 
 Usage:
   vion integrator tenant-dashboard-template list [options]
@@ -7561,7 +7711,9 @@ Options:
 ---
 ## vion integrator tenant-dashboard-template create
 Description:
-  Create a new tenant dashboard template.
+  Creates a dashboard template owned by the integrator. The name and the description are stored trimmed. A 
+  widget naming a definition the integrator may not use, or one that no longer exists, is refused with 400 
+  and nothing is stored.
 
 Usage:
   vion integrator tenant-dashboard-template create [options]
@@ -7595,13 +7747,14 @@ Options:
 ---
 ## vion integrator tenant-dashboard-template update
 Description:
-  Update an existing tenant dashboard template.
+  Replaces the name, the description and the widgets of a dashboard template of the integrator. A template 
+  that is not the integrator's is answered 404 whatever the body, and a stale version 412.
 
 Usage:
   vion integrator tenant-dashboard-template update [options]
 
 Options:
-  --id <uuid>                  The tenant dashboard template's id.
+  --id <uuid>                  The template to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -7630,13 +7783,13 @@ Options:
 ---
 ## vion integrator tenant-dashboard-template delete
 Description:
-  Delete a tenant dashboard template.
+  Deletes a dashboard template of the integrator. A template that is not the integrator's is answered 404.
 
 Usage:
   vion integrator tenant-dashboard-template delete [options]
 
 Options:
-  --id <uuid>               The tenant dashboard template's id.
+  --id <uuid>               The template to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -9799,7 +9952,10 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get the logic block library versions of an integrator, optionally of a single library.
+  list    Get the versions of every logic block library an integrator may see, optionally of a single 
+          library. The integrator may see its own libraries, the public ones and the ones granted to it, 
+          archived ones included. A version's `integratorId` tells the integrator's own versions from another 
+          integrator's.
   upload  Create a new version of a logic block library by uploading its NuGet package. The version is added 
           to the integrator's library for the package id the package's .nuspec declares, matched 
           case-insensitively, and that library is created when the integrator has none. A package id another 
@@ -9809,14 +9965,16 @@ Commands:
 ---
 ## vion integrator logic-block-library-version list
 Description:
-  Get the logic block library versions of an integrator, optionally of a single library.
+  Get the versions of every logic block library an integrator may see, optionally of a single library. The 
+  integrator may see its own libraries, the public ones and the ones granted to it, archived ones included. A 
+  version's `integratorId` tells the integrator's own versions from another integrator's.
 
 Usage:
   vion integrator logic-block-library-version list [options]
 
 Options:
-  --package-id <value>      The NuGet package id of the library to list the versions of, every library of the 
-                            integrator when omitted.
+  --package-id <value>      The NuGet package id of the library to list the versions of, matched whatever its 
+                            case, every library the integrator may see when omitted.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -11940,14 +12098,17 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Returns all RabbitMQ users with the 'administrator' tag
-  create  Creates a new RabbitMQ admin user with the 'administrator' tag
-  delete  Deletes a RabbitMQ admin user including all associated permissions.
+  list    Returns every RabbitMQ user carrying the administrator tag.
+  create  Creates a RabbitMQ administrator. The administrator's RabbitMQ user is named by the email trimmed 
+          and lower-cased, and tagged administrator and management. A name that any RabbitMQ user already 
+          holds is refused.
+  delete  Deletes a RabbitMQ administrator with its permissions. A RabbitMQ user without the administrator 
+          tag is answered as unknown.
 
 ---
 ## vion platform rabbit-mq-admin-user list
 Description:
-  Returns all RabbitMQ users with the 'administrator' tag
+  Returns every RabbitMQ user carrying the administrator tag.
 
 Usage:
   vion platform rabbit-mq-admin-user list [options]
@@ -11977,7 +12138,9 @@ Options:
 ---
 ## vion platform rabbit-mq-admin-user create
 Description:
-  Creates a new RabbitMQ admin user with the 'administrator' tag
+  Creates a RabbitMQ administrator. The administrator's RabbitMQ user is named by the email trimmed and 
+  lower-cased, and tagged administrator and management. A name that any RabbitMQ user already holds is 
+  refused.
 
 Usage:
   vion platform rabbit-mq-admin-user create [options]
@@ -12011,13 +12174,14 @@ Options:
 ---
 ## vion platform rabbit-mq-admin-user delete
 Description:
-  Deletes a RabbitMQ admin user including all associated permissions.
+  Deletes a RabbitMQ administrator with its permissions. A RabbitMQ user without the administrator tag is 
+  answered as unknown.
 
 Usage:
   vion platform rabbit-mq-admin-user delete [options]
 
 Options:
-  --id <uuid>               The rabbit mq admin user's id.
+  --id <uuid>               The administrator to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -12239,14 +12403,17 @@ Options:
                             then exits 3.
 
 Commands:
-  provision  Provisions Grafana dashboard templates for the specified tenants. This is a maintenance 
-             operation that can be used to create or update dashboards.
+  provision  Creates or replaces Grafana's dashboards for each tenant the body names. An id that names no 
+             tenant refuses the request with 400 before any tenant is provisioned. A tenant Grafana fails for 
+             is answered with `success` false and a fixed `errorMessage`, and the others are still 
+             provisioned.
 
 ---
 ## vion platform grafana-dashboard provision
 Description:
-  Provisions Grafana dashboard templates for the specified tenants. This is a maintenance operation that can 
-  be used to create or update dashboards.
+  Creates or replaces Grafana's dashboards for each tenant the body names. An id that names no tenant refuses 
+  the request with 400 before any tenant is provisioned. A tenant Grafana fails for is answered with 
+  `success` false and a fixed `errorMessage`, and the others are still provisioned.
 
 Usage:
   vion platform grafana-dashboard provision [options]
@@ -12308,15 +12475,15 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Returns all integrators
-  create  Creates a new integrator
-  update  Updates an existing integrator
-  delete  Deletes an integrator
+  list    Returns every integrator, each with its owners.
+  create  Creates an integrator.
+  update  Replaces the name and the slug of an integrator.
+  delete  Deletes an integrator. An integrator that still has a tenant is refused.
 
 ---
 ## vion platform integrator list
 Description:
-  Returns all integrators
+  Returns every integrator, each with its owners.
 
 Usage:
   vion platform integrator list [options]
@@ -12346,7 +12513,7 @@ Options:
 ---
 ## vion platform integrator create
 Description:
-  Creates a new integrator
+  Creates an integrator.
 
 Usage:
   vion platform integrator create [options]
@@ -12380,13 +12547,13 @@ Options:
 ---
 ## vion platform integrator update
 Description:
-  Updates an existing integrator
+  Replaces the name and the slug of an integrator.
 
 Usage:
   vion platform integrator update [options]
 
 Options:
-  --id <uuid>                  The integrator's id.
+  --id <uuid>                  The integrator to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -12415,13 +12582,13 @@ Options:
 ---
 ## vion platform integrator delete
 Description:
-  Deletes an integrator
+  Deletes an integrator. An integrator that still has a tenant is refused.
 
 Usage:
   vion platform integrator delete [options]
 
 Options:
-  --id <uuid>               The integrator's id.
+  --id <uuid>               The integrator to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
