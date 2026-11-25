@@ -105,6 +105,7 @@ Commands:
   log-level                       The log level operations.
   logic-configuration-template    The logic configuration template operations.
   logic-configuration             The logic configuration operations.
+  logic-configuration-layout      The logic configuration layout operations.
   logic-block-translation-bundle  The logic block translation bundle operations.
   logic-block-library-version     The logic block library version operations.
   logic-block-definition          The logic block definition operations.
@@ -3302,10 +3303,13 @@ Commands:
             A logic block instance's name is content, so renaming one fails too.
   delete    Delete a logic configuration of a tenant. Deleting the active configuration fails with 409.
   export    Export a logic configuration of a tenant as its document. The document names logic blocks, 
-            groups, edge gateways and definitions by identifier and holds no server id; sent to `apply`, it 
-            changes nothing. A configuration whose logic blocks use one library at two versions, or that 
-            names a definition, a logic block or an edge gateway that does not exist in its project, or that 
-            holds a logic block without an identifier, has no document: 409.
+            groups, edge gateways and definitions by identifier and holds no server id; sent to `apply`, a 
+            document without warnings changes nothing. A logic block whose definition, or whose edge gateway 
+            in the project, does not exist is left out with every connection naming it, and so is a 
+            connection naming a logic block the configuration does not hold or an edge gateway that is not of 
+            the project; each is named under `warnings`. A configuration whose logic blocks in the document 
+            use one library at two versions, or that holds a logic block without an identifier, has no 
+            document: 409.
   apply     Make a logic configuration of a tenant match a document, and answer what changed. A logic block 
             is the configuration's logic block of its identifier, else the project's current configuration's, 
             whose id and service ids it takes over, else a new one; one of another type is deleted and 
@@ -3491,10 +3495,12 @@ Options:
 ## vion tenant logic-configuration export
 Description:
   Export a logic configuration of a tenant as its document. The document names logic blocks, groups, edge 
-  gateways and definitions by identifier and holds no server id; sent to `apply`, it changes nothing. A 
-  configuration whose logic blocks use one library at two versions, or that names a definition, a logic block 
-  or an edge gateway that does not exist in its project, or that holds a logic block without an identifier, 
-  has no document: 409.
+  gateways and definitions by identifier and holds no server id; sent to `apply`, a document without warnings 
+  changes nothing. A logic block whose definition, or whose edge gateway in the project, does not exist is 
+  left out with every connection naming it, and so is a connection naming a logic block the configuration 
+  does not hold or an edge gateway that is not of the project; each is named under `warnings`. A 
+  configuration whose logic blocks in the document use one library at two versions, or that holds a logic 
+  block without an identifier, has no document: 409.
 
 Usage:
   vion tenant logic-configuration export [options]
@@ -3600,6 +3606,118 @@ Options:
                             answer is already the outcome ignores it.
   --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                             then exits 3.
+
+---
+## vion tenant logic-configuration-layout
+Description:
+  The logic configuration layout operations.
+
+Usage:
+  vion tenant logic-configuration-layout [command] [options]
+
+Options:
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+  --wait                    Wait for a long-running operation to end and exit by its outcome; a command whose 
+                            answer is already the outcome ignores it.
+  --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                            then exits 3.
+
+Commands:
+  get  Get the layout of a logic configuration of a tenant. The layout states where the editor draws the 
+       configuration's groups and logic blocks, over what it computes, and has a version of its own. A layout 
+       never stored is answered empty, at version 0.
+  set  Replace the layout of a logic configuration of a tenant. The current configuration's layout is 
+       writable too. A container's logic blocks flow or are hand-placed, never both: 400. An entry naming a 
+       group or a logic block the configuration does not hold, or a logic block under a container it is not 
+       in, is left out of what is stored and named under `dropped`, since a layout write may cross a content 
+       write. `If-Match` names the layout's version, 0 for a layout never stored.
+
+---
+## vion tenant logic-configuration-layout get
+Description:
+  Get the layout of a logic configuration of a tenant. The layout states where the editor draws the 
+  configuration's groups and logic blocks, over what it computes, and has a version of its own. A layout 
+  never stored is answered empty, at version 0.
+
+Usage:
+  vion tenant logic-configuration-layout get [options]
+
+Options:
+  --logic-configuration-id <uuid>  The logic configuration whose layout to read.
+  -?, -h, --help                   Show help and usage information
+  --env <name>                     The environment: production, test, or one defined with `context use`.
+  --integrator <id>                The integrator id, filling {integratorId} for this call.
+  --tenant <id>                    The tenant id, filling {tenantId} for this call.
+  --project <id>                   The project id, filling projectId for this call.
+  --platform <id>                  The platform id, filling {platformId} for this call.
+  --json                           Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>                 Keep only these members, comma-separated, dotted for a nested one.
+  --yes                            Confirm an irreversible operation without asking.
+  --dry-run                        Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>          The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>             The version to send as If-Match on a versioned update.
+  --token <->                      Read the bearer token from standard input: `--token -`.
+  --client-id <id>                 A service account's client id, with --client-secret.
+  --client-secret <secret>         A service account's client secret, with --client-id.
+  --verbose                        Show the request and the response headers on standard error.
+  --wait                           Wait for a long-running operation to end and exit by its outcome; a 
+                                   command whose answer is already the outcome ignores it.
+  --timeout <duration>             How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still 
+                                   running then exits 3.
+
+---
+## vion tenant logic-configuration-layout set
+Description:
+  Replace the layout of a logic configuration of a tenant. The current configuration's layout is writable 
+  too. A container's logic blocks flow or are hand-placed, never both: 400. An entry naming a group or a 
+  logic block the configuration does not hold, or a logic block under a container it is not in, is left out 
+  of what is stored and named under `dropped`, since a layout write may cross a content write. `If-Match` 
+  names the layout's version, 0 for a layout never stored.
+
+Usage:
+  vion tenant logic-configuration-layout set [options]
+
+Options:
+  --logic-configuration-id <uuid>  The logic configuration whose layout to replace.
+  --input <file|->                 The JSON body from a file, or `-` for standard input.
+  -f, --raw-field <key=value>      A body member as a string: key=value; a dotted key nests.
+  -F, --field <key=value>          A body member typed as JSON: true, false, null, a number, @file for a 
+                                   file's content, else a string.
+  -?, -h, --help                   Show help and usage information
+  --env <name>                     The environment: production, test, or one defined with `context use`.
+  --integrator <id>                The integrator id, filling {integratorId} for this call.
+  --tenant <id>                    The tenant id, filling {tenantId} for this call.
+  --project <id>                   The project id, filling projectId for this call.
+  --platform <id>                  The platform id, filling {platformId} for this call.
+  --json                           Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>                 Keep only these members, comma-separated, dotted for a nested one.
+  --yes                            Confirm an irreversible operation without asking.
+  --dry-run                        Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>          The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>             The version to send as If-Match on a versioned update.
+  --token <->                      Read the bearer token from standard input: `--token -`.
+  --client-id <id>                 A service account's client id, with --client-secret.
+  --client-secret <secret>         A service account's client secret, with --client-id.
+  --verbose                        Show the request and the response headers on standard error.
+  --wait                           Wait for a long-running operation to end and exit by its outcome; a 
+                                   command whose answer is already the outcome ignores it.
+  --timeout <duration>             How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still 
+                                   running then exits 3.
 
 ---
 ## vion tenant logic-block-translation-bundle
@@ -4578,18 +4696,21 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Who is effective at the given scope, with provenance (direct / inherited / via group).
+  list  Lists who has access at a scope of the tenant, each grant with where it comes from. A grant made at 
+        an ancestor of the scope is answered as inherited, and a group's grant once more for each of its 
+        members.
 
 ---
 ## vion tenant scope-access list
 Description:
-  Who is effective at the given scope, with provenance (direct / inherited / via group).
+  Lists who has access at a scope of the tenant, each grant with where it comes from. A grant made at an 
+  ancestor of the scope is answered as inherited, and a group's grant once more for each of its members.
 
 Usage:
   vion tenant scope-access list [options]
 
 Options:
-  --scope-id <uuid>         The scope's id.
+  --scope-id <uuid>         The scope whose access is listed.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -4642,18 +4763,20 @@ Options:
                             then exits 3.
 
 Commands:
-  list  The effective roles a principal has across scopes, with provenance.
+  list  Lists the roles a principal of the tenant holds, in its own name and through its groups. Each grant 
+        is answered at the scope it is assigned at.
 
 ---
 ## vion tenant principal-access list
 Description:
-  The effective roles a principal has across scopes, with provenance.
+  Lists the roles a principal of the tenant holds, in its own name and through its groups. Each grant is 
+  answered at the scope it is assigned at.
 
 Usage:
   vion tenant principal-access list [options]
 
 Options:
-  --principal-id <uuid>     The principal's id.
+  --principal-id <uuid>     The user, service account or group whose access is listed.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -4706,12 +4829,14 @@ Options:
                             then exits 3.
 
 Commands:
-  list  The current caller's own effective roles across scopes. Self-service: any authenticated tenant member.
+  list  Lists the roles the caller holds in the tenant, in its own name and through its groups. Any member of 
+        the tenant, a user or a service account, may read its own access.
 
 ---
 ## vion tenant my-access list
 Description:
-  The current caller's own effective roles across scopes. Self-service: any authenticated tenant member.
+  Lists the roles the caller holds in the tenant, in its own name and through its groups. Any member of the 
+  tenant, a user or a service account, may read its own access.
 
 Usage:
   vion tenant my-access list [options]
@@ -4842,15 +4967,18 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all groups in the tenant with members and roles.
-  create  Create a new group.
-  update  Update a group (including members).
-  delete  Delete a group.
+  list    Lists the tenant's groups with their members.
+  create  Creates a group of the tenant. The name and the description are stored trimmed. A name another 
+          group of the tenant holds is refused, and so is a member that is no user or service account of the 
+          tenant.
+  update  Replaces a group's name, description and members. Only the members the update adds are checked, so 
+          a member the group already holds is kept whether or not it is still the tenant's.
+  delete  Deletes a group of the tenant with the role assignments it holds.
 
 ---
 ## vion tenant group list
 Description:
-  Get all groups in the tenant with members and roles.
+  Lists the tenant's groups with their members.
 
 Usage:
   vion tenant group list [options]
@@ -4880,7 +5008,8 @@ Options:
 ---
 ## vion tenant group create
 Description:
-  Create a new group.
+  Creates a group of the tenant. The name and the description are stored trimmed. A name another group of the 
+  tenant holds is refused, and so is a member that is no user or service account of the tenant.
 
 Usage:
   vion tenant group create [options]
@@ -4914,13 +5043,14 @@ Options:
 ---
 ## vion tenant group update
 Description:
-  Update a group (including members).
+  Replaces a group's name, description and members. Only the members the update adds are checked, so a member 
+  the group already holds is kept whether or not it is still the tenant's.
 
 Usage:
   vion tenant group update [options]
 
 Options:
-  --id <uuid>                  The group's id.
+  --id <uuid>                  The group to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -4949,13 +5079,13 @@ Options:
 ---
 ## vion tenant group delete
 Description:
-  Delete a group.
+  Deletes a group of the tenant with the role assignments it holds.
 
 Usage:
   vion tenant group delete [options]
 
 Options:
-  --id <uuid>               The group's id.
+  --id <uuid>               The group to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -5075,14 +5205,18 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all role assignments in the tenant.
-  create  Create a new role assignment.
-  delete  Delete a role assignment.
+  list    Lists the tenant's role assignments.
+  create  Assigns a role to a user, a service account or a group of the tenant at one of its scopes. The 
+          caller need not hold the role it assigns. A role the tenant level does not define, a scope type the 
+          role is not assignable at, or a scope or principal that is not the tenant's is refused, and so is 
+          an assignment the tenant already holds.
+  delete  Deletes a role assignment of the tenant. The assignment is deleted whatever it grants, even when it 
+          is the caller's own or the tenant's last owner's.
 
 ---
 ## vion tenant role-assignment list
 Description:
-  Get all role assignments in the tenant.
+  Lists the tenant's role assignments.
 
 Usage:
   vion tenant role-assignment list [options]
@@ -5112,7 +5246,10 @@ Options:
 ---
 ## vion tenant role-assignment create
 Description:
-  Create a new role assignment.
+  Assigns a role to a user, a service account or a group of the tenant at one of its scopes. The caller need 
+  not hold the role it assigns. A role the tenant level does not define, a scope type the role is not 
+  assignable at, or a scope or principal that is not the tenant's is refused, and so is an assignment the 
+  tenant already holds.
 
 Usage:
   vion tenant role-assignment create [options]
@@ -5146,13 +5283,14 @@ Options:
 ---
 ## vion tenant role-assignment delete
 Description:
-  Delete a role assignment.
+  Deletes a role assignment of the tenant. The assignment is deleted whatever it grants, even when it is the 
+  caller's own or the tenant's last owner's.
 
 Usage:
   vion tenant role-assignment delete [options]
 
 Options:
-  --id <uuid>               The role assignment's id.
+  --id <uuid>               The role assignment to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -5205,12 +5343,14 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Get all available roles (built-in only). Each role includes its AssignableScopes for UI filtering.
+  list  Lists the built-in roles of the tenant level. Every tenant answers the same roles, each naming the 
+        route's tenant as `tenantId`.
 
 ---
 ## vion tenant role list
 Description:
-  Get all available roles (built-in only). Each role includes its AssignableScopes for UI filtering.
+  Lists the built-in roles of the tenant level. Every tenant answers the same roles, each naming the route's 
+  tenant as `tenantId`.
 
 Usage:
   vion tenant role list [options]
@@ -5268,12 +5408,12 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Get all scopes available for role assignment.
+  list  Lists the tenant's scopes, each with its ancestors.
 
 ---
 ## vion tenant scope list
 Description:
-  Get all scopes available for role assignment.
+  Lists the tenant's scopes, each with its ancestors.
 
 Usage:
   vion tenant scope list [options]
@@ -5331,15 +5471,20 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all service accounts for this tenant.
-  create  Create a service account. Returns the client ID and secret (secret shown only once).
-  update  Update a service account's name and description.
-  delete  Delete a service account (also deletes the identity provider client).
+  list    Lists the tenant's service accounts.
+  create  Creates a service account of the tenant, with its client at the identity provider. The answer 
+          carries the client secret, which no later call answers again. An invalid name or description, or a 
+          name a service account of the tenant already holds, is refused before the identity provider is 
+          called.
+  update  Replaces a service account's name and description. The client ID, the secret's hint and the name of 
+          the client at the identity provider stay as they were.
+  delete  Deletes a service account and its client at the identity provider. Its role assignments and its 
+          group memberships in the tenant are deleted with it.
 
 ---
 ## vion tenant service-account list
 Description:
-  Get all service accounts for this tenant.
+  Lists the tenant's service accounts.
 
 Usage:
   vion tenant service-account list [options]
@@ -5369,7 +5514,9 @@ Options:
 ---
 ## vion tenant service-account create
 Description:
-  Create a service account. Returns the client ID and secret (secret shown only once).
+  Creates a service account of the tenant, with its client at the identity provider. The answer carries the 
+  client secret, which no later call answers again. An invalid name or description, or a name a service 
+  account of the tenant already holds, is refused before the identity provider is called.
 
 Usage:
   vion tenant service-account create [options]
@@ -5403,13 +5550,14 @@ Options:
 ---
 ## vion tenant service-account update
 Description:
-  Update a service account's name and description.
+  Replaces a service account's name and description. The client ID, the secret's hint and the name of the 
+  client at the identity provider stay as they were.
 
 Usage:
   vion tenant service-account update [options]
 
 Options:
-  --id <uuid>                  The service account's id.
+  --id <uuid>                  The service account to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -5438,13 +5586,14 @@ Options:
 ---
 ## vion tenant service-account delete
 Description:
-  Delete a service account (also deletes the identity provider client).
+  Deletes a service account and its client at the identity provider. Its role assignments and its group 
+  memberships in the tenant are deleted with it.
 
 Usage:
   vion tenant service-account delete [options]
 
 Options:
-  --id <uuid>               The service account's id.
+  --id <uuid>               The service account to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -5497,18 +5646,20 @@ Options:
                             then exits 3.
 
 Commands:
-  rotate  Rotate the client secret for a service account.
+  rotate  Replaces a service account's client secret with a new one from the identity provider. The new 
+          secret is answered by this call alone, and the previous one stops working.
 
 ---
 ## vion tenant service-account-secret rotate
 Description:
-  Rotate the client secret for a service account.
+  Replaces a service account's client secret with a new one from the identity provider. The new secret is 
+  answered by this call alone, and the previous one stops working.
 
 Usage:
   vion tenant service-account-secret rotate [options]
 
 Options:
-  --service-account-id <uuid>  The service account's id.
+  --service-account-id <uuid>  The service account whose secret is rotated.
   -?, -h, --help               Show help and usage information
   --env <name>                 The environment: production, test, or one defined with `context use`.
   --integrator <id>            The integrator id, filling {integratorId} for this call.
@@ -5561,15 +5712,20 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all users in the tenant (pending and active).
-  invite  Invite a user to the tenant by email. Mails the invitation link and returns it, along with the 
-          token, so the operator can also share it.
-  delete  Remove or revoke a user from the tenant.
+  list    Lists the tenant's users, pending and active. A pending user whose invitation has expired is listed 
+          as pending.
+  invite  Invites a person to the tenant by email address. The invitation is stored before its link is 
+          mailed, and the answer carries the token and the link so that they can be shared by hand; 
+          `emailSent` is false where the mail was not sent. An address a user of the tenant already has is 
+          refused with 409.
+  delete  Deletes a user of the tenant, pending or active. Its role assignments and its group memberships in 
+          the tenant are deleted with it.
 
 ---
 ## vion tenant user list
 Description:
-  Get all users in the tenant (pending and active).
+  Lists the tenant's users, pending and active. A pending user whose invitation has expired is listed as 
+  pending.
 
 Usage:
   vion tenant user list [options]
@@ -5599,8 +5755,9 @@ Options:
 ---
 ## vion tenant user invite
 Description:
-  Invite a user to the tenant by email. Mails the invitation link and returns it, along with the token, so 
-  the operator can also share it.
+  Invites a person to the tenant by email address. The invitation is stored before its link is mailed, and 
+  the answer carries the token and the link so that they can be shared by hand; `emailSent` is false where 
+  the mail was not sent. An address a user of the tenant already has is refused with 409.
 
 Usage:
   vion tenant user invite [options]
@@ -5634,13 +5791,14 @@ Options:
 ---
 ## vion tenant user delete
 Description:
-  Remove or revoke a user from the tenant.
+  Deletes a user of the tenant, pending or active. Its role assignments and its group memberships in the 
+  tenant are deleted with it.
 
 Usage:
   vion tenant user delete [options]
 
 Options:
-  --id <uuid>               The user's id.
+  --id <uuid>               The user to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -5693,20 +5851,22 @@ Options:
                             then exits 3.
 
 Commands:
-  resend  Resend an invitation to a user for the tenant by email. Mails the freshly minted invitation link 
-          and returns it, along with the token.
+  resend  Mails a pending user's invitation again under a new token. The previous token is no longer 
+          accepted, and the invitation is valid for seven days from now. A user who is not pending is refused 
+          with 409. The answer carries the token and the link as the invite's does.
 
 ---
 ## vion tenant user-invitation resend
 Description:
-  Resend an invitation to a user for the tenant by email. Mails the freshly minted invitation link and 
-  returns it, along with the token.
+  Mails a pending user's invitation again under a new token. The previous token is no longer accepted, and 
+  the invitation is valid for seven days from now. A user who is not pending is refused with 409. The answer 
+  carries the token and the link as the invite's does.
 
 Usage:
   vion tenant user-invitation resend [options]
 
 Options:
-  --user-id <uuid>          The user's id.
+  --user-id <uuid>          The pending user whose invitation is resent.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -7113,15 +7273,19 @@ Options:
                             then exits 3.
 
 Commands:
-  invite  Invite a user to become tenant owner. Mails the invitation link and returns it, along with the 
-          token, so the operator can also share it.
-  delete  Remove or revoke an owner from the tenant.
+  invite  Invites a user to become an owner of one of the integrator's tenants. The invitation is mailed 
+          after it is stored, and the answer carries its token and link so the caller can also share them. 
+          `emailSent` says whether the mail was accepted for delivery.
+  delete  Deletes an owner user of one of the integrator's tenants. The user is deleted with its role 
+          assignments and group memberships in the tenant, whether or not another owner remains. A user who 
+          holds the owner role only through a group is not found here.
 
 ---
 ## vion integrator tenant-owner invite
 Description:
-  Invite a user to become tenant owner. Mails the invitation link and returns it, along with the token, so 
-  the operator can also share it.
+  Invites a user to become an owner of one of the integrator's tenants. The invitation is mailed after it is 
+  stored, and the answer carries its token and link so the caller can also share them. `emailSent` says 
+  whether the mail was accepted for delivery.
 
 Usage:
   vion integrator tenant-owner invite [options]
@@ -7155,13 +7319,15 @@ Options:
 ---
 ## vion integrator tenant-owner delete
 Description:
-  Remove or revoke an owner from the tenant.
+  Deletes an owner user of one of the integrator's tenants. The user is deleted with its role assignments and 
+  group memberships in the tenant, whether or not another owner remains. A user who holds the owner role only 
+  through a group is not found here.
 
 Usage:
   vion integrator tenant-owner delete [options]
 
 Options:
-  --id <uuid>               The tenant owner's id.
+  --id <uuid>               The owner user to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -7214,20 +7380,20 @@ Options:
                             then exits 3.
 
 Commands:
-  resend  Resend an invitation to a user to become tenant owner. Mails the freshly minted invitation link and 
-          returns it, along with the token.
+  resend  Resends a pending owner invitation of one of the integrator's tenants with a new token. The 
+          previous token stops working, and the new one is mailed and answered as the invite does.
 
 ---
 ## vion integrator tenant-owner-invitation resend
 Description:
-  Resend an invitation to a user to become tenant owner. Mails the freshly minted invitation link and returns 
-  it, along with the token.
+  Resends a pending owner invitation of one of the integrator's tenants with a new token. The previous token 
+  stops working, and the new one is mailed and answered as the invite does.
 
 Usage:
   vion integrator tenant-owner-invitation resend [options]
 
 Options:
-  --user-id <uuid>          The user's id.
+  --user-id <uuid>          The invited owner whose invitation is resent.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -7280,25 +7446,23 @@ Options:
                             then exits 3.
 
 Commands:
-  create  Create a service account that owns the tenant. Returns the client ID and the client secret; the 
-          secret is shown exactly once and only its hint is stored. The machine-identity form of the owner 
-          invitation beside this: no email user, no token, no accept step — the redeem is the 
-          client_credentials grant. The created account does NOT appear in the tenant's owners list, which 
-          enumerates invited users; it appears in the tenant's own Access console, which is 
-          membership-driven.
-  list    Get the service accounts that own the tenant. Never returns a secret.
-  delete  Revoke a service account that owns the tenant, destroying it and its identity provider client. A 
-          service account's identity and its membership are one row, so revoking ownership means destroying 
-          the account — the honest mirror of removing an owner user.
+  create  Creates a service account that owns one of the integrator's tenants, with its client at the 
+          identity provider. The answer carries the client secret, which no later call answers again. A 
+          tenant that is not the integrator's, an invalid name or description, or a name a service account of 
+          the tenant already holds is refused before the identity provider is called.
+  list    Lists the service accounts that own one of the integrator's tenants. A service account owns the 
+          tenant when it holds the owner role there in its own name or through a group.
+  delete  Deletes a service account that owns one of the integrator's tenants, with its client at the 
+          identity provider. The service account is deleted with its role assignments and group memberships 
+          in the tenant, whether or not another owner remains.
 
 ---
 ## vion integrator tenant-owner-service-account create
 Description:
-  Create a service account that owns the tenant. Returns the client ID and the client secret; the secret is 
-  shown exactly once and only its hint is stored. The machine-identity form of the owner invitation beside 
-  this: no email user, no token, no accept step — the redeem is the client_credentials grant. The created 
-  account does NOT appear in the tenant's owners list, which enumerates invited users; it appears in the 
-  tenant's own Access console, which is membership-driven.
+  Creates a service account that owns one of the integrator's tenants, with its client at the identity 
+  provider. The answer carries the client secret, which no later call answers again. A tenant that is not the 
+  integrator's, an invalid name or description, or a name a service account of the tenant already holds is 
+  refused before the identity provider is called.
 
 Usage:
   vion integrator tenant-owner-service-account create [options]
@@ -7332,7 +7496,8 @@ Options:
 ---
 ## vion integrator tenant-owner-service-account list
 Description:
-  Get the service accounts that own the tenant. Never returns a secret.
+  Lists the service accounts that own one of the integrator's tenants. A service account owns the tenant when 
+  it holds the owner role there in its own name or through a group.
 
 Usage:
   vion integrator tenant-owner-service-account list [options]
@@ -7362,15 +7527,15 @@ Options:
 ---
 ## vion integrator tenant-owner-service-account delete
 Description:
-  Revoke a service account that owns the tenant, destroying it and its identity provider client. A service 
-  account's identity and its membership are one row, so revoking ownership means destroying the account — the 
-  honest mirror of removing an owner user.
+  Deletes a service account that owns one of the integrator's tenants, with its client at the identity 
+  provider. The service account is deleted with its role assignments and group memberships in the tenant, 
+  whether or not another owner remains.
 
 Usage:
   vion integrator tenant-owner-service-account delete [options]
 
 Options:
-  --id <uuid>               The tenant owner service account's id.
+  --id <uuid>               The owner service account to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -10331,18 +10496,21 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Who is effective at the given scope, with provenance (direct / inherited / via group).
+  list  Lists who has access at a scope of the integrator, each grant with where it comes from. A grant made 
+        at an ancestor of the scope is answered as inherited, and a group's grant once more for each of its 
+        members.
 
 ---
 ## vion integrator scope-access list
 Description:
-  Who is effective at the given scope, with provenance (direct / inherited / via group).
+  Lists who has access at a scope of the integrator, each grant with where it comes from. A grant made at an 
+  ancestor of the scope is answered as inherited, and a group's grant once more for each of its members.
 
 Usage:
   vion integrator scope-access list [options]
 
 Options:
-  --scope-id <uuid>         The scope's id.
+  --scope-id <uuid>         The scope whose access is listed.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -10395,18 +10563,20 @@ Options:
                             then exits 3.
 
 Commands:
-  list  The effective roles a principal has across scopes, with provenance.
+  list  Lists the roles a principal of the integrator holds, in its own name and through its groups. Each 
+        grant is answered at the scope it is assigned at.
 
 ---
 ## vion integrator principal-access list
 Description:
-  The effective roles a principal has across scopes, with provenance.
+  Lists the roles a principal of the integrator holds, in its own name and through its groups. Each grant is 
+  answered at the scope it is assigned at.
 
 Usage:
   vion integrator principal-access list [options]
 
 Options:
-  --principal-id <uuid>     The principal's id.
+  --principal-id <uuid>     The user, service account or group whose access is listed.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -10459,13 +10629,14 @@ Options:
                             then exits 3.
 
 Commands:
-  list  The current caller's own effective roles across scopes. Self-service: any authenticated integrator 
-        member.
+  list  Lists the roles the caller holds in the integrator, in its own name and through its groups. Any 
+        member of the integrator, a user or a service account, may read its own access.
 
 ---
 ## vion integrator my-access list
 Description:
-  The current caller's own effective roles across scopes. Self-service: any authenticated integrator member.
+  Lists the roles the caller holds in the integrator, in its own name and through its groups. Any member of 
+  the integrator, a user or a service account, may read its own access.
 
 Usage:
   vion integrator my-access list [options]
@@ -10663,14 +10834,18 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all role assignments in the integrator.
-  create  Assign a role to a user in the integrator.
-  delete  Remove a role assignment from the integrator.
+  list    Lists the integrator's role assignments.
+  create  Assigns a role to a user, a service account or a group of the integrator at one of its scopes. The 
+          caller need not hold the role it assigns. A role the integrator level does not define, a scope type 
+          the role is not assignable at, or a scope or principal that is not the integrator's is refused, and 
+          so is an assignment the integrator already holds.
+  delete  Deletes a role assignment of the integrator. The assignment is deleted whatever it grants, even 
+          when it is the caller's own or the integrator's last owner's.
 
 ---
 ## vion integrator role-assignment list
 Description:
-  Get all role assignments in the integrator.
+  Lists the integrator's role assignments.
 
 Usage:
   vion integrator role-assignment list [options]
@@ -10700,7 +10875,10 @@ Options:
 ---
 ## vion integrator role-assignment create
 Description:
-  Assign a role to a user in the integrator.
+  Assigns a role to a user, a service account or a group of the integrator at one of its scopes. The caller 
+  need not hold the role it assigns. A role the integrator level does not define, a scope type the role is 
+  not assignable at, or a scope or principal that is not the integrator's is refused, and so is an assignment 
+  the integrator already holds.
 
 Usage:
   vion integrator role-assignment create [options]
@@ -10734,13 +10912,14 @@ Options:
 ---
 ## vion integrator role-assignment delete
 Description:
-  Remove a role assignment from the integrator.
+  Deletes a role assignment of the integrator. The assignment is deleted whatever it grants, even when it is 
+  the caller's own or the integrator's last owner's.
 
 Usage:
   vion integrator role-assignment delete [options]
 
 Options:
-  --id <uuid>               The role assignment's id.
+  --id <uuid>               The role assignment to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -10793,12 +10972,14 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Get all available roles for integrators.
+  list  Lists the built-in roles of the integrator level. Every integrator answers the same roles, each 
+        naming the route's integrator as `integratorId`.
 
 ---
 ## vion integrator role list
 Description:
-  Get all available roles for integrators.
+  Lists the built-in roles of the integrator level. Every integrator answers the same roles, each naming the 
+  route's integrator as `integratorId`.
 
 Usage:
   vion integrator role list [options]
@@ -10856,12 +11037,12 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Get all scopes available for role assignment.
+  list  Lists the integrator's scopes, each with its ancestors.
 
 ---
 ## vion integrator scope list
 Description:
-  Get all scopes available for role assignment.
+  Lists the integrator's scopes, each with its ancestors.
 
 Usage:
   vion integrator scope list [options]
@@ -10919,15 +11100,20 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all service accounts for this integrator.
-  create  Create a service account. Returns the client ID and secret (secret shown only once).
-  update  Update a service account's name and description.
-  delete  Delete a service account (also deletes the identity provider client).
+  list    Lists the integrator's service accounts.
+  create  Creates a service account of the integrator, with its client at the identity provider. The answer 
+          carries the client secret, which no later call answers again. An invalid name or description, or a 
+          name a service account of the integrator already holds, is refused before the identity provider is 
+          called.
+  update  Replaces a service account's name and description. The client ID, the secret's hint and the name of 
+          the client at the identity provider stay as they were.
+  delete  Deletes a service account and its client at the identity provider. Its role assignments and its 
+          group memberships in the integrator are deleted with it.
 
 ---
 ## vion integrator service-account list
 Description:
-  Get all service accounts for this integrator.
+  Lists the integrator's service accounts.
 
 Usage:
   vion integrator service-account list [options]
@@ -10957,7 +11143,9 @@ Options:
 ---
 ## vion integrator service-account create
 Description:
-  Create a service account. Returns the client ID and secret (secret shown only once).
+  Creates a service account of the integrator, with its client at the identity provider. The answer carries 
+  the client secret, which no later call answers again. An invalid name or description, or a name a service 
+  account of the integrator already holds, is refused before the identity provider is called.
 
 Usage:
   vion integrator service-account create [options]
@@ -10991,13 +11179,14 @@ Options:
 ---
 ## vion integrator service-account update
 Description:
-  Update a service account's name and description.
+  Replaces a service account's name and description. The client ID, the secret's hint and the name of the 
+  client at the identity provider stay as they were.
 
 Usage:
   vion integrator service-account update [options]
 
 Options:
-  --id <uuid>                  The service account's id.
+  --id <uuid>                  The service account to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -11026,13 +11215,14 @@ Options:
 ---
 ## vion integrator service-account delete
 Description:
-  Delete a service account (also deletes the identity provider client).
+  Deletes a service account and its client at the identity provider. Its role assignments and its group 
+  memberships in the integrator are deleted with it.
 
 Usage:
   vion integrator service-account delete [options]
 
 Options:
-  --id <uuid>               The service account's id.
+  --id <uuid>               The service account to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -11085,18 +11275,20 @@ Options:
                             then exits 3.
 
 Commands:
-  rotate  Rotate the client secret for a service account.
+  rotate  Replaces a service account's client secret with a new one from the identity provider. The new 
+          secret is answered by this call alone, and the previous one stops working.
 
 ---
 ## vion integrator service-account-secret rotate
 Description:
-  Rotate the client secret for a service account.
+  Replaces a service account's client secret with a new one from the identity provider. The new secret is 
+  answered by this call alone, and the previous one stops working.
 
 Usage:
   vion integrator service-account-secret rotate [options]
 
 Options:
-  --service-account-id <uuid>  The service account's id.
+  --service-account-id <uuid>  The service account whose secret is rotated.
   -?, -h, --help               Show help and usage information
   --env <name>                 The environment: production, test, or one defined with `context use`.
   --integrator <id>            The integrator id, filling {integratorId} for this call.
@@ -11149,15 +11341,20 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all users in the integrator (pending and active).
-  invite  Invite a user to the integrator by email. Mails the invitation link and returns it, along with the 
-          token, so the operator can also share it.
-  delete  Remove or revoke a user from the integrator.
+  list    Lists the integrator's users, pending and active. A pending user whose invitation has expired is 
+          listed as pending.
+  invite  Invites a person to the integrator by email address. The invitation is stored before its link is 
+          mailed, and the answer carries the token and the link so that they can be shared by hand; 
+          `emailSent` is false where the mail was not sent. An address a user of the integrator already has 
+          is refused with 409.
+  delete  Deletes a user of the integrator, pending or active. Its role assignments and its group memberships 
+          in the integrator are deleted with it.
 
 ---
 ## vion integrator user list
 Description:
-  Get all users in the integrator (pending and active).
+  Lists the integrator's users, pending and active. A pending user whose invitation has expired is listed as 
+  pending.
 
 Usage:
   vion integrator user list [options]
@@ -11187,8 +11384,9 @@ Options:
 ---
 ## vion integrator user invite
 Description:
-  Invite a user to the integrator by email. Mails the invitation link and returns it, along with the token, 
-  so the operator can also share it.
+  Invites a person to the integrator by email address. The invitation is stored before its link is mailed, 
+  and the answer carries the token and the link so that they can be shared by hand; `emailSent` is false 
+  where the mail was not sent. An address a user of the integrator already has is refused with 409.
 
 Usage:
   vion integrator user invite [options]
@@ -11222,13 +11420,14 @@ Options:
 ---
 ## vion integrator user delete
 Description:
-  Remove or revoke a user from the integrator.
+  Deletes a user of the integrator, pending or active. Its role assignments and its group memberships in the 
+  integrator are deleted with it.
 
 Usage:
   vion integrator user delete [options]
 
 Options:
-  --id <uuid>               The user's id.
+  --id <uuid>               The user to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -11281,20 +11480,22 @@ Options:
                             then exits 3.
 
 Commands:
-  resend  Resend an invitation to a user for the integrator by email. Mails the freshly minted invitation 
-          link and returns it, along with the token.
+  resend  Mails a pending user's invitation again under a new token. The previous token is no longer 
+          accepted, and the invitation is valid for seven days from now. A user who is not pending is refused 
+          with 409. The answer carries the token and the link as the invite's does.
 
 ---
 ## vion integrator user-invitation resend
 Description:
-  Resend an invitation to a user for the integrator by email. Mails the freshly minted invitation link and 
-  returns it, along with the token.
+  Mails a pending user's invitation again under a new token. The previous token is no longer accepted, and 
+  the invitation is valid for seven days from now. A user who is not pending is refused with 409. The answer 
+  carries the token and the link as the invite's does.
 
 Usage:
   vion integrator user-invitation resend [options]
 
 Options:
-  --user-id <uuid>          The user's id.
+  --user-id <uuid>          The pending user whose invitation is resent.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -12641,15 +12842,19 @@ Options:
                             then exits 3.
 
 Commands:
-  invite  Invite a user to become integrator owner. Mails the invitation link and returns it, along with the 
-          token, so the operator can also share it.
-  delete  Remove or revoke an owner from the integrator.
+  invite  Invites a user to become an owner of an integrator. The invitation is mailed after it is stored, 
+          and the answer carries its token and link so the caller can also share them. `emailSent` says 
+          whether the mail was accepted for delivery.
+  delete  Deletes an owner user of an integrator. The user is deleted with its role assignments and group 
+          memberships in the integrator, whether or not another owner remains. A user who holds the owner 
+          role only through a group is not found here.
 
 ---
 ## vion platform integrator-owner invite
 Description:
-  Invite a user to become integrator owner. Mails the invitation link and returns it, along with the token, 
-  so the operator can also share it.
+  Invites a user to become an owner of an integrator. The invitation is mailed after it is stored, and the 
+  answer carries its token and link so the caller can also share them. `emailSent` says whether the mail was 
+  accepted for delivery.
 
 Usage:
   vion platform integrator-owner invite [options]
@@ -12683,13 +12888,15 @@ Options:
 ---
 ## vion platform integrator-owner delete
 Description:
-  Remove or revoke an owner from the integrator.
+  Deletes an owner user of an integrator. The user is deleted with its role assignments and group memberships 
+  in the integrator, whether or not another owner remains. A user who holds the owner role only through a 
+  group is not found here.
 
 Usage:
   vion platform integrator-owner delete [options]
 
 Options:
-  --id <uuid>               The integrator owner's id.
+  --id <uuid>               The owner user to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -12742,20 +12949,20 @@ Options:
                             then exits 3.
 
 Commands:
-  resend  Resend an invitation to a user to become integrator owner. Mails the freshly minted invitation link 
-          and returns it, along with the token.
+  resend  Resends a pending owner invitation of an integrator with a new token. The previous token stops 
+          working, and the new one is mailed and answered as the invite does.
 
 ---
 ## vion platform integrator-owner-invitation resend
 Description:
-  Resend an invitation to a user to become integrator owner. Mails the freshly minted invitation link and 
-  returns it, along with the token.
+  Resends a pending owner invitation of an integrator with a new token. The previous token stops working, and 
+  the new one is mailed and answered as the invite does.
 
 Usage:
   vion platform integrator-owner-invitation resend [options]
 
 Options:
-  --user-id <uuid>          The user's id.
+  --user-id <uuid>          The invited owner whose invitation is resent.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -12808,25 +13015,23 @@ Options:
                             then exits 3.
 
 Commands:
-  create  Create a service account that owns the integrator. Returns the client ID and the client secret; the 
-          secret is shown exactly once and only its hint is stored. The machine-identity form of the owner 
-          invitation beside this: no email user, no token, no accept step — the redeem is the 
-          client_credentials grant. The created account does NOT appear in the integrator's owners list, 
-          which enumerates invited users; it appears in the integrator's own Access console, which is 
-          membership-driven.
-  list    Get the service accounts that own the integrator. Never returns a secret.
-  delete  Revoke a service account that owns the integrator, destroying it and its identity provider client. 
-          A service account's identity and its membership are one row, so revoking ownership means destroying 
-          the account — the honest mirror of removing an owner user.
+  create  Creates a service account that owns an integrator, with its client at the identity provider. The 
+          answer carries the client secret, which no later call answers again. An integrator that does not 
+          exist, an invalid name or description, or a name a service account of the integrator already holds 
+          is refused before the identity provider is called.
+  list    Lists the service accounts that own an integrator. A service account owns the integrator when it 
+          holds the owner role there in its own name or through a group.
+  delete  Deletes a service account that owns an integrator, with its client at the identity provider. The 
+          service account is deleted with its role assignments and group memberships in the integrator, 
+          whether or not another owner remains.
 
 ---
 ## vion platform integrator-owner-service-account create
 Description:
-  Create a service account that owns the integrator. Returns the client ID and the client secret; the secret 
-  is shown exactly once and only its hint is stored. The machine-identity form of the owner invitation beside 
-  this: no email user, no token, no accept step — the redeem is the client_credentials grant. The created 
-  account does NOT appear in the integrator's owners list, which enumerates invited users; it appears in the 
-  integrator's own Access console, which is membership-driven.
+  Creates a service account that owns an integrator, with its client at the identity provider. The answer 
+  carries the client secret, which no later call answers again. An integrator that does not exist, an invalid 
+  name or description, or a name a service account of the integrator already holds is refused before the 
+  identity provider is called.
 
 Usage:
   vion platform integrator-owner-service-account create [options]
@@ -12860,7 +13065,8 @@ Options:
 ---
 ## vion platform integrator-owner-service-account list
 Description:
-  Get the service accounts that own the integrator. Never returns a secret.
+  Lists the service accounts that own an integrator. A service account owns the integrator when it holds the 
+  owner role there in its own name or through a group.
 
 Usage:
   vion platform integrator-owner-service-account list [options]
@@ -12890,15 +13096,15 @@ Options:
 ---
 ## vion platform integrator-owner-service-account delete
 Description:
-  Revoke a service account that owns the integrator, destroying it and its identity provider client. A 
-  service account's identity and its membership are one row, so revoking ownership means destroying the 
-  account — the honest mirror of removing an owner user.
+  Deletes a service account that owns an integrator, with its client at the identity provider. The service 
+  account is deleted with its role assignments and group memberships in the integrator, whether or not 
+  another owner remains.
 
 Usage:
   vion platform integrator-owner-service-account delete [options]
 
 Options:
-  --id <uuid>               The integrator owner service account's id.
+  --id <uuid>               The owner service account to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -12951,12 +13157,17 @@ Options:
                             then exits 3.
 
 Commands:
-  bootstrap  Bootstrap the platform by creating the initial platform administrator
+  bootstrap  Makes the caller the platform's first administrator. The caller becomes an active platform user 
+             under its email claim, trimmed and lower-cased. Once any user exists in any domain the bootstrap 
+             is refused with 409, and a caller whose token carries no email claim, or one blank after 
+             trimming, is refused with 403.
 
 ---
 ## vion platform administrator bootstrap
 Description:
-  Bootstrap the platform by creating the initial platform administrator
+  Makes the caller the platform's first administrator. The caller becomes an active platform user under its 
+  email claim, trimmed and lower-cased. Once any user exists in any domain the bootstrap is refused with 409, 
+  and a caller whose token carries no email claim, or one blank after trimming, is refused with 403.
 
 Usage:
   vion platform administrator bootstrap [options]
@@ -13014,18 +13225,21 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Who is effective at the given scope, with provenance (direct / inherited / via group).
+  list  Lists who has access at a scope of the platform, each grant with where it comes from. A grant made at 
+        an ancestor of the scope is answered as inherited, and a group's grant once more for each of its 
+        members.
 
 ---
 ## vion platform scope-access list
 Description:
-  Who is effective at the given scope, with provenance (direct / inherited / via group).
+  Lists who has access at a scope of the platform, each grant with where it comes from. A grant made at an 
+  ancestor of the scope is answered as inherited, and a group's grant once more for each of its members.
 
 Usage:
   vion platform scope-access list [options]
 
 Options:
-  --scope-id <uuid>         The scope's id.
+  --scope-id <uuid>         The scope whose access is listed.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -13078,18 +13292,20 @@ Options:
                             then exits 3.
 
 Commands:
-  list  The effective roles a principal has across scopes, with provenance.
+  list  Lists the roles a principal of the platform holds, in its own name and through its groups. Each grant 
+        is answered at the scope it is assigned at.
 
 ---
 ## vion platform principal-access list
 Description:
-  The effective roles a principal has across scopes, with provenance.
+  Lists the roles a principal of the platform holds, in its own name and through its groups. Each grant is 
+  answered at the scope it is assigned at.
 
 Usage:
   vion platform principal-access list [options]
 
 Options:
-  --principal-id <uuid>     The principal's id.
+  --principal-id <uuid>     The user, service account or group whose access is listed.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -13142,13 +13358,14 @@ Options:
                             then exits 3.
 
 Commands:
-  list  The current caller's own effective roles across scopes. Self-service: any authenticated platform 
-        member.
+  list  Lists the roles the caller holds in the platform, in its own name and through its groups. Any member 
+        of the platform, a user or a service account, may read its own access.
 
 ---
 ## vion platform my-access list
 Description:
-  The current caller's own effective roles across scopes. Self-service: any authenticated platform member.
+  Lists the roles the caller holds in the platform, in its own name and through its groups. Any member of the 
+  platform, a user or a service account, may read its own access.
 
 Usage:
   vion platform my-access list [options]
@@ -13346,14 +13563,18 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all role assignments in the platform.
-  create  Assign a role to a user in the platform.
-  delete  Remove a role assignment from the platform.
+  list    Lists the platform's role assignments.
+  create  Assigns a role to a user, a service account or a group of the platform at one of its scopes. The 
+          caller need not hold the role it assigns. A role the platform level does not define, a scope type 
+          the role is not assignable at, or a scope or principal that is not the platform's is refused, and 
+          so is an assignment the platform already holds.
+  delete  Deletes a role assignment of the platform. The assignment is deleted whatever it grants, even when 
+          it is the caller's own or the platform's last administrator's.
 
 ---
 ## vion platform role-assignment list
 Description:
-  Get all role assignments in the platform.
+  Lists the platform's role assignments.
 
 Usage:
   vion platform role-assignment list [options]
@@ -13383,7 +13604,10 @@ Options:
 ---
 ## vion platform role-assignment create
 Description:
-  Assign a role to a user in the platform.
+  Assigns a role to a user, a service account or a group of the platform at one of its scopes. The caller 
+  need not hold the role it assigns. A role the platform level does not define, a scope type the role is not 
+  assignable at, or a scope or principal that is not the platform's is refused, and so is an assignment the 
+  platform already holds.
 
 Usage:
   vion platform role-assignment create [options]
@@ -13417,13 +13641,14 @@ Options:
 ---
 ## vion platform role-assignment delete
 Description:
-  Remove a role assignment from the platform.
+  Deletes a role assignment of the platform. The assignment is deleted whatever it grants, even when it is 
+  the caller's own or the platform's last administrator's.
 
 Usage:
   vion platform role-assignment delete [options]
 
 Options:
-  --id <uuid>               The role assignment's id.
+  --id <uuid>               The role assignment to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -13476,12 +13701,12 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Get all available roles for platforms.
+  list  Lists the built-in roles of the platform level. Each role names the platform as `platformId`.
 
 ---
 ## vion platform role list
 Description:
-  Get all available roles for platforms.
+  Lists the built-in roles of the platform level. Each role names the platform as `platformId`.
 
 Usage:
   vion platform role list [options]
@@ -13539,12 +13764,12 @@ Options:
                             then exits 3.
 
 Commands:
-  list  Get all scopes available for role assignment.
+  list  Lists the platform's scopes, each with its ancestors.
 
 ---
 ## vion platform scope list
 Description:
-  Get all scopes available for role assignment.
+  Lists the platform's scopes, each with its ancestors.
 
 Usage:
   vion platform scope list [options]
@@ -13602,15 +13827,20 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all service accounts for the platform.
-  create  Create a service account. Returns the client ID and secret (secret shown only once).
-  update  Update a service account's name and description.
-  delete  Delete a service account (also deletes the identity provider client).
+  list    Lists the platform's service accounts.
+  create  Creates a service account of the platform, with its client at the identity provider. The answer 
+          carries the client secret, which no later call answers again. An invalid name or description, or a 
+          name a service account of the platform already holds, is refused before the identity provider is 
+          called.
+  update  Replaces a service account's name and description. The client ID, the secret's hint and the name of 
+          the client at the identity provider stay as they were.
+  delete  Deletes a service account and its client at the identity provider. Its role assignments and its 
+          group memberships in the platform are deleted with it.
 
 ---
 ## vion platform service-account list
 Description:
-  Get all service accounts for the platform.
+  Lists the platform's service accounts.
 
 Usage:
   vion platform service-account list [options]
@@ -13640,7 +13870,9 @@ Options:
 ---
 ## vion platform service-account create
 Description:
-  Create a service account. Returns the client ID and secret (secret shown only once).
+  Creates a service account of the platform, with its client at the identity provider. The answer carries the 
+  client secret, which no later call answers again. An invalid name or description, or a name a service 
+  account of the platform already holds, is refused before the identity provider is called.
 
 Usage:
   vion platform service-account create [options]
@@ -13674,13 +13906,14 @@ Options:
 ---
 ## vion platform service-account update
 Description:
-  Update a service account's name and description.
+  Replaces a service account's name and description. The client ID, the secret's hint and the name of the 
+  client at the identity provider stay as they were.
 
 Usage:
   vion platform service-account update [options]
 
 Options:
-  --id <uuid>                  The service account's id.
+  --id <uuid>                  The service account to update.
   --input <file|->             The JSON body from a file, or `-` for standard input.
   -f, --raw-field <key=value>  A body member as a string: key=value; a dotted key nests.
   -F, --field <key=value>      A body member typed as JSON: true, false, null, a number, @file for a file's 
@@ -13709,13 +13942,14 @@ Options:
 ---
 ## vion platform service-account delete
 Description:
-  Delete a service account (also deletes the identity provider client).
+  Deletes a service account and its client at the identity provider. Its role assignments and its group 
+  memberships in the platform are deleted with it.
 
 Usage:
   vion platform service-account delete [options]
 
 Options:
-  --id <uuid>               The service account's id.
+  --id <uuid>               The service account to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -13768,18 +14002,20 @@ Options:
                             then exits 3.
 
 Commands:
-  rotate  Rotate the client secret for a service account.
+  rotate  Replaces a service account's client secret with a new one from the identity provider. The new 
+          secret is answered by this call alone, and the previous one stops working.
 
 ---
 ## vion platform service-account-secret rotate
 Description:
-  Rotate the client secret for a service account.
+  Replaces a service account's client secret with a new one from the identity provider. The new secret is 
+  answered by this call alone, and the previous one stops working.
 
 Usage:
   vion platform service-account-secret rotate [options]
 
 Options:
-  --service-account-id <uuid>  The service account's id.
+  --service-account-id <uuid>  The service account whose secret is rotated.
   -?, -h, --help               Show help and usage information
   --env <name>                 The environment: production, test, or one defined with `context use`.
   --integrator <id>            The integrator id, filling {integratorId} for this call.
@@ -13832,15 +14068,20 @@ Options:
                             then exits 3.
 
 Commands:
-  list    Get all users in the platform (pending and active).
-  invite  Invite a user to the platform by email. Mails the invitation link and returns it, along with the 
-          token, so the operator can also share it.
-  delete  Remove or revoke a user from the platform.
+  list    Lists the platform's users, pending and active. A pending user whose invitation has expired is 
+          listed as pending.
+  invite  Invites a person to the platform by email address. The invitation is stored before its link is 
+          mailed, and the answer carries the token and the link so that they can be shared by hand; 
+          `emailSent` is false where the mail was not sent. An address a user of the platform already has is 
+          refused with 409.
+  delete  Deletes a user of the platform, pending or active. Its role assignments and its group memberships 
+          in the platform are deleted with it.
 
 ---
 ## vion platform user list
 Description:
-  Get all users in the platform (pending and active).
+  Lists the platform's users, pending and active. A pending user whose invitation has expired is listed as 
+  pending.
 
 Usage:
   vion platform user list [options]
@@ -13870,8 +14111,9 @@ Options:
 ---
 ## vion platform user invite
 Description:
-  Invite a user to the platform by email. Mails the invitation link and returns it, along with the token, so 
-  the operator can also share it.
+  Invites a person to the platform by email address. The invitation is stored before its link is mailed, and 
+  the answer carries the token and the link so that they can be shared by hand; `emailSent` is false where 
+  the mail was not sent. An address a user of the platform already has is refused with 409.
 
 Usage:
   vion platform user invite [options]
@@ -13905,13 +14147,14 @@ Options:
 ---
 ## vion platform user delete
 Description:
-  Remove or revoke a user from the platform.
+  Deletes a user of the platform, pending or active. Its role assignments and its group memberships in the 
+  platform are deleted with it.
 
 Usage:
   vion platform user delete [options]
 
 Options:
-  --id <uuid>               The user's id.
+  --id <uuid>               The user to delete.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -13964,20 +14207,22 @@ Options:
                             then exits 3.
 
 Commands:
-  resend  Resend an invitation to a user for the platform by email. Mails the freshly minted invitation link 
-          and returns it, along with the token.
+  resend  Mails a pending user's invitation again under a new token. The previous token is no longer 
+          accepted, and the invitation is valid for seven days from now. A user who is not pending is refused 
+          with 409. The answer carries the token and the link as the invite's does.
 
 ---
 ## vion platform user-invitation resend
 Description:
-  Resend an invitation to a user for the platform by email. Mails the freshly minted invitation link and 
-  returns it, along with the token.
+  Mails a pending user's invitation again under a new token. The previous token is no longer accepted, and 
+  the invitation is valid for seven days from now. A user who is not pending is refused with 409. The answer 
+  carries the token and the link as the invite's does.
 
 Usage:
   vion platform user-invitation resend [options]
 
 Options:
-  --user-id <uuid>          The user's id.
+  --user-id <uuid>          The pending user whose invitation is resent.
   -?, -h, --help            Show help and usage information
   --env <name>              The environment: production, test, or one defined with `context use`.
   --integrator <id>         The integrator id, filling {integratorId} for this call.
@@ -14679,12 +14924,14 @@ Options:
                             then exits 3.
 
 Commands:
-  update  Replaces the caller's own profile, which holds across every membership of the caller.
+  update  Replaces the caller's own profile, which holds across every membership of the caller. A locale the 
+          catalog does not hold is refused with 400.
 
 ---
 ## vion me profile update
 Description:
-  Replaces the caller's own profile, which holds across every membership of the caller.
+  Replaces the caller's own profile, which holds across every membership of the caller. A locale the catalog 
+  does not hold is refused with 400.
 
 Usage:
   vion me profile update [options]
