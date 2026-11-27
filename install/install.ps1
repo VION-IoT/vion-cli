@@ -17,15 +17,16 @@
 # script says when one comes first on PATH.
 #
 # `irm | iex` runs this text in the caller's own session, where `exit` would close the window, so
-# everything runs inside one script block that returns on failure instead.
+# everything runs inside one script block that throws on failure instead.
 
 & {
     $ErrorActionPreference = 'Stop'
     $ProgressPreference = 'SilentlyContinue'
     $repo = 'https://github.com/VION-IoT/vion-cli'
 
+    # A failure throws, so a script or a CI step that runs this sees it fail, and the window stays open.
     function Fail([string] $message) {
-        Write-Host "vion install: $message" -ForegroundColor Red
+        throw "vion install: $message"
     }
 
     # Windows PowerShell 5.1 offers TLS 1.0 by default, which GitHub refuses.
@@ -33,7 +34,6 @@
 
     if ([Environment]::OSVersion.Platform -ne 'Win32NT') {
         Fail "this script installs vion on Windows; on Linux run: curl -fsSL $repo/releases/latest/download/install.sh | sh"
-        return
     }
 
     # An Arm64 Windows runs the x64 binary under emulation.
@@ -41,7 +41,6 @@
     if (-not $arch) { $arch = $env:PROCESSOR_ARCHITECTURE }
     if ($arch -notin @('AMD64', 'ARM64')) {
         Fail "no vion is published for $arch; the release carries win-x64"
-        return
     }
 
     $version = $env:VION_VERSION
@@ -52,14 +51,12 @@
         }
         catch {
             Fail "could not read the latest release from GitHub: $($_.Exception.Message)"
-            return
         }
     }
 
     $version = $version.Trim() -replace '^[vV]', ''
     if ($version -notmatch '^[0-9A-Za-z.+-]+$') {
         Fail "'$version' is not a release version, such as 0.8.0"
-        return
     }
 
     $dir = $env:VION_INSTALL_DIR
@@ -81,7 +78,6 @@
         }
         catch {
             Fail "release v$version carries no $archive. Its build attaches the archives in the minutes after the release is published: try again shortly, or set `$env:VION_VERSION to an earlier release. Nothing was installed."
-            return
         }
 
         try {
@@ -89,21 +85,18 @@
         }
         catch {
             Fail "release v$version carries no $archive.sha256. Try again shortly, or set `$env:VION_VERSION to an earlier release. Nothing was installed."
-            return
         }
 
         $expected = ((Get-Content -Raw (Join-Path $tmp "$archive.sha256")).Trim() -split '\s+')[0].ToLowerInvariant()
         $actual = (Get-FileHash -Algorithm SHA256 (Join-Path $tmp $archive)).Hash.ToLowerInvariant()
         if ($expected -ne $actual) {
             Fail "$archive does not match its .sha256: the checksum file says $expected, the download hashes to $actual. Nothing was installed."
-            return
         }
 
         Expand-Archive -Path (Join-Path $tmp $archive) -DestinationPath (Join-Path $tmp 'x')
         $binary = Join-Path $tmp 'x\vion.exe'
         if (-not (Test-Path -LiteralPath $binary)) {
             Fail "$archive holds no vion.exe. Nothing was installed."
-            return
         }
 
         try {
@@ -115,7 +108,6 @@
         }
         catch {
             Fail "could not write to ${dir}: $($_.Exception.Message) Set `$env:VION_INSTALL_DIR to a folder you own. Nothing was installed."
-            return
         }
 
         # A vion.exe still running cannot be overwritten or deleted, but it can be renamed: an
