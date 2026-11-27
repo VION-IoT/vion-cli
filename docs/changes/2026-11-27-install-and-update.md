@@ -76,9 +76,11 @@ the `update` page and its line in the root's command list.
   name, and a script that silenced the notice still updates when it asks to.
 - `D8` — **Off a terminal and under `--json`**, `update` behaves as on a terminal: it asks nothing,
   because running it is the confirmation. Under `--json` standard output is one document —
-  `{ "from", "to", "path", "updated" }` for an update, `{ "running", "release", "newer", "managed",
+  `{ "from", "to", "release", "path", "updated" }` for an update, `{ "running", "release", "newer", "managed",
   "path" }` for `--check`, the `error` object for a refusal — and progress lines go to standard
-  error. The daily notice never runs after `update`: the process that just replaced itself still
+  error. Every update document carries `release`, the version read, beside `from` and `to`, so a
+no-op (`updated: false`, `to` equal to `from`) still says what the release was. The daily notice
+never runs after `update`: the process that just replaced itself still
   reports its old version, and would name the release it just installed as newer.
   Decide-and-document.
 - `D9` — **Existing copies are left alone.** A hand-placed binary, one at `/usr/local/bin` from the
@@ -113,7 +115,8 @@ the `update` page and its line in the root's command list.
   add when the folder is not on PATH. Decide-and-document. Reason: the Windows user PATH is one
   registry value a script sets cleanly, and putting vion's own folder first shadows nothing but
   `vion`, including winget's link; a Linux profile is one of several files per shell, and a piped
-  script rewriting it is the step people object to.
+  script rewriting it is the step people object to. `VION_NO_MODIFY_PATH` leaves the Windows PATH
+  alone too, as uv's `UV_NO_MODIFY_PATH` does, for a container, a CI runner or a trial install.
 - `D14` — **Two seams join `CliServices`**: `ExecutablePath`, the running binary's path
   (`Environment.ProcessPath` in production), and `Platform`, the release archive's platform suffix
   for this process (`win-x64`, `linux-musl-x64`, `linux-musl-arm64`, or none). The swap test and
@@ -130,14 +133,19 @@ the `update` page and its line in the root's command list.
 ### Reviewer's questions
 
 1. (b) D6: a record that vouches by path only. Is a person's own rebuild at the recorded path, which
-   `update` then replaces, the outcome wanted? The brief's round trip relies on it.
+   `update` then replaces, the outcome wanted? The brief's round trip relies on it. OUTCOME: decided
+   by the implementing session as recorded; the pull request's human review accepts or changes it.
 2. (b) D9: the refusal names the one-liner, which installs a second, managed copy rather than
    adopting the unrecorded one in place. Is "switch to a managed install" the right reading of
-   "the one-liner that adopts the copy"?
+   "the one-liner that adopts the copy"? OUTCOME: decided by the implementing session as recorded;
+   the pull request's human review accepts or changes it.
 3. (b) D11: exit 2 for the unrecorded copy. It is not a mistyped invocation; it is classed with the
-   other refusals made before anything is sent.
+   other refusals made before anything is sent. OUTCOME: decided by the implementing session as
+   recorded; the pull request's human review accepts or changes it.
 4. (b) D15: three `GAP` criteria that no suite test will lift. The alternative is a fake release
-   server and a shell per runner in the suite.
+   server and a shell per runner in the suite. OUTCOME: decided by the implementing session as
+   recorded; the round trips in the pull request's Verification are the evidence, and the human
+   review accepts or changes it.
 
 ---
 
@@ -213,22 +221,40 @@ script block and never calls `exit`, because `irm | iex` runs it in the caller's
 
 ## Drift checkpoints
 
-- _(none yet — append as implementation diverges from Full design)_
+- 2026-11-27: the Windows round trip found the record write failing after a successful swap, with an
+  empty message: a single-file build that is not NativeAOT (the one this desk can link) loads
+  `System.Text.Encodings.Web` from its own file on first use, and after the swap that file is the
+  other release. The record's text and the command's output are now rendered before the swap
+  (`UpdateCommand.RunAsync`). The shipped NativeAOT binaries load nothing lazily; sibling sweep:
+  nothing else runs between the swap and the exit but the two writes. Done.
+- 2026-11-27: the Linux round trip first targeted v0.7.1 and was refused: that release carries no
+  Linux archives (`gh release view v0.7.1 --json assets` lists the win-x64 zip and its `.sha256`
+  only), which is `AC-CLI-007.4` meeting a real release. It ran again against v0.7.0.
+- 2026-11-27: a background security review of the install-script commit flagged two things in
+  `install.sh`, both fixed before the pull request: the staging files had predictable names
+  (`$$`) in the install folder and the home directory, now `mktemp`; and the script created
+  `~/.vion`, which also holds the credentials, with the default umask, now `umask 077`.
+- 2026-11-27: `AC-CLI-007.2`'s "say the running version is current" became "say so": a build ahead
+  of the latest release is told it is newer, not current. `AC-CLI-007.4` gained "no archive is
+  published for this platform", the refusal before any request where `Platform` is none. Both
+  before publication, so the delta lines were reworded with the page.
+- 2026-11-27: `VION_NO_MODIFY_PATH` added to `install.ps1` (D13), so the Windows round trip could
+  run here without rewriting this desk's PATH.
 
 ---
 
 ## Spec delta (to distill)
 
 - MODIFIED AC-CLI-007.1 -> docs/specs/cli.md : WHEN a command other than `update` runs on a terminal and the last check is older than a day THE SYSTEM SHALL read the latest release once, cache the result under its home directory, and name a newer version on standard error, with `vion update` where the install record vouches for the running binary and the release page otherwise.
-- ADDED AC-CLI-007.2 -> docs/specs/cli.md : WHEN `update` runs and the install record vouches for the running binary THE SYSTEM SHALL read the latest release, or the one `--version` names, and where it differs from the running version, newer for the latest, download this platform's archive and its `.sha256`, replace the binary at the recorded path with the archive's, write the new version into the record and print the running and the new version as `old → new`, and otherwise say the running version is current and change nothing.
+- ADDED AC-CLI-007.2 -> docs/specs/cli.md : WHEN `update` runs and the install record vouches for the running binary THE SYSTEM SHALL read the latest release, or the one `--version` names, and where it differs from the running version, newer for the latest, download this platform's archive and its `.sha256`, replace the binary at the recorded path with the archive's, write the new version into the record and print the running and the new version as `old → new`, and otherwise say so and change nothing.
 - ADDED AC-CLI-007.3 -> docs/specs/cli.md : IF `update` runs with no install record under the home directory, or one naming a binary other than the running one, THEN THE SYSTEM SHALL refuse before any request, naming the running binary, a package manager's upgrade command and the install one-liner, and exit 2.
-- ADDED AC-CLI-007.4 -> docs/specs/cli.md : IF the release carries no archive or no `.sha256` for this platform, or the archive does not match its `.sha256`, THEN THE SYSTEM SHALL leave the binary and the install record as they were, name what is missing or both checksums, and exit 1.
+- ADDED AC-CLI-007.4 -> docs/specs/cli.md : IF no archive is published for this platform, the release carries no archive or no `.sha256` for it, or the archive does not match its `.sha256`, THEN THE SYSTEM SHALL leave the binary and the install record as they were, name what is missing or both checksums, and exit 1.
 - ADDED AC-CLI-007.5 -> docs/specs/cli.md : WHEN `update --check` runs THE SYSTEM SHALL report the running version, the latest release or the one `--version` names, whether it is newer and whether the install record vouches for the running binary, change nothing on disk, and exit 0.
 - ADDED AC-CLI-007.6 -> docs/specs/cli.md : IF the folder holding the recorded binary refuses the new file THEN THE SYSTEM SHALL leave the binary and the install record as they were, write the verified binary to a temporary file, print the command that places it, `sudo install` on Linux, and exit 1.
 - ADDED AC-CLI-007.7 -> docs/specs/cli.md : WHERE the platform is Windows THE SYSTEM SHALL move the binary `update` replaces aside beside it as `<name>.old`, and remove a `.old` left by an earlier `update`.
-- ADDED AC-CLI-009.1 -> docs/specs/cli.md : WHEN `install.sh` or `install.ps1` runs THE SYSTEM SHALL download the latest release's archive for the platform, or `VION_VERSION`'s, verify it against its `.sha256`, place its binary in `VION_INSTALL_DIR`, else `~/.local/bin` on Linux and `%LOCALAPPDATA%\Programs\vion` on Windows, and write the install record naming it. GAP: the suite runs no shell script; proven by the pull request's round trip, after merge by a human on clean accounts
+- ADDED AC-CLI-009.1 -> docs/specs/cli.md : WHEN `install.sh` or `install.ps1` runs THE SYSTEM SHALL download the latest release's archive for the platform, or `VION_VERSION`'s, verify it against its `.sha256`, place its binary in `VION_INSTALL_DIR`, else `XDG_BIN_HOME` or `~/.local/bin` on Linux and `%LOCALAPPDATA%\Programs\vion` on Windows, and write the install record naming it. GAP: the suite runs no shell script; proven by the pull request's round trip, after merge by a human on clean accounts
 - ADDED AC-CLI-009.2 -> docs/specs/cli.md : IF the release carries no archive or `.sha256` for the platform, or the two do not match, or the install folder is not writable THEN THE SYSTEM SHALL place nothing, name what was missing, mismatched or refused, and end unsuccessfully. GAP: the suite runs no shell script; proven by the pull request's round trip, after merge by a human on clean accounts
-- ADDED AC-CLI-009.3 -> docs/specs/cli.md : WHEN an install script has placed the binary THE SYSTEM SHALL put the install folder first on the user's PATH on Windows, print the line that adds it on Linux where it is not on PATH, and name any other `vion` that comes first on PATH. GAP: the suite runs no shell script; proven by the pull request's round trip, after merge by a human on clean accounts
+- ADDED AC-CLI-009.3 -> docs/specs/cli.md : WHEN an install script has placed the binary THE SYSTEM SHALL put the install folder first on the user's PATH on Windows unless `VION_NO_MODIFY_PATH` is set, print the line that adds it on Linux where it is not on PATH, and name any other `vion` that comes first on PATH. GAP: the suite runs no shell script; proven by the pull request's round trip, after merge by a human on clean accounts
 
 ---
 
