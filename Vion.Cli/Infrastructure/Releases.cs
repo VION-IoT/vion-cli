@@ -37,8 +37,7 @@ namespace Vion.Cli.Infrastructure
         /// <summary>Numeric parts only: a prerelease or build suffix is set aside, so `0.2.0-preview.1` compares as `0.2.0`.</summary>
         public static bool IsNewer(string latest, string running)
         {
-            return Version.TryParse(NumericPart(latest), out var latestVersion) && Version.TryParse(NumericPart(running), out var runningVersion) &&
-                   latestVersion > runningVersion;
+            return Version.TryParse(NumericPart(latest), out var latestVersion) && Version.TryParse(NumericPart(running), out var runningVersion) && latestVersion > runningVersion;
         }
 
         /// <summary>A tag or a version as a version: `v0.2.0-preview.1` is `0.2.0-preview.1`.</summary>

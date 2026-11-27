@@ -109,8 +109,7 @@ namespace Vion.Cli.Commands
             // Rendered before the swap: once the file at the running binary's path is the new release, a build that
             // loads code from that file on first use — a single-file build that is not NativeAOT — would load the
             // other release's. The record names the path, which the swap keeps, so it is left as it is.
-            var output = globals.Json ?
-                             Renderer.Json(new JsonObject { ["from"] = running, ["to"] = target, ["release"] = target, ["path"] = path, ["updated"] = true }) :
+            var output = globals.Json ? Renderer.Json(new JsonObject { ["from"] = running, ["to"] = target, ["release"] = target, ["path"] = path, ["updated"] = true }) :
                              $"{running} → {target}";
             Replace(path, binary, target);
             services.Out.WriteLine(output);
@@ -124,8 +123,7 @@ namespace Vion.Cli.Commands
             using var response = await SendAsync(client, request, cancellationToken);
             if (requested != null && response.StatusCode == HttpStatusCode.NotFound)
             {
-                throw new
-                    CliFailure($"there is no release v{Releases.WithoutV(requested)} of vion; the releases are listed at https://github.com/VION-IoT/vion-cli/releases.");
+                throw new CliFailure($"there is no release v{Releases.WithoutV(requested)} of vion; the releases are listed at https://github.com/VION-IoT/vion-cli/releases.");
             }
 
             if (!response.IsSuccessStatusCode)
