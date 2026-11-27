@@ -12,8 +12,8 @@
 #   $env:VION_HOME         vion's home directory, where the record goes; %USERPROFILE%\.vion when unset
 #   $env:VION_NO_MODIFY_PATH  when set, the user's PATH is left as it is and the script says what to add
 #
-# The record, $env:VION_HOME\install.json, names the binary's full path: `vion update` replaces only
-# a binary a record names. Another vion - winget's, a hand-placed copy - is left as it is; the
+# The record, $env:VION_HOME\install.json, holds the binary's full path and nothing else:
+# `vion update` replaces only the binary the record names. Another vion - winget's, a hand-placed copy - is left as it is; the
 # script says when one comes first on PATH.
 #
 # `irm | iex` runs this text in the caller's own session, where `exit` would close the window, so
@@ -29,6 +29,44 @@
         throw "vion install: $message"
     }
 
+    # Two spellings of one folder, with or without a trailing backslash, in any case.
+    function Test-SameFolder([string] $a, [string] $b) {
+        return $a.TrimEnd('\') -ieq $b.TrimEnd('\')
+    }
+
+    # Tells the programs already open, Explorer among them, that the environment changed, so a
+    # terminal started from them afterwards reads the new PATH. Setting and clearing a variable
+    # of its own is a way to send that notice from PowerShell. The PATH itself is not written with
+    # [Environment]::SetEnvironmentVariable('Path', ..., 'User'), which would send the notice too,
+    # because it writes the value expanded: an entry such as %USERPROFILE%\bin would become a
+    # fixed path.
+    function Send-EnvironmentChangedNotice {
+        [Environment]::SetEnvironmentVariable('VION_INSTALL_PATH_CHANGED', '1', 'User')
+        [Environment]::SetEnvironmentVariable('VION_INSTALL_PATH_CHANGED', $null, 'User')
+    }
+
+    # Puts $folder first on the user's PATH, read and written as the registry holds it, unexpanded.
+    # Returns whether the PATH changed.
+    function Set-FirstOnUserPath([string] $folder) {
+        $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Environment', $true)
+        try {
+            $current = [string] $key.GetValue('Path', '', [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+            $entries = @($current -split ';' | Where-Object { $_ })
+            if ($entries.Count -gt 0 -and (Test-SameFolder $entries[0] $folder)) {
+                return $false
+            }
+
+            $others = @($entries | Where-Object { -not (Test-SameFolder $_ $folder) })
+            $key.SetValue('Path', ((@($folder) + $others) -join ';'), [Microsoft.Win32.RegistryValueKind]::ExpandString)
+        }
+        finally {
+            $key.Close()
+        }
+
+        Send-EnvironmentChangedNotice
+        return $true
+    }
+
     # Windows PowerShell 5.1 offers TLS 1.0 by default, which GitHub refuses.
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
@@ -36,13 +74,17 @@
         Fail "this script installs vion on Windows; on Linux run: curl -fsSL $repo/releases/latest/download/install.sh | sh"
     }
 
-    # An Arm64 Windows runs the x64 binary under emulation.
+    # The machine's architecture: a 32-bit PowerShell sees its own in PROCESSOR_ARCHITECTURE and
+    # the machine's in PROCESSOR_ARCHITEW6432. An Arm64 Windows runs the x64 binary under emulation.
     $arch = $env:PROCESSOR_ARCHITEW6432
     if (-not $arch) { $arch = $env:PROCESSOR_ARCHITECTURE }
     if ($arch -notin @('AMD64', 'ARM64')) {
         Fail "no vion is published for $arch; the release carries win-x64"
     }
 
+    # The latest release's tag is read from GitHub's API. install.sh reads the same tag from where
+    # the releases/latest redirect leads, which Windows PowerShell 5.1 cannot read without
+    # following the redirect.
     $version = $env:VION_VERSION
     if (-not $version) {
         try {
@@ -129,12 +171,7 @@
         }
 
         New-Item -ItemType Directory -Force -Path $vionHome | Out-Null
-        $record = [ordered]@{
-            path        = $target
-            version     = $version
-            installedBy = 'install.ps1'
-            installedAt = [DateTime]::UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", [Globalization.CultureInfo]::InvariantCulture)
-        }
+        $record = @{ path = $target }
         $recordPath = Join-Path $vionHome 'install.json'
         $recordTemp = "$recordPath.$([Guid]::NewGuid().ToString('N')).tmp"
         [IO.File]::WriteAllText($recordTemp, ($record | ConvertTo-Json), (New-Object Text.UTF8Encoding $false))
@@ -143,30 +180,16 @@
         Write-Host "installed vion $version at $target"
 
         # First on the user's PATH, so it runs before a winget link or an older copy there; the
-        # folder holds vion alone, so nothing else is shadowed. The running session gets it too.
-        # The value is read and written unexpanded, as the registry holds it: an entry such as
-        # %USERPROFILE%\bin stays one, where [Environment]::SetEnvironmentVariable would write it out
-        # expanded. Setting and clearing a variable of its own afterwards is what tells Explorer, and
-        # so every terminal started from it, that the environment changed.
+        # folder holds vion alone, so nothing else is shadowed. This session gets it first too.
         if ($env:VION_NO_MODIFY_PATH) {
             Write-Host "left PATH as it is (VION_NO_MODIFY_PATH); add $dir to it to run vion by name"
         }
         else {
-            $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Environment', $true)
-            try {
-                $userPath = [string] $key.GetValue('Path', '', [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
-                $entries = @($userPath -split ';' | Where-Object { $_ -and ($_.TrimEnd('\') -ine $dir.TrimEnd('\')) })
-                if (-not $userPath -or ($userPath -split ';')[0].TrimEnd('\') -ine $dir.TrimEnd('\')) {
-                    $key.SetValue('Path', ((@($dir) + $entries) -join ';'), [Microsoft.Win32.RegistryValueKind]::ExpandString)
-                    [Environment]::SetEnvironmentVariable('VION_INSTALL_PATH_CHANGED', '1', 'User')
-                    [Environment]::SetEnvironmentVariable('VION_INSTALL_PATH_CHANGED', $null, 'User')
-                    Write-Host "put $dir first on your PATH; a new terminal finds vion there"
-                }
+            if (Set-FirstOnUserPath $dir) {
+                Write-Host "put $dir first on your PATH; a new terminal finds vion there"
             }
-            finally {
-                $key.Close()
-            }
-            $env:Path = (@($dir) + @($env:Path -split ';' | Where-Object { $_ -and ($_.TrimEnd('\') -ine $dir.TrimEnd('\')) })) -join ';'
+            $sessionOthers = @($env:Path -split ';' | Where-Object { $_ -and -not (Test-SameFolder $_ $dir) })
+            $env:Path = (@($dir) + $sessionOthers) -join ';'
         }
 
         # A new terminal's PATH is the machine PATH, then the user PATH, so a copy found through the
