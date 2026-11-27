@@ -25,6 +25,8 @@ no static state a test must reset. The seams, and what each stands in for:
 | `TimeProvider` | `TimeProvider.System` | `FakeTimeProvider` (Microsoft.Extensions.TimeProvider.Testing) — expiry, the daily check, the device-code interval |
 | `IConsoleShape` (`IsInputTerminal`, `IsOutputTerminal`, `IsErrorTerminal`, `OutputWidth`) | `Console.Is*Redirected`, `Console.WindowWidth` | values: the `--yes` refusal and the update notice turn on the first and last; a table wraps to the width on a terminal and never in a pipe |
 | `OpenBrowser` (`Func<Uri, bool>`) | the platform's opener | a recording delegate |
+| `ExecutablePath` | `Environment.ProcessPath` | a file under the temporary home, which the test's install record names or not |
+| `Platform` | the release archive's suffix for the process's OS and architecture, none where no archive is published | a string, `linux-musl-x64` unless the test sets another |
 
 A command that waits on the clock — the device-code poll — is run through `Tool.RunAdvancingAsync`,
 which starts the run and advances the `FakeTimeProvider` a second at a time until it ends; the
