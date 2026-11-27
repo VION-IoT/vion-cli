@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using Vion.Cli.Bus;
 
@@ -28,6 +29,11 @@ namespace Vion.Cli.Infrastructure
     ///     test from fakes. There is no container and no static state behind it; a test that needs something these do not
     ///     give has found a missing seam.
     /// </summary>
+    /// <param name="ExecutablePath">The running binary's full path, which the install record is checked against; none when the process cannot tell.</param>
+    /// <param name="Platform">
+    ///     The platform suffix of the release archive this process runs from — <c>win-x64</c>, <c>linux-musl-x64</c>,
+    ///     <c>linux-musl-arm64</c> — or none where no archive is published.
+    /// </param>
     internal sealed record CliServices(
         HttpMessageHandler Handler,
         TextWriter Out,
@@ -39,7 +45,9 @@ namespace Vion.Cli.Infrastructure
         IConsoleShape Console,
         Func<Uri, bool> OpenBrowser,
         string Version,
-        IBroker Broker)
+        IBroker Broker,
+        string? ExecutablePath,
+        string? Platform)
     {
         public static CliServices Real()
         {
@@ -69,7 +77,9 @@ namespace Vion.Cli.Infrastructure
                                    new RealConsoleShape(),
                                    OpenBrowserWithShell,
                                    version,
-                                   new MqttBroker());
+                                   new MqttBroker(),
+                                   System.Environment.ProcessPath,
+                                   ReleasePlatform());
 #pragma warning restore CA2000
         }
 
@@ -90,6 +100,21 @@ namespace Vion.Cli.Infrastructure
             {
                 // A process with no console attached, or a restricted sandbox, refuses the change.
             }
+        }
+
+        /// <summary>
+        ///     The process's own architecture, not the machine's: an x64 binary under emulation on an Arm64 Windows is
+        ///     replaced by the x64 archive it came from.
+        /// </summary>
+        private static string? ReleasePlatform()
+        {
+            return RuntimeInformation.ProcessArchitecture switch
+            {
+                Architecture.X64 when OperatingSystem.IsWindows() => "win-x64",
+                Architecture.X64 when OperatingSystem.IsLinux() => "linux-musl-x64",
+                Architecture.Arm64 when OperatingSystem.IsLinux() => "linux-musl-arm64",
+                _ => null,
+            };
         }
 
         private static bool OpenBrowserWithShell(Uri uri)

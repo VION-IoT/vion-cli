@@ -45,6 +45,8 @@ Commands:
                        write-safety flags.
   api <method> <path>  Send a raw request to the environment's API with the resolved token, and render the 
                        answer as any command's.
+  update               Replace this vion with the latest release, or the one --version names, where an 
+                       install script placed it; verified against the release's checksum first.
 
 ---
 ## vion tenant
@@ -15436,4 +15438,39 @@ Options:
                                whose answer is already the outcome ignores it.
   --timeout <duration>         How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
                                then exits 3.
+
+---
+## vion update
+Description:
+  Replace this vion with the latest release, or the one --version names, where an install script placed it; 
+  verified against the release's checksum first.
+
+Usage:
+  vion update [options]
+
+Options:
+  --version <version>       Install this release instead of the latest: a newer one, or an older one to roll 
+                            back to.
+  --check                   Only report the running version, the release's and whether this copy can be 
+                            updated.
+  -?, -h, --help            Show help and usage information
+  --env <name>              The environment: production, test, or one defined with `context use`.
+  --integrator <id>         The integrator id, filling {integratorId} for this call.
+  --tenant <id>             The tenant id, filling {tenantId} for this call.
+  --project <id>            The project id, filling projectId for this call.
+  --platform <id>           The platform id, filling {platformId} for this call.
+  --json                    Write the response as JSON, and nothing else, to standard output.
+  --fields <a,b.c>          Keep only these members, comma-separated, dotted for a nested one.
+  --yes                     Confirm an irreversible operation without asking.
+  --dry-run                 Check the request without applying it, on an operation that offers it.
+  --idempotency-key <key>   The Idempotency-Key to send on a write; a fresh one when absent.
+  --if-match <version>      The version to send as If-Match on a versioned update.
+  --token <->               Read the bearer token from standard input: `--token -`.
+  --client-id <id>          A service account's client id, with --client-secret.
+  --client-secret <secret>  A service account's client secret, with --client-id.
+  --verbose                 Show the request and the response headers on standard error.
+  --wait                    Wait for a long-running operation to end and exit by its outcome; a command whose 
+                            answer is already the outcome ignores it.
+  --timeout <duration>      How long --wait waits: 90s, 15m, 1h or seconds; 15m when absent. Still running 
+                            then exits 3.
 
