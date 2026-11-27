@@ -58,7 +58,8 @@ namespace Vion.Cli.Infrastructure
             return string.Equals(System.IO.Path.GetFullPath(Path), System.IO.Path.GetFullPath(executablePath), comparison);
         }
 
-        public static void Write(CliServices services, string path, string version, string installedBy)
+        /// <summary>The record's text, written by <see cref="Files.WriteAtomically" /> to <see cref="Location" />.</summary>
+        public static string Render(CliServices services, string path, string version, string installedBy)
         {
             var record = new JsonObject
                          {
@@ -67,7 +68,7 @@ namespace Vion.Cli.Infrastructure
                              ["installedBy"] = installedBy,
                              ["installedAt"] = services.Time.GetUtcNow().UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture),
                          };
-            Files.WriteAtomically(Location(services), record.ToJsonString(Indented), false);
+            return record.ToJsonString(Indented);
         }
 
         private static string? Text(JsonNode? node)

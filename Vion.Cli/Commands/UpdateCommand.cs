@@ -74,21 +74,25 @@ namespace Vion.Cli.Commands
             var path = record!.Path;
             if (!differs)
             {
-                return Written(globals,
-                               services,
-                               new JsonObject { ["from"] = running, ["to"] = running, ["release"] = target, ["path"] = path, ["updated"] = false },
-                               requested == null && Releases.IsNewer(running, target) ?
-                                   $"vion {running} is newer than the latest release, {target}; `vion update --version {target}` installs it." :
-                                   $"vion {running} is current: the {(requested != null ? "requested" : "latest")} release is {target}.");
+                services.Out.WriteLine(Output(globals,
+                                              new JsonObject { ["from"] = running, ["to"] = running, ["release"] = target, ["path"] = path, ["updated"] = false },
+                                              requested == null && Releases.IsNewer(running, target) ?
+                                                  $"vion {running} is newer than the latest release, {target}; `vion update --version {target}` installs it." :
+                                                  $"vion {running} is current: the {(requested != null ? "requested" : "latest")} release is {target}."));
+                return ExitCodes.Ok;
             }
 
             var binary = await DownloadVerifiedAsync(client, release, target, platform!, services, cancellationToken);
+
+            // Rendered before the swap: once the file at the running binary's path is the new release, a build that
+            // loads code from that file on first use — a single-file build that is not NativeAOT — would load the
+            // other release's.
+            var recordText = InstallRecord.Render(services, path, target, "vion update");
+            var output = Output(globals, new JsonObject { ["from"] = running, ["to"] = target, ["release"] = target, ["path"] = path, ["updated"] = true }, $"{running} → {target}");
             Replace(path, binary, target);
-            InstallRecord.Write(services, path, target, "vion update");
-            return Written(globals,
-                           services,
-                           new JsonObject { ["from"] = running, ["to"] = target, ["release"] = target, ["path"] = path, ["updated"] = true },
-                           $"{running} → {target}");
+            Files.WriteAtomically(InstallRecord.Location(services), recordText, false);
+            services.Out.WriteLine(output);
+            return ExitCodes.Ok;
         }
 
         private static async Task<JsonObject> ReadReleaseAsync(HttpClient client, string? requested, CancellationToken cancellationToken)
@@ -343,18 +347,9 @@ namespace Vion.Cli.Commands
             return ExitCodes.Ok;
         }
 
-        private static int Written(GlobalValues globals, CliServices services, JsonObject result, string line)
+        private static string Output(GlobalValues globals, JsonObject result, string line)
         {
-            if (globals.Json)
-            {
-                Renderer.WriteJson(result, services);
-            }
-            else
-            {
-                services.Out.WriteLine(line);
-            }
-
-            return ExitCodes.Ok;
+            return globals.Json ? Renderer.Json(result) : line;
         }
 
         private static string ShellQuote(string text)
