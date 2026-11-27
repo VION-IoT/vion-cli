@@ -12,7 +12,7 @@ in `dotnet-aot-app.yml`).
 | Trigger | Version | What ships |
 |---|---|---|
 | Push to `main`, pull request | `0.0.0-ci.<run>` | nothing: the publishes are built and deleted; a pull request that changes the build files also publishes, to prove the publish |
-| Push tag `v0.2.0` | `0.2.0` | the three archives and their checksums on the GitHub release; the winget manifest update |
+| Push tag `v0.2.0` | `0.2.0` | the three archives and their checksums, and the two install scripts, on the GitHub release; the winget manifest update |
 | Push tag `v0.2.0-preview.1` | `0.2.0-preview.1` | the same, marked pre-release; winget is skipped for a pre-release |
 
 ## Cutting a release
@@ -43,14 +43,18 @@ gh release create v0.2.0 --target main --generate-notes --title "v0.2.0" --notes
    Windows job do not wait for each other, so the release can briefly hold two archives and no zip.
 4. Deletes the run's artifacts.
 
+Beside that call, the workflow's own `install-scripts` job attaches `install/install.sh` and
+`install/install.ps1` from the tag (§ The install scripts).
+
 The release notes are sectioned by [`release.yml`](../.github/release.yml) from the merged pull
 requests' labels: `feat`, `fix`, `chore`, and everything else under Other.
 
 ### When the run fails
 
-The run's log names the failing job. The README's install line follows the latest release, so it
-fails with a 404 while the archives are missing: `gh release edit v0.2.0 --prerelease` makes the
-previous release the latest again until they are attached, and
+The run's log names the failing job. The README's install lines and `vion update` follow the latest
+release, so while its archives are missing they refuse, naming the archive and installing nothing:
+`gh release edit v0.2.0 --prerelease` makes the previous release the latest again until they are
+attached, and
 `gh release edit v0.2.0 --prerelease=false --latest` restores it, which fires `winget.yml` again.
 
 Nothing is pushed anywhere but the release, so the version is not burned until the archives are
@@ -62,6 +66,24 @@ attached:
   `gh release create` line above at the fixed `main`. Both move a tag others may have fetched, so a
   maintainer runs them by hand. Once archives were attached and a winget manifest submitted, the
   version is burned: fix forward at the next number.
+
+## The install scripts
+
+`install/install.sh` (Linux) and `install/install.ps1` (Windows) are what the README's one-liners
+fetch, from `releases/latest/download/`. So a release serves the scripts committed at its tag, and a
+change to them reaches users with the next release, not at merge. What they guarantee is
+[`specs/cli.md`](specs/cli.md) § Installing and updating.
+
+The `install-scripts` job in [`ci-cd.yml`](../.github/workflows/ci-cd.yml) uploads both on a `v*`
+tag with `gh release upload --clobber`. A tag pushed by hand without a release fails the job until
+the release exists and the job is re-run. It builds nothing, so the scripts land well before the archives; in between, a script names the
+missing archive and installs nothing. A red `install-scripts` is rerun from its page.
+
+Once a release's jobs have finished, both
+`https://github.com/VION-IoT/vion-cli/releases/latest/download/install.sh` and `…/install.ps1`
+resolve. No suite test runs the scripts: a change to one is checked by running it, on Linux in an
+Alpine container and on Windows against a temporary `VION_INSTALL_DIR` and `VION_HOME` with
+`VION_NO_MODIFY_PATH` set, so the desk's own PATH is left alone.
 
 ## winget
 

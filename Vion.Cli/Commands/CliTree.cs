@@ -40,6 +40,12 @@ namespace Vion.Cli.Commands
         /// <summary>The watch commands, which take `--timeout` on its own where every other command takes it beside `--wait`.</summary>
         public HashSet<Command> Watches { get; } = [];
 
+        /// <summary>
+        ///     `update`, after which the daily check does not run: the process that replaced itself still has its old
+        ///     version.
+        /// </summary>
+        public Command? Update { get; set; }
+
         /// <summary>Each derived command's operation, which its own help reads the stability and the sunset from.</summary>
         public Dictionary<Command, Operation> DerivedOperations { get; } = [];
 
@@ -93,6 +99,7 @@ namespace Vion.Cli.Commands
             root.Subcommands.Add(CanICommand.Create(tree, services));
             root.Subcommands.Add(OpsCommand.Create(tree, services));
             root.Subcommands.Add(ApiCommand.Create(tree, services));
+            root.Subcommands.Add(UpdateCommand.Create(tree, services));
             root.Subcommands.Add(HelpSnapshotCommand.Create(tree, services));
             return tree;
         }

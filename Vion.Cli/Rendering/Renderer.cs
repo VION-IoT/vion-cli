@@ -146,7 +146,13 @@ namespace Vion.Cli.Rendering
 
         public static void WriteJson(JsonNode? node, CliServices services)
         {
-            services.Out.WriteLine(node == null ? "null" : node.ToJsonString(Indented));
+            services.Out.WriteLine(Json(node));
+        }
+
+        /// <summary>The text <see cref="WriteJson" /> writes, for a caller that renders before it may write.</summary>
+        public static string Json(JsonNode? node)
+        {
+            return node == null ? "null" : node.ToJsonString(Indented);
         }
 
         public static void WriteTable(JsonNode? node, GlobalValues globals, CliServices services)

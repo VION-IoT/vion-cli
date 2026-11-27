@@ -12,13 +12,13 @@ namespace Vion.Cli.Infrastructure
 {
     /// <summary>
     ///     Once a day, on a terminal, the latest release is read from GitHub and cached under the home directory; a newer
-    ///     version than the running one is named in one line on standard error. Never in JSON mode, never when
-    ///     `VION_NO_UPDATE_CHECK` is set, silent on any failure — a tool's update notice is never the reason a command fails.
+    ///     version than the running one is named in one line on standard error, with `vion update` where the install record
+    ///     vouches for the running binary and the release page otherwise — an unrecorded copy belongs to whatever placed
+    ///     it, and `update` would refuse it. Never in JSON mode, never when `VION_NO_UPDATE_CHECK` is set, silent on any
+    ///     failure — a tool's update notice is never the reason a command fails.
     /// </summary>
     internal static class UpdateCheck
     {
-        public const string ReleasesUrl = "https://api.github.com/repos/VION-IoT/vion-cli/releases/latest";
-
         private static readonly TimeSpan Daily = TimeSpan.FromDays(1);
 
         private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(2);
@@ -68,31 +68,20 @@ namespace Vion.Cli.Infrastructure
 
         private static void Notify(string? latest, string? url, CliServices services)
         {
-            if (latest != null && IsNewer(latest, services.Version))
+            if (latest == null || !Releases.IsNewer(latest, services.Version))
             {
-                services.Error.WriteLine($"a newer vion is available: {latest} (running {services.Version}){(url != null ? " — " + url : "")}");
+                return;
             }
-        }
 
-        /// <summary>Numeric parts only: a prerelease or build suffix is set aside, so `0.2.0-preview.1` compares as `0.2.0`.</summary>
-        private static bool IsNewer(string latest, string running)
-        {
-            return Version.TryParse(Numeric(latest), out var latestVersion) && Version.TryParse(Numeric(running), out var runningVersion) && latestVersion > runningVersion;
-        }
-
-        private static string Numeric(string version)
-        {
-            var text = version.TrimStart('v', 'V');
-            var end = text.IndexOfAny(['-', '+']);
-            return end >= 0 ? text[..end] : text;
+            var how = InstallRecord.Read(services)?.Vouches(services.ExecutablePath) == true ? " — run `vion update`" : url != null ? " — " + url : "";
+            services.Error.WriteLine($"a newer vion is available: {latest} (running {services.Version}){how}");
         }
 
         private static async Task<(string? Latest, string? Url)> ReadLatestAsync(CliServices services, CancellationToken cancellationToken)
         {
-            using var client = new HttpClient(services.Handler, false) { Timeout = Timeout };
-            client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("vion", Numeric(services.Version)));
+            using var client = Releases.CreateClient(services, Timeout);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
-            using var response = await client.GetAsync(new Uri(ReleasesUrl), cancellationToken);
+            using var response = await client.GetAsync(Releases.Latest, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
                 return (null, null);
@@ -100,7 +89,7 @@ namespace Vion.Cli.Infrastructure
 
             var body = JsonNode.Parse(await response.Content.ReadAsStringAsync(cancellationToken)) as JsonObject;
             var tag = body?["tag_name"]?.ToString();
-            return (tag != null ? Numeric(tag) : null, body?["html_url"]?.ToString());
+            return (tag != null ? Releases.NumericPart(tag) : null, body?["html_url"]?.ToString());
         }
 
         private static (DateTimeOffset? CheckedAt, string? Latest, string? Url)? Read(string path)

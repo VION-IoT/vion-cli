@@ -2,7 +2,8 @@
 #
 #   push to main            -> build, test, style, dependency majors; the publishes are built and deleted
 #   push tag vX.Y.Z         -> the same, then vion-X.Y.Z-linux-musl-x64.tar.gz, …-linux-musl-arm64.tar.gz
-#                              and vion-X.Y.Z-win-x64.zip, each with a .sha256, on the GitHub release
+#                              and vion-X.Y.Z-win-x64.zip, each with a .sha256, on the GitHub release;
+#                              install/install.sh and install/install.ps1 on it too (install-scripts)
 #   pull_request            -> build, test, style, dependency majors; publishes only when a build file changed
 #   workflow_dispatch       -> as a push
 #
@@ -40,3 +41,27 @@ jobs:
       keep-pr-artifacts: false
       check-dependency-majors: true
       dependency-majors-allow-list: .github/dependency-majors-allowed.json
+
+  # The one-line installs fetch releases/latest/download/install.sh and …/install.ps1, so every
+  # release carries both. The shared workflow uploads its own archives only and takes no input for
+  # more, so this job of the repository's own uploads the scripts at the tag, as its jobs upload the
+  # archives. It builds nothing, so the scripts are attached within a minute or so of `gh release
+  # create`, well before the archives; a script that runs in between says the archive is not
+  # attached yet and installs nothing. `gh release create` makes the tag and the release in one
+  # step, so the release exists when this runs; a tag pushed by hand without a release fails this
+  # job until the release exists and the job is re-run.
+  install-scripts:
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Attach the install scripts to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$GITHUB_REF_NAME" install/install.sh install/install.ps1 --repo "$GITHUB_REPOSITORY" --clobber

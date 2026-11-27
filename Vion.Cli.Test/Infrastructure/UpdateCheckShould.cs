@@ -59,6 +59,58 @@ namespace Vion.Cli.Test.Infrastructure
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-007.1")]
+        [DataRow(true, "a newer vion is available: 0.2.0 (running 0.1.0) — run `vion update`")]
+        [DataRow(false, "a newer vion is available: 0.2.0 (running 0.1.0) — https://github.com/VION-IoT/vion-cli/releases/tag/v0.2.0")]
+        public async Task NameUpdateCommandOnlyWhereRecordVouchesForRunningBinary(bool recordNamesRunningBinary, string notice)
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, Latest);
+            using var home = new TemporaryHome();
+            var binary = home.Write("vion", "installed");
+            home.Write("install.json", new JsonObject { ["path"] = recordNamesRunningBinary ? binary : binary + "-other" }.ToJsonString());
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          ["ops"],
+                                          home: home.Root,
+                                          time: new FakeTimeProvider(Now),
+                                          errorTerminal: true,
+                                          version: "0.1.0",
+                                          executablePath: binary);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.AreEqual(notice, run.Error.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)[^1]);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-007.1")]
+        public async Task SkipAfterUpdate()
+        {
+            // Arrange
+            using var handler = RecordingHandler.Json(200, Latest);
+            using var home = new TemporaryHome();
+            var binary = home.Write("vion", "installed");
+            home.Write("install.json", new JsonObject { ["path"] = binary }.ToJsonString());
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          ["update", "--check"],
+                                          home: home.Root,
+                                          time: new FakeTimeProvider(Now),
+                                          errorTerminal: true,
+                                          version: "0.1.0",
+                                          executablePath: binary);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.HasCount(1, handler.Requests);
+            Assert.IsFalse(File.Exists(Path.Combine(home.Root, "update-check.json")));
+            Assert.IsFalse(run.Error.Contains("a newer vion is available", StringComparison.Ordinal), run.Error);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-007.1")]
         [DataRow(23, 0)]
         [DataRow(25, 1)]
         public async Task ReadReleaseAgainOnlyAfterADay(int hoursSinceCheck, int requests)

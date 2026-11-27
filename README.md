@@ -6,24 +6,37 @@ cloud API is a command, named after the operation — `vion tenant edge-gateway 
 
 ## Install
 
-**Windows**
-
-```powershell
-winget install vion
-```
-
 **Linux** (x64 or arm64; a static binary with TLS built in — any distribution, no OpenSSL to install)
 
 ```bash
-a=x64   # or arm64
-v=$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/VION-IoT/vion-cli/releases/latest); v=${v##*/v}
-curl -fsSL --remote-name-all "https://github.com/VION-IoT/vion-cli/releases/download/v$v/vion-$v-linux-musl-$a.tar.gz"{,.sha256}
-sha256sum -c "vion-$v-linux-musl-$a.tar.gz.sha256"
-tar -xzf "vion-$v-linux-musl-$a.tar.gz" && sudo install -m 0755 vion /usr/local/bin/vion
+curl -fsSL https://github.com/VION-IoT/vion-cli/releases/latest/download/install.sh | sh
 ```
 
-Every release on the [releases page](https://github.com/VION-IoT/vion-cli/releases) carries the
-three archives and a `.sha256` for each. `vion` tells you once a day when a newer release exists.
+**Windows** (PowerShell)
+
+```powershell
+irm https://github.com/VION-IoT/vion-cli/releases/latest/download/install.ps1 | iex
+```
+
+Either one installs for you alone, with no root and no administrator: into `~/.local/bin` on Linux
+and `%LOCALAPPDATA%\Programs\vion` on Windows, or the folder `VION_INSTALL_DIR` names. It checks the
+download against the release's `.sha256` before placing anything. On Windows it puts the folder first on
+your PATH; on Linux it prints the line to add when the folder is not on PATH yet. `VION_VERSION`
+installs a particular release.
+
+From then on:
+
+```bash
+vion update                     # the latest release
+vion update --version 0.7.0     # a particular one, newer or older
+vion update --check             # only say what would change
+```
+
+`vion` tells you once a day when a newer release exists. `vion update` replaces only a copy that one
+of the install lines above placed; any other copy, one you unpacked by hand for example, it leaves
+alone and says how to update instead. Every release on the
+[releases page](https://github.com/VION-IoT/vion-cli/releases) carries the three archives and a
+`.sha256` for each, for installing by hand.
 
 ## Sign in
 

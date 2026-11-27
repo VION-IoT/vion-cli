@@ -58,7 +58,9 @@ namespace Vion.Cli.Test.TestHelpers
                                                   string version = "0.0.0-test",
                                                   System.Threading.CancellationToken cancellationToken = default,
                                                   IBroker? broker = null,
-                                                  IReadOnlyList<Channel>? channels = null)
+                                                  IReadOnlyList<Channel>? channels = null,
+                                                  string? executablePath = null,
+                                                  string? platform = "linux-musl-x64")
         {
             var output = new StringWriter();
             var error = new StringWriter();
@@ -72,7 +74,9 @@ namespace Vion.Cli.Test.TestHelpers
                                            new FakeConsoleShape(inputTerminal, errorTerminal),
                                            openBrowser ?? (_ => true),
                                            version,
-                                           broker ?? new RecordingBroker());
+                                           broker ?? new RecordingBroker(),
+                                           executablePath,
+                                           platform);
             var exitCode = await VionCli.RunAsync(args, services, operations, channels, cancellationToken);
             return new CliRun(exitCode, output.ToString(), error.ToString());
         }
