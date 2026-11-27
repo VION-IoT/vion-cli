@@ -29,7 +29,7 @@ linked doc before doing the matching work, and follow it.**
 | writing or modifying a test | [`docs/testing-conventions.md`](docs/testing-conventions.md) — the seams, the mutation discipline, how a spec id is cited |
 | changing specified behaviour, or dispatching an implementing session | [`docs/spec-process.md`](docs/spec-process.md) — the corpus, the lanes, the gates |
 | writing or reworking an inline comment | [`docs/comment-conventions.md`](docs/comment-conventions.md) |
-| cutting a release, or the winget manifest | [`docs/releasing.md`](docs/releasing.md) |
+| cutting a release | [`docs/releasing.md`](docs/releasing.md) |
 | reviewing a change | `/vion-git:review` — it reads [`docs/review-checks.md`](docs/review-checks.md), this repo's named checks |
 
 **Before writing new code, read similar existing files** in the same area and replicate their

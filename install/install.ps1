@@ -13,7 +13,7 @@
 #   $env:VION_NO_MODIFY_PATH  when set, the user's PATH is left as it is and the script says what to add
 #
 # The record, $env:VION_HOME\install.json, holds the binary's full path and nothing else:
-# `vion update` replaces only the binary the record names. Another vion - winget's, a hand-placed copy - is left as it is; the
+# `vion update` replaces only the binary the record names. Another vion, such as a hand-placed copy, is left as it is; the
 # script says when one comes first on PATH.
 #
 # `irm | iex` runs this text in the caller's own session, where `exit` would close the window, so
@@ -179,7 +179,7 @@
 
         Write-Host "installed vion $version at $target"
 
-        # First on the user's PATH, so it runs before a winget link or an older copy there; the
+        # First on the user's PATH, so it runs before an older copy there; the
         # folder holds vion alone, so nothing else is shadowed. This session gets it first too.
         if ($env:VION_NO_MODIFY_PATH) {
             Write-Host "left PATH as it is (VION_NO_MODIFY_PATH); add $dir to it to run vion by name"

@@ -16,8 +16,8 @@
 #
 # The release is published by `gh release create` before ci-cd.yml has built anything, and GitHub
 # can start a scheduled run hours late, so a run can land between the two with no archive to download.
-# The download step polls for the archive and its .sha256 first, up to twenty minutes, as winget.yml
-# polls for the zip; a wait that runs out is a failure like any other.
+# The download step polls for the archive and its .sha256 first, up to twenty minutes; a wait that
+# runs out is a failure like any other.
 #
 # Exit 1 is both "differs" and "failed" (AC-CLI-006.2 and Guard), so the run passes --json and reads
 # the one document AC-CLI-003.1 puts on standard output: `items` for a diff, `error` for a failure;
