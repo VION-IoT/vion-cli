@@ -64,7 +64,6 @@
     $vionHome = $env:VION_HOME
     if (-not $vionHome) { $vionHome = Join-Path $env:USERPROFILE '.vion' }
     $archive = "vion-$version-win-x64.zip"
-    $url = "$repo/releases/download/v$version/$archive"
 
     $tmp = Join-Path ([IO.Path]::GetTempPath()) ("vion-install-" + [Guid]::NewGuid().ToString('N'))
     New-Item -ItemType Directory -Path $tmp | Out-Null
@@ -72,19 +71,19 @@
         Write-Host "downloading $archive"
 
         # A release is published before its build has attached the archives, so for a few minutes
-        # the latest release can lack them; the message says so rather than leaving a bare 404.
-        try {
-            Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile (Join-Path $tmp $archive)
-        }
-        catch {
-            Fail "release v$version carries no $archive. Its build attaches the archives in the minutes after the release is published: try again shortly, or set `$env:VION_VERSION to an earlier release. Nothing was installed."
-        }
-
-        try {
-            Invoke-WebRequest -UseBasicParsing -Uri "$url.sha256" -OutFile (Join-Path $tmp "$archive.sha256")
-        }
-        catch {
-            Fail "release v$version carries no $archive.sha256. Try again shortly, or set `$env:VION_VERSION to an earlier release. Nothing was installed."
+        # the latest release can lack them: a 404 says so, and any other failure names its own cause.
+        # Both editions' exceptions carry the answer, when there was one, as .Response.
+        foreach ($name in @($archive, "$archive.sha256")) {
+            try {
+                Invoke-WebRequest -UseBasicParsing -Uri "$repo/releases/download/v$version/$name" -OutFile (Join-Path $tmp $name)
+            }
+            catch {
+                $response = $_.Exception.Response
+                if ($response -and [int] $response.StatusCode -eq 404) {
+                    Fail "release v$version carries no $name. Its build attaches the archives in the minutes after the release is published: try again shortly, or set `$env:VION_VERSION to an earlier release. Nothing was installed."
+                }
+                Fail "could not download ${name}: $($_.Exception.Message) Nothing was installed."
+            }
         }
 
         $expected = ((Get-Content -Raw (Join-Path $tmp "$archive.sha256")).Trim() -split '\s+')[0].ToLowerInvariant()

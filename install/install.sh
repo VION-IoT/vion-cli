@@ -68,12 +68,8 @@ main() {
     trap 'exit 1' INT TERM
 
     say "downloading $archive"
-    # A release is published before its build has attached the archives, so for a few minutes the
-    # latest release can lack them; the message says so rather than leaving a bare 404.
-    curl -fsSL -o "$tmp/$archive" "$url" ||
-        fail "release v$version carries no $archive. Its build attaches the archives in the minutes after the release is published: try again shortly, or set VION_VERSION to an earlier release. Nothing was installed."
-    curl -fsSL -o "$tmp/$archive.sha256" "$url.sha256" ||
-        fail "release v$version carries no $archive.sha256. Try again shortly, or set VION_VERSION to an earlier release. Nothing was installed."
+    fetch "$archive" "$url" "$tmp/$archive"
+    fetch "$archive.sha256" "$url.sha256" "$tmp/$archive.sha256"
 
     expected=$(cut -d ' ' -f 1 < "$tmp/$archive.sha256" | tr 'A-F' 'a-f')
     actual=$(sha256 "$tmp/$archive")
@@ -132,6 +128,19 @@ say() {
 fail() {
     printf 'vion install: %s\n' "$*" >&2
     exit 1
+}
+
+# A release is published before its build has attached the archives, so for a few minutes the
+# latest release can lack them. curl -f exits 22 on an HTTP error, which is the asset not being
+# there; any other exit is the network's, and says so.
+fetch() {
+    status=0
+    curl -fsSL -o "$3" "$2" || status=$?
+    case "$status" in
+        0) ;;
+        22) fail "release v$version carries no $1. Its build attaches the archives in the minutes after the release is published: try again shortly, or set VION_VERSION to an earlier release. Nothing was installed." ;;
+        *) fail "could not download $2 (curl exit $status). Nothing was installed." ;;
+    esac
 }
 
 need() {
