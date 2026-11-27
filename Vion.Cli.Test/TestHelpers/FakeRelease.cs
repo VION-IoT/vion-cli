@@ -19,9 +19,7 @@ namespace Vion.Cli.Test.TestHelpers
     {
         public const string Download = "https://github.com/VION-IoT/vion-cli/releases/download";
 
-        public string Version { get; }
-
-        public string Platform { get; }
+        private readonly string _version;
 
         public byte[] Binary { get; }
 
@@ -38,8 +36,7 @@ namespace Vion.Cli.Test.TestHelpers
 
         public FakeRelease(string version, string platform)
         {
-            Version = version;
-            Platform = platform;
+            _version = version;
             Binary = Encoding.UTF8.GetBytes($"vion {version} for {platform} {Guid.NewGuid():N}");
             var windows = platform.StartsWith("win", StringComparison.Ordinal);
             ArchiveName = $"vion-{version}-{platform}{(windows ? ".zip" : ".tar.gz")}";
@@ -47,24 +44,24 @@ namespace Vion.Cli.Test.TestHelpers
             Checksum = $"{Convert.ToHexStringLower(SHA256.HashData(Archive))}  {ArchiveName}\n";
         }
 
-        /// <summary>A handler answering this release under `latest` when <paramref name="latest" />, and always under its tag.</summary>
-        public RecordingHandler Handler(bool latest = true)
+        /// <summary>A handler answering this release under `latest` and under its tag.</summary>
+        public RecordingHandler Handler()
         {
             return new RecordingHandler(request =>
                                         {
                                             var url = request.RequestUri!.ToString();
-                                            if ((latest && url == "https://api.github.com/repos/VION-IoT/vion-cli/releases/latest") ||
-                                                url == $"https://api.github.com/repos/VION-IoT/vion-cli/releases/tags/v{Version}")
+                                            if (url == "https://api.github.com/repos/VION-IoT/vion-cli/releases/latest" ||
+                                                url == $"https://api.github.com/repos/VION-IoT/vion-cli/releases/tags/v{_version}")
                                             {
                                                 return RecordingHandler.Response(200, ReleaseJson());
                                             }
 
-                                            if (ArchiveAttached && url == $"{Download}/v{Version}/{ArchiveName}")
+                                            if (ArchiveAttached && url == $"{Download}/v{_version}/{ArchiveName}")
                                             {
                                                 return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Archive) };
                                             }
 
-                                            if (ChecksumAttached && url == $"{Download}/v{Version}/{ArchiveName}.sha256")
+                                            if (ChecksumAttached && url == $"{Download}/v{_version}/{ArchiveName}.sha256")
                                             {
                                                 return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Encoding.UTF8.GetBytes(Checksum)) };
                                             }
@@ -88,13 +85,13 @@ namespace Vion.Cli.Test.TestHelpers
 
             return new JsonObject
                    {
-                       ["tag_name"] = $"v{Version}", ["html_url"] = $"https://github.com/VION-IoT/vion-cli/releases/tag/v{Version}", ["assets"] = assets,
+                       ["tag_name"] = $"v{_version}", ["html_url"] = $"https://github.com/VION-IoT/vion-cli/releases/tag/v{_version}", ["assets"] = assets,
                    }.ToJsonString();
         }
 
         private JsonObject Asset(string name)
         {
-            return new JsonObject { ["name"] = name, ["state"] = "uploaded", ["browser_download_url"] = $"{Download}/v{Version}/{name}" };
+            return new JsonObject { ["name"] = name, ["state"] = "uploaded", ["browser_download_url"] = $"{Download}/v{_version}/{name}" };
         }
 
         private static byte[] TarGz(byte[] binary)
