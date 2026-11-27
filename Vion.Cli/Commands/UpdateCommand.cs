@@ -19,11 +19,11 @@ namespace Vion.Cli.Commands
     /// <summary>
     ///     `vion update [--version x] [--check]`: replaces the binary the install record names with a release's, after
     ///     its archive matched its `.sha256`. A copy the record does not name is refused before any request, because
-    ///     whatever placed it — winget, a person — would no longer know what is installed.
+    ///     whatever placed it would no longer know what is installed.
     /// </summary>
     /// <remarks>
     ///     "Windows" is decided twice, on purpose. <see cref="CliServices.Platform" /> names what is published for this
-    ///     binary: the archive's name and format, and the install line and package manager the refusal names. The
+    ///     binary: the archive's name and format, and the install line the refusal names. The
     ///     operating system the process runs on decides how its file system behaves: the rename aside, the executable
     ///     mode, the command that places a staged binary.
     /// </remarks>
@@ -347,7 +347,7 @@ namespace Vion.Cli.Commands
                           $"the install record names {record.Path}, not {executable}; to update that one, run `{record.Path} update`";
             var windows = services.Platform is { } platform ? IsWindows(platform) : OperatingSystem.IsWindows();
             return windows ?
-                       $"{why}, so `vion update` leaves it alone. Update it the way it was installed, `winget upgrade vion` for winget's copy, or switch to a managed install with `irm {Releases.InstallScriptPs1} | iex`." :
+                       $"{why}, so `vion update` leaves it alone. Update it the way it was installed, or switch to a managed install with `irm {Releases.InstallScriptPs1} | iex`." :
                        $"{why}, so `vion update` leaves it alone. Update it the way it was installed, or switch to a managed install with `curl -fsSL {Releases.InstallScriptSh} | sh`; an older copy placed by hand, for example in /usr/local/bin, can then be removed.";
         }
 
