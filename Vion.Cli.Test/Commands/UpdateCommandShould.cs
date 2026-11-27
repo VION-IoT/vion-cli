@@ -184,6 +184,7 @@ namespace Vion.Cli.Test.Commands
             Assert.IsEmpty(handler.Requests);
             CollectionAssert.AreEqual(before, File.ReadAllBytes(binary));
             StringAssert.Contains(run.Error, binary);
+            StringAssert.Contains(run.Error, "Update it the way it was installed");
             StringAssert.Contains(run.Error, "`curl -fsSL https://github.com/VION-IoT/vion-cli/releases/latest/download/install.sh | sh`");
             StringAssert.Contains(run.Error, "/usr/local/bin");
             Assert.IsFalse(run.Error.Contains("winget", StringComparison.Ordinal), run.Error);
@@ -220,7 +221,7 @@ namespace Vion.Cli.Test.Commands
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-007.3")]
-        public async Task NameWingetAndWindowsInstallScriptInRefusalOnWindows()
+        public async Task NameWindowsInstallScriptAndNoPackageManagerInRefusalOnWindows()
         {
             // Arrange
             using var home = new TemporaryHome();
@@ -239,8 +240,11 @@ namespace Vion.Cli.Test.Commands
 
             // Assert
             Assert.AreEqual(2, run.ExitCode, run.Error);
-            StringAssert.Contains(run.Error, "`winget upgrade vion`");
+            Assert.IsEmpty(handler.Requests);
+            StringAssert.Contains(run.Error, binary);
+            StringAssert.Contains(run.Error, "Update it the way it was installed");
             StringAssert.Contains(run.Error, "`irm https://github.com/VION-IoT/vion-cli/releases/latest/download/install.ps1 | iex`");
+            Assert.IsFalse(run.Error.Contains("winget", StringComparison.Ordinal), run.Error);
         }
 
         [TestMethod]
