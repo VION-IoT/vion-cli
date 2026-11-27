@@ -1,6 +1,6 @@
 ---
 slug: install-and-update
-status: in-flight
+status: archived
 blocked-on: none           # for parked docs: what's blocking + ref
 areas: CLI
 author: the VION-477 session, for Jonas Bertsch
