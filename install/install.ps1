@@ -113,12 +113,20 @@
         # earlier one is moved aside, and `vion update` removes the aside file later.
         Get-ChildItem -LiteralPath $dir -Filter 'vion.exe*.old' -ErrorAction SilentlyContinue |
             ForEach-Object { Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue }
+        $aside = $null
         if (Test-Path -LiteralPath $target) {
             $aside = "$target.old"
             for ($n = 1; Test-Path -LiteralPath $aside; $n++) { $aside = "$target.$n.old" }
             Move-Item -LiteralPath $target -Destination $aside
         }
-        Move-Item -LiteralPath $staged -Destination $target
+        try {
+            Move-Item -LiteralPath $staged -Destination $target
+        }
+        catch {
+            if ($aside) { Move-Item -LiteralPath $aside -Destination $target }
+            Remove-Item -LiteralPath $staged -Force -ErrorAction SilentlyContinue
+            Fail "could not place vion.exe in ${dir}: $($_.Exception.Message) The earlier vion.exe is back in place."
+        }
 
         New-Item -ItemType Directory -Force -Path $vionHome | Out-Null
         $record = [ordered]@{
