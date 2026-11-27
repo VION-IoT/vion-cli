@@ -20,7 +20,7 @@ irm https://github.com/VION-IoT/vion-cli/releases/latest/download/install.ps1 | 
 
 Either one installs for you alone, with no root and no administrator: into `~/.local/bin` on Linux
 and `%LOCALAPPDATA%\Programs\vion` on Windows, or the folder `VION_INSTALL_DIR` names. It checks the
-download against the release's `.sha256` before placing anything. On Windows it puts the folder on
+download against the release's `.sha256` before placing anything. On Windows it puts the folder first on
 your PATH; on Linux it prints the line to add when the folder is not on PATH yet. `VION_VERSION`
 installs a particular release.
 
