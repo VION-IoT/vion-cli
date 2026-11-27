@@ -115,24 +115,13 @@ namespace Vion.Cli.Test.Commands
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-007.3")]
-        [DataRow(false)]
-        [DataRow(true)]
-        public async Task RefuseBinaryNoRecordNames(bool recordNamesOtherBinary)
+        public async Task RefuseWhenNoRecord()
         {
             // Arrange
             using var home = new TemporaryHome();
             var binary = Install(home, home.Root);
             var before = File.ReadAllBytes(binary);
-            var other = Path.Combine(home.Root, "elsewhere", "vion");
-            if (recordNamesOtherBinary)
-            {
-                WriteRecord(home, other);
-            }
-            else
-            {
-                File.Delete(InstallRecordPath(home));
-            }
-
+            File.Delete(InstallRecordPath(home));
             using var handler = new FakeRelease("0.2.0", "linux-musl-x64").Handler();
 
             // Act
@@ -150,7 +139,36 @@ namespace Vion.Cli.Test.Commands
             StringAssert.Contains(run.Error, binary);
             StringAssert.Contains(run.Error, "`winget upgrade vion`");
             StringAssert.Contains(run.Error, "`curl -fsSL https://github.com/VION-IoT/vion-cli/releases/latest/download/install.sh | sh`");
-            Assert.AreEqual(recordNamesOtherBinary, run.Error.Contains($"`{other} update`", StringComparison.Ordinal), run.Error);
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-007.3")]
+        public async Task RefuseWhenRecordNamesOtherBinary()
+        {
+            // Arrange
+            using var home = new TemporaryHome();
+            var binary = Install(home, home.Root);
+            var before = File.ReadAllBytes(binary);
+            var other = Path.Combine(home.Root, "elsewhere", "vion");
+            WriteRecord(home, other);
+            using var handler = new FakeRelease("0.2.0", "linux-musl-x64").Handler();
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          ["update"],
+                                          home: home.Root,
+                                          time: new FakeTimeProvider(Now),
+                                          version: "0.1.0",
+                                          executablePath: binary);
+
+            // Assert
+            Assert.AreEqual(2, run.ExitCode, run.Error);
+            Assert.IsEmpty(handler.Requests);
+            CollectionAssert.AreEqual(before, File.ReadAllBytes(binary));
+            StringAssert.Contains(run.Error, binary);
+            StringAssert.Contains(run.Error, $"`{other} update`");
+            StringAssert.Contains(run.Error, "`winget upgrade vion`");
+            StringAssert.Contains(run.Error, "`curl -fsSL https://github.com/VION-IoT/vion-cli/releases/latest/download/install.sh | sh`");
         }
 
         [TestMethod]
@@ -265,19 +283,12 @@ namespace Vion.Cli.Test.Commands
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-007.5")]
-        [DataRow(true)]
-        [DataRow(false)]
-        public async Task ReportAndChangeNothingOnCheck(bool recorded)
+        public async Task ReportRecordedCopyAndChangeNothingOnCheck()
         {
             // Arrange
             using var home = new TemporaryHome();
             var binary = Install(home, home.Root);
             var before = File.ReadAllBytes(binary);
-            if (!recorded)
-            {
-                File.Delete(InstallRecordPath(home));
-            }
-
             var listingBefore = Listing(home.Root);
             using var handler = new FakeRelease("0.2.0", "linux-musl-x64").Handler();
 
@@ -296,7 +307,39 @@ namespace Vion.Cli.Test.Commands
             Assert.AreEqual("0.1.0", report["running"]!.GetValue<string>());
             Assert.AreEqual("0.2.0", report["release"]!.GetValue<string>());
             Assert.IsTrue(report["newer"]!.GetValue<bool>());
-            Assert.AreEqual(recorded, report["managed"]!.GetValue<bool>());
+            Assert.IsTrue(report["managed"]!.GetValue<bool>());
+            CollectionAssert.AreEqual(before, File.ReadAllBytes(binary));
+            CollectionAssert.AreEqual(listingBefore, Listing(home.Root));
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-007.5")]
+        public async Task ReportUnrecordedCopyAndChangeNothingOnCheck()
+        {
+            // Arrange
+            using var home = new TemporaryHome();
+            var binary = Install(home, home.Root);
+            var before = File.ReadAllBytes(binary);
+            File.Delete(InstallRecordPath(home));
+            var listingBefore = Listing(home.Root);
+            using var handler = new FakeRelease("0.2.0", "linux-musl-x64").Handler();
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          ["update", "--check", "--json"],
+                                          home: home.Root,
+                                          time: new FakeTimeProvider(Now),
+                                          version: "0.1.0",
+                                          executablePath: binary);
+
+            // Assert
+            Assert.AreEqual(0, run.ExitCode, run.Error);
+            Assert.HasCount(1, handler.Requests);
+            var report = JsonNode.Parse(run.Out)!;
+            Assert.AreEqual("0.1.0", report["running"]!.GetValue<string>());
+            Assert.AreEqual("0.2.0", report["release"]!.GetValue<string>());
+            Assert.IsTrue(report["newer"]!.GetValue<bool>());
+            Assert.IsFalse(report["managed"]!.GetValue<bool>());
             CollectionAssert.AreEqual(before, File.ReadAllBytes(binary));
             CollectionAssert.AreEqual(listingBefore, Listing(home.Root));
         }
