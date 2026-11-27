@@ -52,8 +52,9 @@ requests' labels: `feat`, `fix`, `chore`, and everything else under Other.
 ### When the run fails
 
 The run's log names the failing job. The README's install lines and `vion update` follow the latest
-release, so while its archives are missing they refuse, naming the archive and installing nothing: `gh release edit v0.2.0 --prerelease` makes the
-previous release the latest again until they are attached, and
+release, so while its archives are missing they refuse, naming the archive and installing nothing:
+`gh release edit v0.2.0 --prerelease` makes the previous release the latest again until they are
+attached, and
 `gh release edit v0.2.0 --prerelease=false --latest` restores it, which fires `winget.yml` again.
 
 Nothing is pushed anywhere but the release, so the version is not burned until the archives are
@@ -74,8 +75,8 @@ change to them reaches users with the next release, not at merge. What they guar
 [`specs/cli.md`](specs/cli.md) § Installing and updating.
 
 The `install-scripts` job in [`ci-cd.yml`](../.github/workflows/ci-cd.yml) uploads both on a `v*`
-tag with `gh release upload --clobber`, after waiting up to five minutes for the release to exist.
-It builds nothing, so the scripts land well before the archives; in between, a script names the
+tag with `gh release upload --clobber`. A tag pushed by hand without a release fails the job until
+the release exists and the job is re-run. It builds nothing, so the scripts land well before the archives; in between, a script names the
 missing archive and installs nothing. A red `install-scripts` is rerun from its page.
 
 Once a release's jobs have finished, both
