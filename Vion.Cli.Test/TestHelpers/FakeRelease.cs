@@ -101,7 +101,7 @@ namespace Vion.Cli.Test.TestHelpers
         {
             using var archive = new MemoryStream();
             using (var gzip = new GZipStream(archive, CompressionLevel.Fastest, true))
-            using (var tar = new TarWriter(gzip, TarEntryFormat.Pax, false))
+            using (var tar = new TarWriter(gzip, TarEntryFormat.Pax))
             {
                 tar.WriteEntry(new PaxTarEntry(TarEntryType.RegularFile, "vion") { DataStream = new MemoryStream(binary) });
             }

@@ -378,7 +378,10 @@ namespace Vion.Cli.Test.Commands
             CollectionAssert.AreEqual(new[] { "install.json", "vion.exe", "vion.exe.old" }, Listing(home.Root));
         }
 
-        /// <summary>A binary of the test's own in <paramref name="folder" />, and a record naming it as an install script writes one.</summary>
+        /// <summary>
+        ///     A binary of the test's own in <paramref name="folder" />, and a record naming it as an install script writes
+        ///     one.
+        /// </summary>
         private static string Install(TemporaryHome home, string folder, string name = "vion")
         {
             var binary = Path.Combine(folder, name);
@@ -389,7 +392,12 @@ namespace Vion.Cli.Test.Commands
 
         private static void WriteRecord(TemporaryHome home, string path)
         {
-            home.Write("install.json", new JsonObject { ["path"] = path, ["version"] = "0.0.0", ["installedBy"] = "install.sh", ["installedAt"] = Now.ToString("o", System.Globalization.CultureInfo.InvariantCulture) }.ToJsonString());
+            home.Write("install.json",
+                       new JsonObject
+                       {
+                           ["path"] = path, ["version"] = "0.0.0", ["installedBy"] = "install.sh",
+                           ["installedAt"] = Now.ToString("o", System.Globalization.CultureInfo.InvariantCulture),
+                       }.ToJsonString());
         }
 
         private static string InstallRecordPath(TemporaryHome home)
@@ -404,7 +412,10 @@ namespace Vion.Cli.Test.Commands
 
         private static string[] Listing(string folder)
         {
-            return Directory.EnumerateFileSystemEntries(folder, "*", SearchOption.AllDirectories).Select(entry => Path.GetRelativePath(folder, entry)).Order(StringComparer.Ordinal).ToArray();
+            return Directory.EnumerateFileSystemEntries(folder, "*", SearchOption.AllDirectories)
+                            .Select(entry => Path.GetRelativePath(folder, entry))
+                            .Order(StringComparer.Ordinal)
+                            .ToArray();
         }
     }
 }

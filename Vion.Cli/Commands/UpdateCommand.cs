@@ -82,13 +82,20 @@ namespace Vion.Cli.Commands
                 return ExitCodes.Ok;
             }
 
-            var binary = await DownloadVerifiedAsync(client, release, target, platform!, services, cancellationToken);
+            var binary = await DownloadVerifiedAsync(client,
+                                                     release,
+                                                     target,
+                                                     platform!,
+                                                     services,
+                                                     cancellationToken);
 
             // Rendered before the swap: once the file at the running binary's path is the new release, a build that
             // loads code from that file on first use — a single-file build that is not NativeAOT — would load the
             // other release's.
             var recordText = InstallRecord.Render(services, path, target, "vion update");
-            var output = Output(globals, new JsonObject { ["from"] = running, ["to"] = target, ["release"] = target, ["path"] = path, ["updated"] = true }, $"{running} → {target}");
+            var output = Output(globals,
+                                new JsonObject { ["from"] = running, ["to"] = target, ["release"] = target, ["path"] = path, ["updated"] = true },
+                                $"{running} → {target}");
             Replace(path, binary, target);
             Files.WriteAtomically(InstallRecord.Location(services), recordText, false);
             services.Out.WriteLine(output);
@@ -102,7 +109,8 @@ namespace Vion.Cli.Commands
             using var response = await SendAsync(client, request, cancellationToken);
             if (requested != null && response.StatusCode == HttpStatusCode.NotFound)
             {
-                throw new CliFailure($"there is no release v{Releases.Numeric(requested, false)} of vion; the releases are listed at https://github.com/VION-IoT/vion-cli/releases.");
+                throw new
+                    CliFailure($"there is no release v{Releases.Numeric(requested, false)} of vion; the releases are listed at https://github.com/VION-IoT/vion-cli/releases.");
             }
 
             if (!response.IsSuccessStatusCode)
@@ -110,8 +118,7 @@ namespace Vion.Cli.Commands
                 throw new CliFailure($"GitHub answered {(int)response.StatusCode} {response.ReasonPhrase} to the read of the release; nothing was changed.");
             }
 
-            return JsonNode.Parse(await response.Content.ReadAsStringAsync(cancellationToken)) is JsonObject release && release["tag_name"] is JsonValue ?
-                       release :
+            return JsonNode.Parse(await response.Content.ReadAsStringAsync(cancellationToken)) is JsonObject release && release["tag_name"] is JsonValue ? release :
                        throw new CliFailure("GitHub's answer to the read of the release names no tag; nothing was changed.");
         }
 
@@ -128,7 +135,8 @@ namespace Vion.Cli.Commands
             var checksumUrl = Asset(release, archiveName + ".sha256");
             if (archiveUrl == null || checksumUrl == null)
             {
-                throw new CliFailure($"release v{target} carries no {(archiveUrl == null ? archiveName : archiveName + ".sha256")}. Its build attaches the archives in the minutes after the release is published: try again shortly, or pass --version for an earlier release. Nothing was changed.");
+                throw new
+                    CliFailure($"release v{target} carries no {(archiveUrl == null ? archiveName : archiveName + ".sha256")}. Its build attaches the archives in the minutes after the release is published: try again shortly, or pass --version for an earlier release. Nothing was changed.");
             }
 
             services.Error.WriteLine($"downloading {archiveName}");
@@ -138,7 +146,8 @@ namespace Vion.Cli.Commands
             var actual = Convert.ToHexStringLower(SHA256.HashData(archive));
             if (!string.Equals(expected, actual, StringComparison.Ordinal))
             {
-                throw new CliFailure($"{archiveName} does not match its .sha256: the checksum file says {expected ?? "nothing"}, the download hashes to {actual}. Nothing was changed.");
+                throw new
+                    CliFailure($"{archiveName} does not match its .sha256: the checksum file says {expected ?? "nothing"}, the download hashes to {actual}. Nothing was changed.");
             }
 
             return windows ? FromZip(archive, "vion.exe", archiveName) : FromTarGz(archive, "vion", archiveName);
@@ -263,7 +272,8 @@ namespace Vion.Cli.Commands
             WriteExecutable(staged, binary);
             var place = windows ? $"Move-Item -Force {PowerShellQuote(staged)} {PowerShellQuote(path)}   # from an administrator PowerShell" :
                             $"sudo install -m 0755 {ShellQuote(staged)} {ShellQuote(path)}";
-            return new CliFailure($"this user may not write {Path.GetDirectoryName(path)}, so {path} is unchanged. The verified v{target} is at {staged}; place it with:{Environment.NewLine}  {place}");
+            return new
+                CliFailure($"this user may not write {Path.GetDirectoryName(path)}, so {path} is unchanged. The verified v{target} is at {staged}; place it with:{Environment.NewLine}  {place}");
         }
 
         private static void WriteExecutable(string path, byte[] binary)
@@ -279,7 +289,10 @@ namespace Vion.Cli.Commands
             stream.Write(binary);
         }
 
-        /// <summary>An aside still held by a process started before the last update cannot be removed yet; the next update tries again.</summary>
+        /// <summary>
+        ///     An aside still held by a process started before the last update cannot be removed yet; the next update tries
+        ///     again.
+        /// </summary>
         private static void RemoveLeftAside(string folder, string name)
         {
             foreach (var aside in Directory.EnumerateFiles(folder, name + "*.old"))
@@ -314,12 +327,12 @@ namespace Vion.Cli.Commands
         private static string Refusal(InstallRecord? record, CliServices services)
         {
             var executable = services.ExecutablePath ?? "this vion";
-            var why = record == null ?
-                          $"no install record ({InstallRecord.Location(services)}) names {executable}" :
+            var why = record == null ? $"no install record ({InstallRecord.Location(services)}) names {executable}" :
                           $"the install record names {record.Path}, not {executable}; to update that one, run `{record.Path} update`";
             var windows = services.Platform?.StartsWith("win", StringComparison.Ordinal) ?? OperatingSystem.IsWindows();
             var install = windows ? $"irm {Releases.InstallScriptPs1} | iex" : $"curl -fsSL {Releases.InstallScriptSh} | sh";
-            return $"{why}, so `vion update` leaves it alone. Update it the way it was installed, `winget upgrade vion` for winget's copy, or switch to a managed install with `{install}`.";
+            return
+                $"{why}, so `vion update` leaves it alone. Update it the way it was installed, `winget upgrade vion` for winget's copy, or switch to a managed install with `{install}`.";
         }
 
         private static int Report(GlobalValues globals, CliServices services, string running, string target, bool managed)

@@ -34,8 +34,7 @@ namespace Vion.Cli.Infrastructure
             try
             {
                 return JsonNode.Parse(File.ReadAllText(location)) is JsonObject record && record["path"]?.GetValueKind() == JsonValueKind.String ?
-                           new InstallRecord(record["path"]!.GetValue<string>(), Text(record["version"]), Text(record["installedBy"]), Text(record["installedAt"])) :
-                           null;
+                           new InstallRecord(record["path"]!.GetValue<string>(), Text(record["version"]), Text(record["installedBy"]), Text(record["installedAt"])) : null;
             }
             catch (JsonException)
             {

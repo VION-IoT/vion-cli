@@ -29,7 +29,10 @@ namespace Vion.Cli.Infrastructure
     ///     test from fakes. There is no container and no static state behind it; a test that needs something these do not
     ///     give has found a missing seam.
     /// </summary>
-    /// <param name="ExecutablePath">The running binary's full path, which the install record is checked against; none when the process cannot tell.</param>
+    /// <param name="ExecutablePath">
+    ///     The running binary's full path, which the install record is checked against; none when the
+    ///     process cannot tell.
+    /// </param>
     /// <param name="Platform">
     ///     The platform suffix of the release archive this process runs from — <c>win-x64</c>, <c>linux-musl-x64</c>,
     ///     <c>linux-musl-arm64</c> — or none where no archive is published.
