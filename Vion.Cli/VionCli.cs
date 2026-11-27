@@ -59,8 +59,10 @@ namespace Vion.Cli
                                                        cancellationToken);
 
                 // After the command, so the notice is the last line a person reads; not after help, the version, or a
-                // hidden command — the help snapshot runs on a terminal and must not reach the network.
-                if (parse.GetResult(tree.Help) == null && parse.GetResult(tree.Version) == null && !parse.CommandResult.Command.Hidden && parse.CommandResult.Command != tree.Root)
+                // hidden command — the help snapshot runs on a terminal and must not reach the network — and not after
+                // `update`, whose process still reports the version it just replaced.
+                if (parse.GetResult(tree.Help) == null && parse.GetResult(tree.Version) == null && !parse.CommandResult.Command.Hidden && parse.CommandResult.Command != tree.Root &&
+                    parse.CommandResult.Command != tree.Update)
                 {
                     await UpdateCheck.RunAsync(tree.Globals.Read(parse).Json, services, CancellationToken.None);
                 }
