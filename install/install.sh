@@ -11,9 +11,9 @@
 #   VION_INSTALL_DIR  the folder to place vion in; $XDG_BIN_HOME, else ~/.local/bin, when unset
 #   VION_HOME         vion's home directory, where the record goes; ~/.vion when unset
 #
-# The record, $VION_HOME/install.json, names the binary's full path: `vion update` replaces only
-# a binary a record names. Another vion on this machine, one in /usr/local/bin, a hand-placed
-# copy, is left as it is; the script says when one comes first on PATH.
+# The record, $VION_HOME/install.json, holds the binary's full path and nothing else: `vion update`
+# replaces only the binary the record names. Another vion on this machine, one in /usr/local/bin or
+# a hand-placed copy, is left as it is; the script says when one comes first on PATH.
 #
 # Everything runs inside main, called on the last line, so a download cut short runs nothing.
 
@@ -35,28 +35,34 @@ main() {
 
     need curl
     need tar
-    if command -v sha256sum > /dev/null 2>&1; then
-        sha256() { sha256sum "$1" | cut -d ' ' -f 1; }
-    elif command -v shasum > /dev/null 2>&1; then
-        sha256() { shasum -a 256 "$1" | cut -d ' ' -f 1; }
-    else
+    if ! command -v sha256sum > /dev/null 2>&1 && ! command -v shasum > /dev/null 2>&1; then
         fail "neither sha256sum nor shasum is installed, and the archive is never placed unverified"
     fi
 
-    # The latest release is read off the redirect GitHub answers for releases/latest, which ends
-    # in the tag; the API would do as well, but answers an unauthenticated caller sixty times an hour.
+    # GitHub answers releases/latest with a redirect to the latest release's page, whose address
+    # ends in its tag, so the tag is the last part of the address the redirect leads to.
+    # install.ps1 reads the same tag from GitHub's API instead, because Windows PowerShell 5.1
+    # cannot read where a redirect leads without following it.
     version=${VION_VERSION:-}
     if [ -z "$version" ]; then
         latest=$(curl -fsSLI -o /dev/null -w '%{url_effective}' "$repo/releases/latest") ||
             fail "could not read the latest release from $repo/releases/latest"
         version=${latest##*/}
     fi
-    version=${version#v}
-    case "$version" in
-        '' | *[!0-9A-Za-z.+-]*) fail "'$version' is not a release version, such as 0.8.0" ;;
-    esac
 
-    dir=${VION_INSTALL_DIR:-${XDG_BIN_HOME:-$HOME/.local/bin}}
+    version=${version#v}
+    if [ -z "$version" ] || printf '%s' "$version" | grep -q '[^0-9A-Za-z.+-]'; then
+        fail "'$version' is not a release version, such as 0.8.0"
+    fi
+
+    if [ -n "${VION_INSTALL_DIR:-}" ]; then
+        dir=$VION_INSTALL_DIR
+    elif [ -n "${XDG_BIN_HOME:-}" ]; then
+        dir=$XDG_BIN_HOME
+    else
+        dir=$HOME/.local/bin
+    fi
+
     home=${VION_HOME:-$HOME/.vion}
     archive=vion-$version-linux-musl-$arch.tar.gz
     url=$repo/releases/download/v$version/$archive
@@ -64,7 +70,8 @@ main() {
     tmp=$(mktemp -d)
     staged=
     record=
-    trap 'rm -rf "$tmp"; rm -f ${staged:+"$staged"} ${record:+"$record"}' EXIT
+    trap cleanup EXIT
+    # Without this, Ctrl+C would stop the script without running the EXIT trap in some shells.
     trap 'exit 1' INT TERM
 
     say "downloading $archive"
@@ -73,8 +80,9 @@ main() {
 
     expected=$(cut -d ' ' -f 1 < "$tmp/$archive.sha256" | tr 'A-F' 'a-f')
     actual=$(sha256 "$tmp/$archive")
-    [ "$expected" = "$actual" ] ||
+    if [ "$expected" != "$actual" ]; then
         fail "$archive does not match its .sha256: the checksum file says $expected, the download hashes to $actual. Nothing was installed."
+    fi
 
     tar -xzf "$tmp/$archive" -C "$tmp" vion || fail "$archive holds no vion. Nothing was installed."
 
@@ -95,11 +103,12 @@ main() {
     mv -f "$staged" "$target"
 
     # The home directory also holds the credentials, so a folder this script creates is the
-    # owner's alone, as vion creates it.
+    # owner's alone, as vion creates it. The record is written beside its name and renamed over
+    # it, as the binary is; mktemp makes the file readable by the owner alone, and the record is
+    # no secret, so it is opened to other readers as any file in the folder is.
     (umask 077 && mkdir -p "$home")
     record=$(mktemp "$home/install.json.XXXXXXXX")
-    printf '{\n  "path": "%s",\n  "version": "%s",\n  "installedBy": "install.sh",\n  "installedAt": "%s"\n}\n' \
-        "$(json "$target")" "$version" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$record"
+    printf '{\n  "path": "%s"\n}\n' "$(json "$target")" > "$record"
     chmod 0644 "$record"
     mv -f "$record" "$home/install.json"
 
@@ -130,21 +139,43 @@ fail() {
     exit 1
 }
 
+need() {
+    command -v "$1" > /dev/null 2>&1 || fail "$1 is not installed, and the install needs it"
+}
+
+# The temporary folder, and a staging file the script did not get to rename into place.
+cleanup() {
+    rm -rf "$tmp"
+    if [ -n "$staged" ]; then
+        rm -f "$staged"
+    fi
+    if [ -n "$record" ]; then
+        rm -f "$record"
+    fi
+}
+
 # A release is published before its build has attached the archives, so for a few minutes the
 # latest release can lack them. curl -f exits 22 on an HTTP error, which is the asset not being
 # there; any other exit is the network's, and says so.
 fetch() {
-    status=0
-    curl -fsSL -o "$3" "$2" || status=$?
-    case "$status" in
-        0) ;;
-        22) fail "release v$version carries no $1. Its build attaches the archives in the minutes after the release is published: try again shortly, or set VION_VERSION to an earlier release. Nothing was installed." ;;
-        *) fail "could not download $2 (curl exit $status). Nothing was installed." ;;
-    esac
+    if curl -fsSL -o "$3" "$2"; then
+        return
+    else
+        status=$?
+    fi
+
+    if [ "$status" -eq 22 ]; then
+        fail "release v$version carries no $1. Its build attaches the archives in the minutes after the release is published: try again shortly, or set VION_VERSION to an earlier release. Nothing was installed."
+    fi
+    fail "could not download $2 (curl exit $status). Nothing was installed."
 }
 
-need() {
-    command -v "$1" > /dev/null 2>&1 || fail "$1 is not installed, and the install needs it"
+sha256() {
+    if command -v sha256sum > /dev/null 2>&1; then
+        sha256sum "$1" | cut -d ' ' -f 1
+    else
+        shasum -a 256 "$1" | cut -d ' ' -f 1
+    fi
 }
 
 # A path as a JSON string's contents: a backslash and a double quote escaped.
