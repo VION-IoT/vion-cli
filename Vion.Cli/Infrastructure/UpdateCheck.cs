@@ -89,7 +89,7 @@ namespace Vion.Cli.Infrastructure
 
             var body = JsonNode.Parse(await response.Content.ReadAsStringAsync(cancellationToken)) as JsonObject;
             var tag = body?["tag_name"]?.ToString();
-            return (tag != null ? Releases.Numeric(tag) : null, body?["html_url"]?.ToString());
+            return (tag != null ? Releases.NumericPart(tag) : null, body?["html_url"]?.ToString());
         }
 
         private static (DateTimeOffset? CheckedAt, string? Latest, string? Url)? Read(string path)

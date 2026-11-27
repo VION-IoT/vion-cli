@@ -60,8 +60,9 @@ the `update` page and its line in the root's command list.
   installs into; `%LOCALAPPDATA%\Programs\<app>` is where Windows' own per-user installers put an
   application, and a folder of vion's own makes adding it to PATH change nothing but `vion`.
 - `D6` — **The record** is `install.json` in vion's home directory (`VION_HOME`, else `~/.vion`,
-  as for the credentials), one JSON object: `path` (the binary's full path), `version`,
-  `installedBy` (`install.sh`, `install.ps1` or `vion update`) and `installedAt`. It vouches for
+  as for the credentials), one JSON object holding `path`, the binary's full path, and nothing
+  else. Only the install scripts write it: `update` keeps the path, so it leaves the record as it
+  is (amendment 1, item 3, decided by the operator). It vouches for
   the running binary when `path` names the same file as the process's own executable path, after
   both are made full paths, compared case-insensitively on Windows. Decide-and-document. Reason:
   uv's receipt is the precedent (D2) — a receipt in the tool's own config folder plus a check that
@@ -85,8 +86,10 @@ never runs after `update`: the process that just replaced itself still
   Decide-and-document.
 - `D9` — **Existing copies are left alone.** A hand-placed binary, one at `/usr/local/bin` from the
   old README route, or winget's, has no record, so `update` refuses it (exit 2, before any request)
-  naming the package manager's command (`winget upgrade vion` on Windows) and the install
-  one-liner. The one-liner installs a managed copy in the folder of D5; it never deletes or
+  naming the install one-liner and, on Windows, `winget upgrade vion`; on Linux, where no package
+  manager ships vion, it says to update the copy the way it was installed and that an older
+  hand-placed copy, for example in `/usr/local/bin`, can be removed. `update --check` on such a
+  copy prints the same text. The one-liner installs a managed copy in the folder of D5; it never deletes or
   overwrites another copy. Where another `vion` comes first on PATH, the script says where it is and
   how to remove it. Decide-and-document. Reason: a copy the tool did not place may belong to a
   package manager that tracks it; deleting it would desynchronise that manager, and adopting it in
@@ -155,14 +158,11 @@ never runs after `update`: the process that just replaced itself still
 
 ```json
 {
-  "path": "/home/someone/.local/bin/vion",
-  "version": "0.8.0",
-  "installedBy": "install.sh",
-  "installedAt": "2026-11-27T10:00:00Z"
+  "path": "/home/someone/.local/bin/vion"
 }
 ```
 
-Written atomically (a temporary file beside it, moved over it) by all three writers. `install.sh`
+Written atomically (a temporary file beside it, moved over it) by the two install scripts. `install.sh`
 resolves the folder with `pwd -P`, so the path it records is the one the kernel reports as the
 process's executable (`/proc/self/exe` is symlink-free).
 
@@ -172,8 +172,9 @@ process's executable (`/proc/self/exe` is symlink-free).
 vion update [--version <x>] [--check] [--json]
 ```
 
-1. Read the record; refuse (exit 2, D9) unless it vouches for `ExecutablePath`. No request yet.
-   `--check` skips the refusal and reports `managed: false` instead.
+1. Refuse `--dry-run` (exit 2), naming `--check`. Read the record; refuse (exit 2, D9) unless it
+   vouches for `ExecutablePath`. No request yet. `--check` skips the refusal, reports
+   `managed: false` and prints the refusal's text on standard error instead.
 2. Refuse (exit 1) when `Platform` is none: no archive is published for this OS and CPU.
 3. Read `api.github.com/repos/VION-IoT/vion-cli/releases/latest`, or `…/releases/tags/v<x>`; a 404
    on a tag is "no release v<x>".
@@ -194,8 +195,7 @@ vion update [--version <x>] [--check] [--json]
      is written to the system temporary folder instead, and the command fails, printing the line
      that places it — `sudo install -m 0755 <tmp> <path>` on Linux, an administrator
      `Move-Item -Force` on Windows. The binary and the record are untouched.
-9. Rewrite the record: same `path`, the new `version`, `installedBy: vion update`.
-10. Print `old → new`.
+9. Print `old → new`. The record already names the path, so it is left as it is.
 
 ### The install scripts
 
@@ -240,6 +240,16 @@ script block and never calls `exit`, because `irm | iex` runs it in the caller's
   before publication, so the delta lines were reworded with the page.
 - 2026-11-27: `VION_NO_MODIFY_PATH` added to `install.ps1` (D13), so the Windows round trip could
   run here without rewriting this desk's PATH.
+- 2026-11-27: amendment 1, a review round. The operator decided the record holds `path` only, so
+  `update` no longer writes it (`AC-CLI-007.2` MODIFIED; D6). `update --dry-run` had replaced the
+  binary, the recursive global being accepted and ignored: it is refused now (`AC-CLI-007.8`
+  ADDED). The refusal named winget on Linux: it names winget on Windows only and, on Linux, the
+  removal of a hand-placed copy (`AC-CLI-007.3` MODIFIED; D9). `--check` on an unrecorded copy
+  pointed at another command for the advice: it prints the refusal's text (`AC-CLI-007.5`
+  MODIFIED). A timed-out download reported "cancelled."; it is a no-answer failure. Sibling sweep
+  for another recursive global that would change what `update` does when ignored: none. `--wait`
+  is documented as ignored where the answer is the outcome, `--timeout` without `--wait` is refused
+  by `VionCli`, and the context, token and confirmation options name nothing `update` reads. Done.
 
 ---
 
@@ -252,6 +262,10 @@ script block and never calls `exit`, because `irm | iex` runs it in the caller's
 - ADDED AC-CLI-007.5 -> docs/specs/cli.md : WHEN `update --check` runs THE SYSTEM SHALL report the running version, the latest release or the one `--version` names, whether it is newer and whether the install record vouches for the running binary, change nothing on disk, and exit 0.
 - ADDED AC-CLI-007.6 -> docs/specs/cli.md : IF the folder holding the recorded binary refuses the new file THEN THE SYSTEM SHALL leave the binary and the install record as they were, write the verified binary to a temporary file, print the command that places it, `sudo install` on Linux, and exit 1.
 - ADDED AC-CLI-007.7 -> docs/specs/cli.md : WHERE the platform is Windows THE SYSTEM SHALL move the binary `update` replaces aside beside it as `<name>.old`, and remove a `.old` left by an earlier `update`.
+- MODIFIED AC-CLI-007.2 -> docs/specs/cli.md : WHEN `update` runs and the install record vouches for the running binary THE SYSTEM SHALL read the latest release, or the one `--version` names, and where it differs from the running version, newer for the latest, download this platform's archive and its `.sha256`, replace the binary at the recorded path with the archive's, leave the record as it is and print the running and the new version as `old → new`, and otherwise say so and change nothing.
+- MODIFIED AC-CLI-007.3 -> docs/specs/cli.md : IF `update` runs with no install record under the home directory, or one naming a binary other than the running one, THEN THE SYSTEM SHALL refuse before any request, naming the running binary, the install one-liner, `winget upgrade vion` on Windows and on Linux that a copy placed by hand can be removed, and exit 2.
+- MODIFIED AC-CLI-007.5 -> docs/specs/cli.md : WHEN `update --check` runs THE SYSTEM SHALL report the running version, the latest release or the one `--version` names, whether it is newer and whether the install record vouches for the running binary, write on standard error what `update` would refuse with where it does not, change nothing on disk, and exit 0.
+- ADDED AC-CLI-007.8 -> docs/specs/cli.md : IF `update` is given `--dry-run` THEN THE SYSTEM SHALL refuse before any request, naming `vion update --check`, and exit 2.
 - ADDED AC-CLI-009.1 -> docs/specs/cli.md : WHEN `install.sh` or `install.ps1` runs THE SYSTEM SHALL download the latest release's archive for the platform, or `VION_VERSION`'s, verify it against its `.sha256`, place its binary in `VION_INSTALL_DIR`, else `XDG_BIN_HOME` or `~/.local/bin` on Linux and `%LOCALAPPDATA%\Programs\vion` on Windows, and write the install record naming it. GAP: the suite runs no shell script; proven by the pull request's round trip, after merge by a human on clean accounts
 - ADDED AC-CLI-009.2 -> docs/specs/cli.md : IF the release carries no archive or `.sha256` for the platform, or the two do not match, or the install folder is not writable THEN THE SYSTEM SHALL place nothing, name what was missing, mismatched or refused, and end unsuccessfully. GAP: the suite runs no shell script; proven by the pull request's round trip, after merge by a human on clean accounts
 - ADDED AC-CLI-009.3 -> docs/specs/cli.md : WHEN an install script has placed the binary THE SYSTEM SHALL put the install folder first on the user's PATH on Windows unless `VION_NO_MODIFY_PATH` is set, print the line that adds it on Linux where it is not on PATH, and name any other `vion` that comes first on PATH. GAP: the suite runs no shell script; proven by the pull request's round trip, after merge by a human on clean accounts

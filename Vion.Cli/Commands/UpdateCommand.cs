@@ -18,9 +18,15 @@ namespace Vion.Cli.Commands
 {
     /// <summary>
     ///     `vion update [--version x] [--check]`: replaces the binary the install record names with a release's, after
-    ///     its archive matched its `.sha256`, and rewrites the record. A copy the record does not name is refused before
-    ///     any request, because whatever placed it — winget, a person — would no longer know what is installed.
+    ///     its archive matched its `.sha256`. A copy the record does not name is refused before any request, because
+    ///     whatever placed it — winget, a person — would no longer know what is installed.
     /// </summary>
+    /// <remarks>
+    ///     "Windows" is decided twice, on purpose. <see cref="CliServices.Platform" /> names what is published for this
+    ///     binary: the archive's name and format, and the install line and package manager the refusal names. The
+    ///     operating system the process runs on decides how its file system behaves: the rename aside, the executable
+    ///     mode, the command that places a staged binary.
+    /// </remarks>
     internal static class UpdateCommand
     {
         /// <summary>The archive is about ten megabytes; the bound only keeps a stalled connection from hanging the command.</summary>
@@ -46,6 +52,11 @@ namespace Vion.Cli.Commands
 
         private static async Task<int> RunAsync(GlobalValues globals, string? requested, bool check, CliServices services, CancellationToken cancellationToken)
         {
+            if (globals.DryRun)
+            {
+                throw new UsageException("--dry-run: `update` offers no dry run; `vion update --check` reports what it would install.");
+            }
+
             var record = InstallRecord.Read(services);
             var managed = record != null && record.Vouches(services.ExecutablePath);
             if (!managed && !check)
@@ -61,11 +72,11 @@ namespace Vion.Cli.Commands
 
             using var client = Releases.CreateClient(services, Timeout);
             var release = await ReadReleaseAsync(client, requested, cancellationToken);
-            var target = Releases.Numeric(release["tag_name"]!.GetValue<string>(), false);
-            var running = Releases.Numeric(services.Version, false);
+            var target = Releases.WithoutV(release["tag_name"]!.GetValue<string>());
+            var running = Releases.WithoutV(services.Version);
             if (check)
             {
-                return Report(globals, services, running, target, managed);
+                return Report(globals, services, running, target, managed ? null : Refusal(record, services));
             }
 
             // A version asked for by name is installed whenever it is not the running one, which is how a rollback
@@ -74,11 +85,17 @@ namespace Vion.Cli.Commands
             var path = record!.Path;
             if (!differs)
             {
-                services.Out.WriteLine(Output(globals,
-                                              new JsonObject { ["from"] = running, ["to"] = running, ["release"] = target, ["path"] = path, ["updated"] = false },
-                                              requested == null && Releases.IsNewer(running, target) ?
-                                                  $"vion {running} is newer than the latest release, {target}; `vion update --version {target}` installs it." :
-                                                  $"vion {running} is current: the {(requested != null ? "requested" : "latest")} release is {target}."));
+                if (globals.Json)
+                {
+                    Renderer.WriteJson(new JsonObject { ["from"] = running, ["to"] = running, ["release"] = target, ["path"] = path, ["updated"] = false }, services);
+                }
+                else
+                {
+                    services.Out.WriteLine(requested == null && Releases.IsNewer(running, target) ?
+                                               $"vion {running} is newer than the latest release, {target}; `vion update --version {target}` installs it." :
+                                               $"vion {running} is current: the {(requested != null ? "requested" : "latest")} release is {target}.");
+                }
+
                 return ExitCodes.Ok;
             }
 
@@ -91,13 +108,11 @@ namespace Vion.Cli.Commands
 
             // Rendered before the swap: once the file at the running binary's path is the new release, a build that
             // loads code from that file on first use — a single-file build that is not NativeAOT — would load the
-            // other release's.
-            var recordText = InstallRecord.Render(services, path, target, "vion update");
-            var output = Output(globals,
-                                new JsonObject { ["from"] = running, ["to"] = target, ["release"] = target, ["path"] = path, ["updated"] = true },
-                                $"{running} → {target}");
+            // other release's. The record names the path, which the swap keeps, so it is left as it is.
+            var output = globals.Json ?
+                             Renderer.Json(new JsonObject { ["from"] = running, ["to"] = target, ["release"] = target, ["path"] = path, ["updated"] = true }) :
+                             $"{running} → {target}";
             Replace(path, binary, target);
-            Files.WriteAtomically(InstallRecord.Location(services), recordText, false);
             services.Out.WriteLine(output);
             return ExitCodes.Ok;
         }
@@ -110,7 +125,7 @@ namespace Vion.Cli.Commands
             if (requested != null && response.StatusCode == HttpStatusCode.NotFound)
             {
                 throw new
-                    CliFailure($"there is no release v{Releases.Numeric(requested, false)} of vion; the releases are listed at https://github.com/VION-IoT/vion-cli/releases.");
+                    CliFailure($"there is no release v{Releases.WithoutV(requested)} of vion; the releases are listed at https://github.com/VION-IoT/vion-cli/releases.");
             }
 
             if (!response.IsSuccessStatusCode)
@@ -129,7 +144,7 @@ namespace Vion.Cli.Commands
                                                                 CliServices services,
                                                                 CancellationToken cancellationToken)
         {
-            var windows = platform.StartsWith("win", StringComparison.Ordinal);
+            var windows = IsWindows(platform);
             var archiveName = $"vion-{target}-{platform}{(windows ? ".zip" : ".tar.gz")}";
             var archiveUrl = Asset(release, archiveName);
             var checksumUrl = Asset(release, archiveName + ".sha256");
@@ -164,7 +179,6 @@ namespace Vion.Cli.Commands
         private static async Task<byte[]> DownloadAsync(HttpClient client, Uri url, CancellationToken cancellationToken)
         {
             using var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
             using var response = await SendAsync(client, request, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
@@ -183,6 +197,10 @@ namespace Vion.Cli.Commands
             catch (HttpRequestException exception)
             {
                 throw new NoAnswer($"could not reach GitHub for {request.RequestUri}: {exception.Message} Nothing was changed.");
+            }
+            catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+                throw new NoAnswer($"GitHub gave no answer for {request.RequestUri} within {client.Timeout.TotalMinutes:0} minutes. Nothing was changed.");
             }
         }
 
@@ -329,16 +347,22 @@ namespace Vion.Cli.Commands
             var executable = services.ExecutablePath ?? "this vion";
             var why = record == null ? $"no install record ({InstallRecord.Location(services)}) names {executable}" :
                           $"the install record names {record.Path}, not {executable}; to update that one, run `{record.Path} update`";
-            var windows = services.Platform?.StartsWith("win", StringComparison.Ordinal) ?? OperatingSystem.IsWindows();
-            var install = windows ? $"irm {Releases.InstallScriptPs1} | iex" : $"curl -fsSL {Releases.InstallScriptSh} | sh";
-            return
-                $"{why}, so `vion update` leaves it alone. Update it the way it was installed, `winget upgrade vion` for winget's copy, or switch to a managed install with `{install}`.";
+            var windows = services.Platform is { } platform ? IsWindows(platform) : OperatingSystem.IsWindows();
+            return windows ?
+                       $"{why}, so `vion update` leaves it alone. Update it the way it was installed, `winget upgrade vion` for winget's copy, or switch to a managed install with `irm {Releases.InstallScriptPs1} | iex`." :
+                       $"{why}, so `vion update` leaves it alone. Update it the way it was installed, or switch to a managed install with `curl -fsSL {Releases.InstallScriptSh} | sh`; an older copy placed by hand, for example in /usr/local/bin, can then be removed.";
         }
 
-        private static int Report(GlobalValues globals, CliServices services, string running, string target, bool managed)
+        private static bool IsWindows(string platform)
+        {
+            return platform.StartsWith("win", StringComparison.Ordinal);
+        }
+
+        /// <param name="refusal">What `update` would refuse with, for a copy the record does not vouch for; none for one it does.</param>
+        private static int Report(GlobalValues globals, CliServices services, string running, string target, string? refusal)
         {
             var newer = Releases.IsNewer(target, running);
-            var report = new JsonObject { ["running"] = running, ["release"] = target, ["newer"] = newer, ["managed"] = managed, ["path"] = services.ExecutablePath };
+            var report = new JsonObject { ["running"] = running, ["release"] = target, ["newer"] = newer, ["managed"] = refusal == null, ["path"] = services.ExecutablePath };
             if (globals.Json)
             {
                 Renderer.WriteJson(report, services);
@@ -348,9 +372,9 @@ namespace Vion.Cli.Commands
                 Renderer.WriteTable(report, globals, services);
             }
 
-            if (!managed)
+            if (refusal != null)
             {
-                services.Error.WriteLine("no install record names this binary, so `vion update` would refuse it; `vion update` without --check says how to update it instead.");
+                services.Error.WriteLine(refusal);
             }
             else if (newer)
             {
@@ -358,11 +382,6 @@ namespace Vion.Cli.Commands
             }
 
             return ExitCodes.Ok;
-        }
-
-        private static string Output(GlobalValues globals, JsonObject result, string line)
-        {
-            return globals.Json ? Renderer.Json(result) : line;
         }
 
         private static string ShellQuote(string text)

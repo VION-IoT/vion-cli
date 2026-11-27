@@ -35,6 +35,7 @@ namespace Vion.Cli.Test.Commands
             // Arrange
             using var home = new TemporaryHome();
             var binary = Install(home, home.Root);
+            var recordBefore = File.ReadAllText(InstallRecordPath(home));
             var release = new FakeRelease(version, "linux-musl-x64");
             using var handler = release.Handler();
 
@@ -51,10 +52,7 @@ namespace Vion.Cli.Test.Commands
             Assert.AreEqual(releaseUrl, handler.Requests[0].Uri.ToString());
             CollectionAssert.AreEqual(release.Binary, File.ReadAllBytes(binary));
             Assert.AreEqual($"0.1.0 → {version}{Environment.NewLine}", run.Out);
-            var record = Record(home);
-            Assert.AreEqual(binary, record["path"]!.GetValue<string>());
-            Assert.AreEqual(version, record["version"]!.GetValue<string>());
-            Assert.AreEqual("vion update", record["installedBy"]!.GetValue<string>());
+            Assert.AreEqual(recordBefore, File.ReadAllText(InstallRecordPath(home)));
         }
 
         [TestMethod]
@@ -82,7 +80,56 @@ namespace Vion.Cli.Test.Commands
             Assert.HasCount(1, handler.Requests);
             CollectionAssert.AreEqual(before, File.ReadAllBytes(binary));
             StringAssert.StartsWith(run.Out, $"vion {running} is ");
-            Assert.AreEqual("0.0.0", Record(home)["version"]!.GetValue<string>());
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-007.8")]
+        public async Task RefuseDryRun()
+        {
+            // Arrange
+            using var home = new TemporaryHome();
+            var binary = Install(home, home.Root);
+            var before = File.ReadAllBytes(binary);
+            using var handler = new FakeRelease("0.2.0", "linux-musl-x64").Handler();
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          ["update", "--dry-run"],
+                                          home: home.Root,
+                                          time: new FakeTimeProvider(Now),
+                                          version: "0.1.0",
+                                          executablePath: binary);
+
+            // Assert
+            Assert.AreEqual(2, run.ExitCode, run.Error);
+            Assert.IsEmpty(handler.Requests);
+            CollectionAssert.AreEqual(before, File.ReadAllBytes(binary));
+            StringAssert.Contains(run.Error, "`vion update --check`");
+        }
+
+        [TestMethod]
+        [TestProperty("spec", "AC-CLI-003.5")]
+        public async Task FailWithoutChangeWhenGitHubGivesNoAnswerInTime()
+        {
+            // Arrange
+            using var home = new TemporaryHome();
+            var binary = Install(home, home.Root);
+            var before = File.ReadAllBytes(binary);
+            using var handler = new RecordingHandler(_ => throw new TaskCanceledException("timed out", new TimeoutException()));
+
+            // Act
+            var run = await Tool.RunAsync(handler,
+                                          ["update"],
+                                          home: home.Root,
+                                          time: new FakeTimeProvider(Now),
+                                          version: "0.1.0",
+                                          executablePath: binary);
+
+            // Assert
+            Assert.AreEqual(1, run.ExitCode, run.Error);
+            CollectionAssert.AreEqual(before, File.ReadAllBytes(binary));
+            Assert.AreEqual($"error: GitHub gave no answer for https://api.github.com/repos/VION-IoT/vion-cli/releases/latest within 10 minutes. Nothing was changed.{Environment.NewLine}",
+                            run.Error);
         }
 
         [TestMethod]
@@ -137,8 +184,9 @@ namespace Vion.Cli.Test.Commands
             Assert.IsEmpty(handler.Requests);
             CollectionAssert.AreEqual(before, File.ReadAllBytes(binary));
             StringAssert.Contains(run.Error, binary);
-            StringAssert.Contains(run.Error, "`winget upgrade vion`");
             StringAssert.Contains(run.Error, "`curl -fsSL https://github.com/VION-IoT/vion-cli/releases/latest/download/install.sh | sh`");
+            StringAssert.Contains(run.Error, "/usr/local/bin");
+            Assert.IsFalse(run.Error.Contains("winget", StringComparison.Ordinal), run.Error);
         }
 
         [TestMethod]
@@ -167,13 +215,12 @@ namespace Vion.Cli.Test.Commands
             CollectionAssert.AreEqual(before, File.ReadAllBytes(binary));
             StringAssert.Contains(run.Error, binary);
             StringAssert.Contains(run.Error, $"`{other} update`");
-            StringAssert.Contains(run.Error, "`winget upgrade vion`");
             StringAssert.Contains(run.Error, "`curl -fsSL https://github.com/VION-IoT/vion-cli/releases/latest/download/install.sh | sh`");
         }
 
         [TestMethod]
         [TestProperty("spec", "AC-CLI-007.3")]
-        public async Task NameWindowsInstallScriptInRefusalOnWindows()
+        public async Task NameWingetAndWindowsInstallScriptInRefusalOnWindows()
         {
             // Arrange
             using var home = new TemporaryHome();
@@ -192,6 +239,7 @@ namespace Vion.Cli.Test.Commands
 
             // Assert
             Assert.AreEqual(2, run.ExitCode, run.Error);
+            StringAssert.Contains(run.Error, "`winget upgrade vion`");
             StringAssert.Contains(run.Error, "`irm https://github.com/VION-IoT/vion-cli/releases/latest/download/install.ps1 | iex`");
         }
 
@@ -340,6 +388,7 @@ namespace Vion.Cli.Test.Commands
             Assert.AreEqual("0.2.0", report["release"]!.GetValue<string>());
             Assert.IsTrue(report["newer"]!.GetValue<bool>());
             Assert.IsFalse(report["managed"]!.GetValue<bool>());
+            StringAssert.StartsWith(run.Error, $"no install record ({InstallRecordPath(home)}) names {binary}, so `vion update` leaves it alone.");
             CollectionAssert.AreEqual(before, File.ReadAllBytes(binary));
             CollectionAssert.AreEqual(listingBefore, Listing(home.Root));
         }
@@ -435,22 +484,12 @@ namespace Vion.Cli.Test.Commands
 
         private static void WriteRecord(TemporaryHome home, string path)
         {
-            home.Write("install.json",
-                       new JsonObject
-                       {
-                           ["path"] = path, ["version"] = "0.0.0", ["installedBy"] = "install.sh",
-                           ["installedAt"] = Now.ToString("o", System.Globalization.CultureInfo.InvariantCulture),
-                       }.ToJsonString());
+            home.Write("install.json", new JsonObject { ["path"] = path }.ToJsonString());
         }
 
         private static string InstallRecordPath(TemporaryHome home)
         {
             return Path.Combine(home.Root, "install.json");
-        }
-
-        private static JsonNode Record(TemporaryHome home)
-        {
-            return JsonNode.Parse(File.ReadAllText(InstallRecordPath(home)))!;
         }
 
         private static string[] Listing(string folder)

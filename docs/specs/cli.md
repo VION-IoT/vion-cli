@@ -125,18 +125,20 @@ permissions as the dashboard does; `api` is the raw call for anything the tree d
 `vion` is installed by one line, `curl -fsSL …/install.sh | sh` on Linux or
 `irm …/install.ps1 | iex` on Windows, both served from the latest release's downloads, into a folder
 of the user's own with no root and no administrator. The script writes an **install record**,
-`install.json` under the home directory, naming the binary it placed; `update` writes it too. The
-record vouches for the running binary when it names the process's own executable path. Only a binary
+`install.json` under the home directory, holding the path of the binary it placed and nothing else;
+`update` replaces the binary at that path and leaves the record as it is. The record vouches for the
+running binary when it names the process's own executable path. Only a binary
 the record vouches for is replaced, and nothing on disk changes before the archive matched its
 `.sha256`. A copy anything else placed is left to whatever placed it.
 
 - `AC-CLI-007.1` (Event-driven): WHEN a command other than `update` runs on a terminal and the last check is older than a day THE SYSTEM SHALL read the latest release once, cache the result under its home directory, and name a newer version on standard error, with `vion update` where the install record vouches for the running binary and the release page otherwise.
-- `AC-CLI-007.2` (Event-driven): WHEN `update` runs and the install record vouches for the running binary THE SYSTEM SHALL read the latest release, or the one `--version` names, and where it differs from the running version, newer for the latest, download this platform's archive and its `.sha256`, replace the binary at the recorded path with the archive's, write the new version into the record and print the running and the new version as `old → new`, and otherwise say so and change nothing.
-- `AC-CLI-007.3` (Unwanted): IF `update` runs with no install record under the home directory, or one naming a binary other than the running one, THEN THE SYSTEM SHALL refuse before any request, naming the running binary, a package manager's upgrade command and the install one-liner, and exit 2.
+- `AC-CLI-007.2` (Event-driven): WHEN `update` runs and the install record vouches for the running binary THE SYSTEM SHALL read the latest release, or the one `--version` names, and where it differs from the running version, newer for the latest, download this platform's archive and its `.sha256`, replace the binary at the recorded path with the archive's, leave the record as it is and print the running and the new version as `old → new`, and otherwise say so and change nothing.
+- `AC-CLI-007.3` (Unwanted): IF `update` runs with no install record under the home directory, or one naming a binary other than the running one, THEN THE SYSTEM SHALL refuse before any request, naming the running binary, the install one-liner, `winget upgrade vion` on Windows and on Linux that a copy placed by hand can be removed, and exit 2.
 - `AC-CLI-007.4` (Unwanted): IF no archive is published for this platform, the release carries no archive or no `.sha256` for it, or the archive does not match its `.sha256`, THEN THE SYSTEM SHALL leave the binary and the install record as they were, name what is missing or both checksums, and exit 1.
-- `AC-CLI-007.5` (Event-driven): WHEN `update --check` runs THE SYSTEM SHALL report the running version, the latest release or the one `--version` names, whether it is newer and whether the install record vouches for the running binary, change nothing on disk, and exit 0.
+- `AC-CLI-007.5` (Event-driven): WHEN `update --check` runs THE SYSTEM SHALL report the running version, the latest release or the one `--version` names, whether it is newer and whether the install record vouches for the running binary, write on standard error what `update` would refuse with where it does not, change nothing on disk, and exit 0.
 - `AC-CLI-007.6` (Unwanted): IF the folder holding the recorded binary refuses the new file THEN THE SYSTEM SHALL leave the binary and the install record as they were, write the verified binary to a temporary file, print the command that places it, `sudo install` on Linux, and exit 1.
 - `AC-CLI-007.7` (Optional): WHERE the platform is Windows THE SYSTEM SHALL move the binary `update` replaces aside beside it as `<name>.old`, and remove a `.old` left by an earlier `update`.
+- `AC-CLI-007.8` (Unwanted): IF `update` is given `--dry-run` THEN THE SYSTEM SHALL refuse before any request, naming `vion update --check`, and exit 2.
 
 The install scripts take `VION_VERSION`, a release to install, `VION_INSTALL_DIR`, the folder,
 `VION_HOME`, where the record goes, and `VION_NO_MODIFY_PATH`.
