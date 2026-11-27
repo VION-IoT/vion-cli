@@ -12,8 +12,8 @@
 #   VION_HOME         vion's home directory, where the record goes; ~/.vion when unset
 #
 # The record, $VION_HOME/install.json, names the binary's full path: `vion update` replaces only
-# a binary a record names. Another vion on this machine — one in /usr/local/bin, a hand-placed
-# copy — is left as it is; the script says when one comes first on PATH.
+# a binary a record names. Another vion on this machine, one in /usr/local/bin, a hand-placed
+# copy, is left as it is; the script says when one comes first on PATH.
 #
 # Everything runs inside main, called on the last line, so a download cut short runs nothing.
 
@@ -62,7 +62,9 @@ main() {
     url=$repo/releases/download/v$version/$archive
 
     tmp=$(mktemp -d)
-    trap 'rm -rf "$tmp"' EXIT
+    staged=
+    record=
+    trap 'rm -rf "$tmp"; rm -f ${staged:+"$staged"} ${record:+"$record"}' EXIT
     trap 'exit 1' INT TERM
 
     say "downloading $archive"
@@ -89,15 +91,21 @@ main() {
     target=$dir/vion
 
     # A file beside the target, renamed over it: the rename is atomic, and a vion running from
-    # the old file keeps running.
-    cp "$tmp/vion" "$dir/.vion.$$.tmp"
-    chmod 0755 "$dir/.vion.$$.tmp"
-    mv -f "$dir/.vion.$$.tmp" "$target"
+    # the old file keeps running. mktemp names it unpredictably and creates it itself, so a name
+    # planted in the folder beforehand is never written through.
+    staged=$(mktemp "$dir/.vion.XXXXXXXX")
+    cp "$tmp/vion" "$staged"
+    chmod 0755 "$staged"
+    mv -f "$staged" "$target"
 
-    mkdir -p "$home"
+    # The home directory also holds the credentials, so a folder this script creates is the
+    # owner's alone, as vion creates it.
+    (umask 077 && mkdir -p "$home")
+    record=$(mktemp "$home/install.json.XXXXXXXX")
     printf '{\n  "path": "%s",\n  "version": "%s",\n  "installedBy": "install.sh",\n  "installedAt": "%s"\n}\n' \
-        "$(json "$target")" "$version" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$home/install.json.$$.tmp"
-    mv -f "$home/install.json.$$.tmp" "$home/install.json"
+        "$(json "$target")" "$version" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$record"
+    chmod 0644 "$record"
+    mv -f "$record" "$home/install.json"
 
     say "installed vion $version at $target"
 
